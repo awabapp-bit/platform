@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid",
+        "isAdmin": {
+          ".write": false
+        }
+      }
+    },
+    "competitions": {
+      ".read": "auth !== null",
+      ".write": "auth !== null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "userProgress": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    }
+  }
+}
