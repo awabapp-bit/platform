@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>الفيديو — منصة أواب الإلكترونية</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header" id="appHeader"></header>
+
+<main class="page" style="max-width:760px;">
+  <a class="back-link" id="backLink" href="competition.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> رجوع للمحاضرة</a>
+  <h1 class="page-title" id="videoTitle">جارٍ التحميل...</h1>
+
+  <div id="content">
+    <div class="center-loading"><div class="loader"></div></div>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="icons.js"></script>
+<script src="app-shell.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const compId = params.get('comp');
+  const lessonId = params.get('lesson');
+  const videoId = params.get('video');
+  if (!compId || !lessonId || !videoId) window.location.href = 'home.html';
+
+  document.getElementById('backLink').href = 'competition.html?id=' + encodeURIComponent(compId);
+
+  let currentUser = null;
+  let currentUserData = null;
+
+  requireAuth(function (user, userData) {
+    currentUser = user;
+    currentUserData = userData;
+    renderAppHeader(userData, { showPoints: true });
+    renderFooter();
+    load();
+  });
+
+  function load() {
+    db.ref('competitions/' + compId).once('value').then(function (snap) {
+      if (!snap.exists()) { window.location.href = 'home.html'; return; }
+      const compData = snap.val();
+      const lessons = compData.lessons || {};
+      const lesson = lessons[lessonId];
+      if (!lesson || !lesson.videos || !lesson.videos[videoId]) { window.location.href = 'competition.html?id=' + encodeURIComponent(compId); return; }
+
+      db.ref('userProgress/' + currentUser.uid + '/' + compId).once('value').then(function (pSnap) {
+        const progressData = pSnap.val() || {};
+        const access = getLessonAccessState(lessons, progressData, lessonId);
+        const content = document.getElementById('content');
+
+        if (!access.allowed) {
+          document.getElementById('videoTitle').textContent = 'محتوى مغلق';
+          const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
+          content.innerHTML =
+            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);">' + icon('lock', 'icon-xl') + '</div>' +
+            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا المحتوى مغلق</h3><p class="muted">' + reasonText + '</p></div>';
+          return;
+        }
+
+        const video = lesson.videos[videoId];
+        document.getElementById('videoTitle').textContent = video.title || 'فيديو الشرح';
+        renderVideo(video, lesson);
+      });
+    });
+  }
+
+  function renderVideo(video, lesson) {
+    const content = document.getElementById('content');
+    const ytId = extractYouTubeId(video.url);
+
+    let html = '';
+    if (ytId) {
+      html += '<div class="video-solo-wrap"><iframe src="https://www.youtube.com/embed/' + ytId + '" title="فيديو" allow="accelerated-video; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>';
+    } else {
+      html += '<p class="muted">تعذر تحميل الفيديو</p>';
+    }
+
+    html += '<div class="video-toolbar"><button class="btn btn-outline btn-sm" id="shareBtn" style="width:auto;">' + icon('shareNodes', 'icon-sm') + ' مشاركة</button></div>';
+
+    html += '<div class="comments-section">' +
+      '<h3>' + icon('comment', 'icon-md') + ' الأسئلة والتعليقات</h3>' +
+      '<div class="comment-form">' +
+        '<input type="text" id="commentInput" placeholder="اكتب سؤالك أو تعليقك هنا...">' +
+        '<button class="btn btn-primary btn-sm" id="sendCommentBtn" style="width:auto;">إرسال</button>' +
+      '</div>' +
+      '<div class="comment-list" id="commentList"><div class="center-loading" style="min-height:60px;"><div class="loader"></div></div></div>' +
+    '</div>';
+
+    content.innerHTML = html;
+
+    // تسجيل المشاهدة تلقائيًا وتحديث حالة اكتمال المحاضرة
+    const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
+    progRef.child('videos/' + videoId + '/watched').set(true).then(function () {
+      progRef.once('value').then(function (snap) {
+        const lp = snap.val() || {};
+        const c = computeLessonCompletion(lesson, lp);
+        progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
+      });
+    });
+
+    document.getElementById('shareBtn').addEventListener('click', function () {
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({ title: document.getElementById('videoTitle').textContent, url: url }).catch(function () {});
+      } else {
+        navigator.clipboard.writeText(url).then(function () {
+          const btn = document.getElementById('shareBtn');
+          const old = btn.innerHTML;
+          btn.innerHTML = icon('check', 'icon-sm') + ' تم نسخ الرابط';
+          setTimeout(function () { btn.innerHTML = old; }, 1800);
+        });
+      }
+    });
+
+    loadComments();
+    document.getElementById('sendCommentBtn').addEventListener('click', sendComment);
+    document.getElementById('commentInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') sendComment();
+    });
+  }
+
+  function commentsRef() {
+    return db.ref('competitions/' + compId + '/lessons/' + lessonId + '/videos/' + videoId + '/comments');
+  }
+
+  function loadComments() {
+    commentsRef().on('value', function (snap) {
+      const data = snap.val() || {};
+      const ids = Object.keys(data).sort(function (a, b) { return (data[a].createdAt || 0) - (data[b].createdAt || 0); });
+      const list = document.getElementById('commentList');
+      if (ids.length === 0) {
+        list.innerHTML = '<p class="muted" style="font-size:13px;">لا توجد تعليقات بعد، كن أول من يعلّق.</p>';
+        return;
+      }
+      list.innerHTML = ids.map(function (id) {
+        const c = data[id];
+        const initial = (c.name || '؟').trim().charAt(0);
+        return '<div class="comment-card">' +
+          '<div class="c-head"><span class="c-avatar">' + escapeHtml(initial) + '</span>' +
+          '<span class="c-name">' + escapeHtml(c.name || 'مستخدم') + '</span>' +
+          '<span class="c-time">' + formatArabicDate(c.createdAt) + '</span></div>' +
+          '<p class="c-text">' + escapeHtml(c.text) + '</p>' +
+        '</div>';
+      }).join('');
+    });
+  }
+
+  function sendComment() {
+    const input = document.getElementById('commentInput');
+    const text = input.value.trim();
+    if (!text) return;
+    commentsRef().push({
+      uid: currentUser.uid,
+      name: currentUserData.name || 'مستخدم',
+      text: text,
+      createdAt: firebase.database.ServerValue.TIMESTAMP
+    }).then(function () { input.value = ''; });
+  }
+</script>
+</body>
+</html>

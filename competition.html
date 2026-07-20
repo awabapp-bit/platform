@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>المسابقة — منصة أواب الإلكترونية</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header" id="appHeader"></header>
+
+<main class="page">
+  <a class="back-link" href="home.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> كل المسابقات</a>
+
+  <div id="courseHero"></div>
+
+  <h2 style="font-family:'Amiri',serif; color:var(--primary-dark); font-size:19px; margin:0 0 14px;">المحاضرات</h2>
+
+  <div id="lessonsWrap">
+    <div class="center-loading"><div class="loader"></div></div>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="icons.js"></script>
+<script src="app-shell.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const compId = params.get('id');
+  if (!compId) window.location.href = 'home.html';
+
+  let compData = null;
+  let progressData = {};
+
+  requireAuth(function (user, userData) {
+    renderAppHeader(userData, { showPoints: true });
+    renderFooter();
+
+    db.ref('userProgress/' + user.uid + '/' + compId).on('value', function (snap) {
+      progressData = snap.val() || {};
+      if (compData) render();
+    });
+
+    db.ref('competitions/' + compId).on('value', function (snap) {
+      if (!snap.exists()) { window.location.href = 'home.html'; return; }
+      compData = snap.val();
+      render();
+    });
+  });
+
+  function render() {
+    renderHero();
+    renderLessons();
+  }
+
+  function renderHero() {
+    const hero = document.getElementById('courseHero');
+    hero.innerHTML =
+      '<div class="course-hero">' +
+        (compData.coverUrl ? '<img class="hero-img" src="' + escapeHtml(compData.coverUrl) + '" alt="">' : '') +
+        '<div class="hero-body">' +
+          '<h1>' + escapeHtml(compData.title || 'مسابقة') + '</h1>' +
+          (compData.description ? '<p>' + escapeHtml(compData.description) + '</p>' : '') +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderLessons() {
+    const wrap = document.getElementById('lessonsWrap');
+    const lessons = compData.lessons || {};
+    const ids = Object.keys(lessons);
+
+    if (ids.length === 0) {
+      wrap.innerHTML =
+        '<div class="empty-state"><div class="empty-state-icon">' + icon('video', 'icon-xl') + '</div><p>لا توجد محاضرات مضافة بعد لهذه المسابقة</p></div>';
+      return;
+    }
+
+    const now = Date.now();
+    let html = '';
+    ids.forEach(function (lessonId, index) {
+      const lesson = lessons[lessonId];
+      const lessonProgress = progressData[lessonId] || {};
+      const done = !!lessonProgress.completed;
+      const access = getLessonAccessState(lessons, progressData, lessonId);
+      const isLocked = !access.allowed;
+
+      const videos = lesson.videos || {};
+      const exams = lesson.exams || {};
+      const videoIds = Object.keys(videos);
+      const examIds = Object.keys(exams);
+
+      let lockNote = '';
+      if (access.reason === 'release') {
+        lockNote = '<span class="lesson-lock-msg">' + icon('clock', 'icon-sm') + ' يُنشر في ' + formatArabicDate(lesson.releaseAt) + '</span>';
+      } else if (access.reason === 'sequence') {
+        lockNote = '<span class="lesson-lock-msg">' + icon('lock', 'icon-sm') + ' أكمِل المحاضرة السابقة أولاً</span>';
+      }
+
+      let bodyItems = '';
+      videoIds.forEach(function (vid, vi) {
+        const v = videos[vid];
+        const watched = !!(lessonProgress.videos && lessonProgress.videos[vid] && lessonProgress.videos[vid].watched);
+        bodyItems +=
+          '<a class="content-item video-item" href="video.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&video=' + encodeURIComponent(vid) + '">' +
+            '<span class="ci-left"><span class="ci-icon">' + icon('play', 'icon-sm') + '</span>' + escapeHtml(v.title || ('فيديو الشرح ' + (vi + 1))) + '</span>' +
+            '<span class="ci-right">' + (watched ? icon('check', 'icon-sm') + ' تمت المشاهدة' : 'مشاهدة') + '</span>' +
+          '</a>';
+      });
+      examIds.forEach(function (eid, ei) {
+        const ex = exams[eid];
+        const qCount = ex.questions ? Object.keys(ex.questions).length : 0;
+        const examProgress = lessonProgress.exams && lessonProgress.exams[eid];
+        const examDone = !!(examProgress && examProgress.completed);
+        bodyItems +=
+          '<a class="content-item exam-item" href="exam.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&exam=' + encodeURIComponent(eid) + '">' +
+            '<span class="ci-left"><span class="ci-icon">' + icon('listCheck', 'icon-sm') + '</span>' + escapeHtml(ex.title || ('الاختبار ' + (ei + 1))) + '</span>' +
+            '<span class="ci-right">' + (examDone ? icon('check', 'icon-sm') + ' أنجزت +' + (examProgress.earnedPoints || 0) : qCount + ' سؤال · ابدأ') + '</span>' +
+          '</a>';
+      });
+      if (!bodyItems) {
+        bodyItems = '<p class="muted" style="font-size:12.5px; padding:8px 4px;">لا يوجد محتوى في هذه المحاضرة بعد.</p>';
+      }
+
+      html +=
+        '<div class="accordion-lesson" data-lesson="' + lessonId + '">' +
+          '<button class="accordion-header" ' + (isLocked ? 'disabled' : '') + '>' +
+            '<span class="lesson-info">' +
+              '<span class="lesson-num ' + (done ? 'done' : '') + '">' +
+                (done ? icon('check', 'icon-sm') : (isLocked ? icon('lock', 'icon-sm') : (index + 1))) +
+              '</span>' +
+              '<span><h4 style="margin:0 0 3px; font-size:15px;">' + escapeHtml(lesson.title || 'محاضرة') + '</h4>' +
+                (isLocked ? lockNote : '<span style="font-size:12px; color:var(--text-muted);">' + videoIds.length + ' فيديو · ' + examIds.length + ' اختبار' + (done ? ' · تم الإنجاز' : '') + '</span>') +
+              '</span>' +
+            '</span>' +
+            (isLocked ? '' : '<span class="chevron">' + icon('chevronDown', 'icon-sm') + '</span>') +
+          '</button>' +
+          (isLocked ? '' : '<div class="accordion-body"><div class="accordion-body-inner">' + bodyItems + '</div></div>') +
+        '</div>';
+    });
+
+    wrap.innerHTML = html;
+
+    wrap.querySelectorAll('.accordion-header:not([disabled])').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btn.closest('.accordion-lesson').classList.toggle('open');
+        const body = btn.nextElementSibling;
+        if (body) {
+          body.style.maxHeight = btn.closest('.accordion-lesson').classList.contains('open') ? body.scrollHeight + 'px' : '0px';
+        }
+      });
+    });
+  }
+</script>
+</body>
+</html>
