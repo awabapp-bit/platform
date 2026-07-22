@@ -241,9 +241,7 @@
     btn.disabled = true;
     btn.textContent = 'جارٍ الإرسال...';
 
-    auth.sendPasswordResetEmail(email, {
-      url: new URL('reset-password.html', window.location.href).href
-    })
+    auth.sendPasswordResetEmail(email)
       .then(function () {
         forgotStepConfirm.style.display = 'none';
         forgotStepDone.style.display = 'block';
