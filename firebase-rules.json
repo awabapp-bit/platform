@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        "isAdmin": {
+          ".write": "!data.exists()"
+        }
+      }
+    },
+    "competitions": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "$compId": {
+        "lessons": {
+          "$lessonId": {
+            "videos": {
+              "$videoId": {
+                "comments": {
+                  "$commentId": {
+                    ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && data.child('uid').val() === auth.uid && !newData.child('adminReply').exists()))",
+                    "adminReply": {
+                      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "userProgress": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
+      }
+    }
+  }
+}
