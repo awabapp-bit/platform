@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>الرئيسية — منصة أواب الإلكترونية</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header" id="appHeader"></header>
+
+<main class="page">
+  <h1 class="page-title">المحتوى التعليمي</h1>
+  <p class="page-sub">كورسات ومسابقات لتطوير مستواك وجمع النقاط</p>
+
+  <div id="content">
+    <div class="center-loading"><div class="loader"></div></div>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="icons.js"></script>
+<script src="app-shell.js"></script>
+<script>
+  let currentUserId = null;
+  let enrollments = {};
+  let progressByComp = {};
+  let competitionsData = null;
+
+  requireAuth(function (user, userData) {
+    currentUserId = user.uid;
+    renderAppHeader(user, userData, { showPoints: true });
+    renderFooter();
+
+    db.ref('userEnrollments/' + user.uid).on('value', function (snap) {
+      enrollments = snap.val() || {};
+      if (competitionsData) {
+        renderCompetitions();
+        checkAndNotifyReleasedLessons(user.uid, enrollments, competitionsData);
+      }
+    });
+    db.ref('userProgress/' + user.uid).on('value', function (snap) {
+      progressByComp = snap.val() || {};
+      if (competitionsData) renderCompetitions();
+    });
+
+    loadCompetitions();
+  });
+
+  function loadCompetitions() {
+    db.ref('competitions').on('value', function (snap) {
+      competitionsData = snap.val() || {};
+      renderCompetitions();
+      if (currentUserId) checkAndNotifyReleasedLessons(currentUserId, enrollments, competitionsData);
+    });
+  }
+
+  function renderCompetitions() {
+    const content = document.getElementById('content');
+    const data = competitionsData || {};
+    const ids = Object.keys(data);
+
+    if (ids.length === 0) {
+      content.innerHTML =
+        '<div class="empty-state"><div class="empty-state-icon">' + icon('trophy', 'icon-xl') + '</div>' +
+        '<p>لا يوجد محتوى متاح حاليًا، تابعنا قريبًا</p></div>';
+      return;
+    }
+
+    let html = '<div class="grid">';
+    ids.forEach(function (id) {
+      const c = data[id];
+      const lessons = c.lessons || {};
+      const lessonsCount = Object.keys(lessons).length;
+      const isCourse = c.type !== 'competition';
+      const typeLabel = isCourse ? 'كورس' : 'مسابقة';
+      const typeIcon = isCourse ? 'bookOpen' : 'trophy';
+      const isEnrolled = !!enrollments[id];
+      const pct = isEnrolled ? computeCourseProgress(lessons, progressByComp[id] || {}) : 0;
+      const ctaLabel = isEnrolled ? 'متابعة التعلم' : (isCourse ? 'اشتراك في الكورس' : 'انضمام للمسابقة');
+
+      html +=
+        '<a class="comp-card ' + (isEnrolled ? 'is-enrolled' : '') + '" href="competition.html?id=' + encodeURIComponent(id) + '">' +
+          '<div class="cover">' +
+            '<span class="content-type-badge ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
+            (isEnrolled ? '<span class="enrolled-ribbon">' + icon('check', 'icon-sm') + ' أنت مشترك بالفعل</span>' : '') +
+            (c.coverUrl
+              ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="">'
+              : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
+          '</div>' +
+          '<div class="body">' +
+            '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
+            (c.description ? '<p>' + escapeHtml(truncateText(c.description, 90)) + '</p>' : '') +
+            '<div class="meta">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</div>' +
+            (isEnrolled ?
+              '<div class="card-progress-wrap">' +
+                '<div class="card-progress-bar"><div class="card-progress-fill" style="width:' + pct + '%;"></div></div>' +
+                '<span class="card-progress-pct">' + pct + '%</span>' +
+              '</div>' : ''
+            ) +
+            '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' btn-sm" style="margin-top:6px;">' + ctaLabel + '</span>' +
+          '</div>' +
+        '</a>';
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  }
+
+  function truncateText(text, max) {
+    if (!text || text.length <= max) return text;
+    return text.slice(0, max).trim() + '…';
+  }
+</script>
+</body>
+</html>

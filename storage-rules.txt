@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /materials/{compId}/{lessonId}/{fileName} {
+      // القراءة متاحة لأي مستخدم مسجل دخول
+      allow read: if request.auth != null;
+
+      // الكتابة: أي مستخدم مسجل دخول (ملاحظة أمان أدناه)، بشرط أن يكون
+      // الملف صورة أو PDF فقط، وحجمه أقل من 20 ميجابايت
+      allow write: if request.auth != null
+                   && request.resource.size < 20 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*')
+                       || request.resource.contentType == 'application/pdf');
+    }
+  }
+}
