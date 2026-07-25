@@ -600,7 +600,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   padding: 16px 18px;
   margin-bottom: 12px;
 }
-.lesson-info { display: flex; align-items: center; gap: 14px; }
+.lesson-info { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 auto; }
+.lesson-info > span:last-child { min-width: 0; overflow: hidden; }
+.lesson-info h4 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lesson-num {
   width: 36px; height: 36px; border-radius: 50%;
   background: var(--gold-pale); color: var(--gold);
@@ -1254,11 +1256,11 @@ a.lesson-row.locked { cursor: not-allowed; }
 .accordion-header .chevron { color: var(--text-muted); transition: transform .2s ease; flex-shrink: 0; }
 .accordion-lesson.open .accordion-header .chevron { transform: rotate(180deg); }
 .accordion-body {
-  display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease;
+  max-height: 0; overflow: hidden; transition: max-height .3s ease;
   border-top: 1px solid transparent;
 }
-.accordion-lesson.open .accordion-body { grid-template-rows: 1fr; border-top-color: var(--border); }
-.accordion-body-inner { min-height: 0; overflow: hidden; padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 8px; }
+.accordion-lesson.open .accordion-body { max-height: 3000px; border-top-color: var(--border); }
+.accordion-body-inner { padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 8px; }
 
 .content-item {
   display: flex; align-items: center; justify-content: space-between;
@@ -1297,6 +1299,14 @@ a.lesson-row.locked { cursor: not-allowed; }
   margin-bottom: 16px;
 }
 .video-solo-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-solo-wrap:fullscreen,
+.video-solo-wrap:-webkit-full-screen {
+  width: 100vw; height: 100vh; aspect-ratio: unset; display: flex; align-items: center; justify-content: center;
+}
+.video-solo-wrap:fullscreen #ytPlayerMount,
+.video-solo-wrap:-webkit-full-screen #ytPlayerMount { width: 100%; height: 100%; }
+.video-solo-wrap:fullscreen .custom-controls,
+.video-solo-wrap:-webkit-full-screen .custom-controls { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 /* دعم المتصفحات القديمة التي لا تدعم aspect-ratio */
 @supports not (aspect-ratio: 16 / 9) {
   .video-solo-wrap { padding-top: 56.25%; height: 0; }
@@ -1304,6 +1314,35 @@ a.lesson-row.locked { cursor: not-allowed; }
 
 /* ---------- شريط تحكم مخصص لليوتيوب (بدل عناصر التحكم الأصلية) ---------- */
 .player-click-catcher { position: absolute; inset: 0; z-index: 2; cursor: pointer; background: transparent; }
+
+/* إخفاء شعار يوتيوب الظاهر في الركن أثناء التشغيل */
+.yt-logo-mask {
+  position: absolute; bottom: 0; inset-inline-end: 0;
+  width: 90px; height: 42px; z-index: 5; background: #000; pointer-events: none;
+}
+
+/* إخفاء اسم القناة والعنوان وأزرار المشاركة/المعلومات اللي يوتيوب بيظهرها أعلى الفيديو */
+.yt-top-mask {
+  position: absolute; top: 0; left: 0; right: 0; height: 64px; z-index: 5;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+}
+
+/* واجهتنا الخاصة بدل شاشة الفيديوهات المقترحة من يوتيوب عند انتهاء الفيديو */
+.video-end-overlay {
+  position: absolute; inset: 0; z-index: 6;
+  background: rgba(18,52,36,0.92);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+}
+.video-end-overlay.show { opacity: 1; pointer-events: auto; }
+.replay-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gold); color: #fff; border: none; border-radius: 999px;
+  padding: 12px 22px; font-family: inherit; font-size: 14.5px; font-weight: 700;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.replay-btn:hover { background: var(--gold-light); }
 .custom-controls {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
   padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
@@ -1355,6 +1394,8 @@ a.lesson-row.locked { cursor: not-allowed; }
   .ctrl-icon-btn { width: 28px; height: 28px; }
   .ctrl-icon-btn svg { width: 16px; height: 16px; }
   .volume-slider { width: 40px; height: 28px; }
+  .yt-top-mask { height: 46px; }
+  .yt-logo-mask { width: 70px; height: 32px; }
 }
 
 @media (max-width: 360px) {
