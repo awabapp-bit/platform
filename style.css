@@ -600,7 +600,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   padding: 16px 18px;
   margin-bottom: 12px;
 }
-.lesson-info { display: flex; align-items: center; gap: 14px; }
+.lesson-info { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 auto; }
+.lesson-info > span:last-child { min-width: 0; overflow: hidden; }
+.lesson-info h4 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lesson-num {
   width: 36px; height: 36px; border-radius: 50%;
   background: var(--gold-pale); color: var(--gold);
@@ -1312,6 +1314,28 @@ a.lesson-row.locked { cursor: not-allowed; }
 
 /* ---------- شريط تحكم مخصص لليوتيوب (بدل عناصر التحكم الأصلية) ---------- */
 .player-click-catcher { position: absolute; inset: 0; z-index: 2; cursor: pointer; background: transparent; }
+
+/* إخفاء شعار يوتيوب الظاهر في الركن أثناء التشغيل */
+.yt-logo-mask {
+  position: absolute; bottom: 0; inset-inline-end: 0;
+  width: 90px; height: 42px; z-index: 5; background: #000; pointer-events: none;
+}
+
+/* واجهتنا الخاصة بدل شاشة الفيديوهات المقترحة من يوتيوب عند انتهاء الفيديو */
+.video-end-overlay {
+  position: absolute; inset: 0; z-index: 6;
+  background: rgba(18,52,36,0.92);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+}
+.video-end-overlay.show { opacity: 1; pointer-events: auto; }
+.replay-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gold); color: #fff; border: none; border-radius: 999px;
+  padding: 12px 22px; font-family: inherit; font-size: 14.5px; font-weight: 700;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.replay-btn:hover { background: var(--gold-light); }
 .custom-controls {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
   padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));

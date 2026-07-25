@@ -100,6 +100,10 @@
       html += '<div class="video-solo-wrap" id="videoWrap">' +
           '<div id="ytPlayerMount"></div>' +
           '<div class="player-click-catcher" id="playerClickCatcher"></div>' +
+          '<div class="yt-logo-mask"></div>' +
+          '<div class="video-end-overlay" id="videoEndOverlay">' +
+            '<button type="button" class="replay-btn" id="replayBtn">' + icon('rotateLeft', 'icon-md') + ' إعادة المشاهدة</button>' +
+          '</div>' +
           '<div class="custom-controls" id="customControls">' +
             '<div class="progress-track" id="progressTrack"><div class="progress-groove"></div><div class="progress-fill" id="progressFill"></div></div>' +
             '<div class="controls-row">' +
@@ -203,6 +207,11 @@
 
     document.getElementById('playerClickCatcher').addEventListener('click', togglePlay);
     document.getElementById('playPauseBtn').addEventListener('click', togglePlay);
+    document.getElementById('replayBtn').addEventListener('click', function () {
+      document.getElementById('videoEndOverlay').classList.remove('show');
+      ytPlayer.seekTo(0, true);
+      ytPlayer.playVideo();
+    });
 
     const track = document.getElementById('progressTrack');
     function seekFromEvent(e) {
@@ -292,8 +301,12 @@
 
   function onPlayerStateChange(e) {
     const btn = document.getElementById('playPauseBtn');
-    if (!btn) return;
-    btn.innerHTML = (e.data === YT.PlayerState.PLAYING) ? PLAY_PAUSE_ICON.pause : PLAY_PAUSE_ICON.play;
+    const overlay = document.getElementById('videoEndOverlay');
+    if (btn) btn.innerHTML = (e.data === YT.PlayerState.PLAYING) ? PLAY_PAUSE_ICON.pause : PLAY_PAUSE_ICON.play;
+    if (overlay) {
+      if (e.data === YT.PlayerState.ENDED) overlay.classList.add('show');
+      else if (e.data === YT.PlayerState.PLAYING) overlay.classList.remove('show');
+    }
   }
 
   function updateProgress() {
