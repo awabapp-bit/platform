@@ -101,7 +101,7 @@
           '<div id="ytPlayerMount"></div>' +
           '<div class="player-click-catcher" id="playerClickCatcher"></div>' +
           '<div class="custom-controls" id="customControls">' +
-            '<div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>' +
+            '<div class="progress-track" id="progressTrack"><div class="progress-groove"></div><div class="progress-fill" id="progressFill"></div></div>' +
             '<div class="controls-row">' +
               '<button type="button" class="ctrl-icon-btn" id="playPauseBtn" aria-label="تشغيل/إيقاف">' + PLAY_PAUSE_ICON.play + '</button>' +
               '<span class="time-display" id="timeDisplay">0:00 / 0:00</span>' +
@@ -211,8 +211,8 @@
     track.addEventListener('mousedown', function (e) { seeking = true; seekFromEvent(e); });
     document.addEventListener('mousemove', function (e) { if (seeking) seekFromEvent(e); });
     document.addEventListener('mouseup', function () { seeking = false; });
-    track.addEventListener('touchstart', function (e) { seeking = true; seekFromEvent(e); });
-    track.addEventListener('touchmove', function (e) { if (seeking) seekFromEvent(e); });
+    track.addEventListener('touchstart', function (e) { seeking = true; seekFromEvent(e); e.preventDefault(); }, { passive: false });
+    track.addEventListener('touchmove', function (e) { if (seeking) seekFromEvent(e); e.preventDefault(); }, { passive: false });
     document.addEventListener('touchend', function () { seeking = false; });
 
     const volumeSlider = document.getElementById('volumeSlider');

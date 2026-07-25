@@ -1301,40 +1301,59 @@ a.lesson-row.locked { cursor: not-allowed; }
 .player-click-catcher { position: absolute; inset: 0; z-index: 2; cursor: pointer; background: transparent; }
 .custom-controls {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
-  padding: 10px 14px 12px;
+  padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0));
   direction: ltr;
 }
 .progress-track {
-  position: relative; width: 100%; height: 5px;
-  background: rgba(255,255,255,0.3); border-radius: 3px;
-  cursor: pointer; margin-bottom: 9px; transition: height .12s ease;
+  position: relative; width: 100%; height: 22px;
+  cursor: pointer; touch-action: none; display: flex; align-items: center;
 }
-.progress-track:hover { height: 7px; }
+.progress-groove {
+  position: absolute; left: 0; right: 0; top: 50%; height: 5px; transform: translateY(-50%);
+  background: rgba(255,255,255,0.3); border-radius: 3px; pointer-events: none;
+}
 .progress-fill {
-  position: absolute; top: 0; bottom: 0; left: 0; width: 0%;
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 5px; width: 0%;
   background: var(--gold-light); border-radius: 3px; pointer-events: none;
 }
-.controls-row { display: flex; align-items: center; gap: 10px; }
-.time-display { color: #fff; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.controls-spacer { flex: 1; }
+.progress-track:hover .progress-groove, .progress-track:hover .progress-fill { height: 7px; }
+.controls-row { display: flex; align-items: center; gap: 8px; }
+.time-display {
+  color: #fff; font-size: 12px; font-variant-numeric: tabular-nums;
+  white-space: nowrap; flex-shrink: 0;
+}
+.controls-spacer { flex: 1; min-width: 4px; }
 .ctrl-icon-btn {
   background: none; border: none; color: #fff; padding: 0;
-  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
 .ctrl-icon-btn svg { width: 18px; height: 18px; }
 .volume-slider {
-  width: 70px; accent-color: var(--gold-light); cursor: pointer; height: 16px;
+  width: 64px; max-width: 22vw; accent-color: var(--gold-light); cursor: pointer;
+  height: 30px; flex-shrink: 1; touch-action: manipulation;
 }
 .ctrl-speed-btn {
   background: rgba(255,255,255,0.15); border: none; color: #fff;
-  font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
-  cursor: pointer; flex-shrink: 0;
+  font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 6px;
+  cursor: pointer; flex-shrink: 0; min-height: 32px; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
-.ctrl-speed-btn:hover { background: rgba(255,255,255,0.28); }
-@media (max-width: 520px) {
-  .volume-slider { width: 46px; }
+.ctrl-speed-btn:hover, .ctrl-speed-btn:active { background: rgba(255,255,255,0.28); }
+
+@media (max-width: 480px) {
+  .custom-controls { padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .controls-row { gap: 5px; }
+  .time-display { font-size: 10.5px; }
+  .ctrl-speed-btn { font-size: 10.5px; padding: 5px 7px; min-height: 28px; }
+  .ctrl-icon-btn { width: 28px; height: 28px; }
+  .ctrl-icon-btn svg { width: 16px; height: 16px; }
+  .volume-slider { width: 40px; height: 28px; }
+}
+
+@media (max-width: 360px) {
+  .volume-slider { display: none; } /* المساحة ضيقة جدًا: كتم/تشغيل الصوت يفضل شغال بالزر */
 }
 
 .video-toolbar {
