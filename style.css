@@ -1297,6 +1297,14 @@ a.lesson-row.locked { cursor: not-allowed; }
   margin-bottom: 16px;
 }
 .video-solo-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-solo-wrap:fullscreen,
+.video-solo-wrap:-webkit-full-screen {
+  width: 100vw; height: 100vh; aspect-ratio: unset; display: flex; align-items: center; justify-content: center;
+}
+.video-solo-wrap:fullscreen #ytPlayerMount,
+.video-solo-wrap:-webkit-full-screen #ytPlayerMount { width: 100%; height: 100%; }
+.video-solo-wrap:fullscreen .custom-controls,
+.video-solo-wrap:-webkit-full-screen .custom-controls { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 /* دعم المتصفحات القديمة التي لا تدعم aspect-ratio */
 @supports not (aspect-ratio: 16 / 9) {
   .video-solo-wrap { padding-top: 56.25%; height: 0; }
