@@ -1321,13 +1321,6 @@ a.lesson-row.locked { cursor: not-allowed; }
   width: 90px; height: 42px; z-index: 5; background: #000; pointer-events: none;
 }
 
-/* إخفاء اسم القناة والعنوان وأزرار المشاركة/المعلومات اللي يوتيوب بيظهرها أعلى الفيديو */
-.yt-top-mask {
-  position: absolute; top: 0; left: 0; right: 0; height: 64px; z-index: 5;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
-  pointer-events: none;
-}
-
 /* واجهتنا الخاصة بدل شاشة الفيديوهات المقترحة من يوتيوب عند انتهاء الفيديو */
 .video-end-overlay {
   position: absolute; inset: 0; z-index: 6;
@@ -1394,8 +1387,6 @@ a.lesson-row.locked { cursor: not-allowed; }
   .ctrl-icon-btn { width: 28px; height: 28px; }
   .ctrl-icon-btn svg { width: 16px; height: 16px; }
   .volume-slider { width: 40px; height: 28px; }
-  .yt-top-mask { height: 46px; }
-  .yt-logo-mask { width: 70px; height: 32px; }
 }
 
 @media (max-width: 360px) {
