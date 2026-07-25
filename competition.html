@@ -282,10 +282,6 @@
     wrap.querySelectorAll('.accordion-header:not([disabled])').forEach(function (btn) {
       btn.addEventListener('click', function () {
         btn.closest('.accordion-lesson').classList.toggle('open');
-        const body = btn.nextElementSibling;
-        if (body) {
-          body.style.maxHeight = btn.closest('.accordion-lesson').classList.contains('open') ? body.scrollHeight + 'px' : '0px';
-        }
       });
     });
   }

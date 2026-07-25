@@ -25,7 +25,12 @@
   --shadow-lift: 0 16px 40px rgba(18, 52, 36, 0.14);
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+a, button, input, select, textarea, .btn, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+}
 
 html, body {
   margin: 0;
@@ -1249,11 +1254,11 @@ a.lesson-row.locked { cursor: not-allowed; }
 .accordion-header .chevron { color: var(--text-muted); transition: transform .2s ease; flex-shrink: 0; }
 .accordion-lesson.open .accordion-header .chevron { transform: rotate(180deg); }
 .accordion-body {
-  max-height: 0; overflow: hidden; transition: max-height .25s ease;
+  display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease;
   border-top: 1px solid transparent;
 }
-.accordion-lesson.open .accordion-body { border-top-color: var(--border); }
-.accordion-body-inner { padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 8px; }
+.accordion-lesson.open .accordion-body { grid-template-rows: 1fr; border-top-color: var(--border); }
+.accordion-body-inner { min-height: 0; overflow: hidden; padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 8px; }
 
 .content-item {
   display: flex; align-items: center; justify-content: space-between;

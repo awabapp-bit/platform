@@ -58,8 +58,7 @@ function renderAppHeader(user, userData, opts) {
       '<div class="brand-block">' +
         '<img src="logo.png" alt="شعار المنصة" onerror="this.style.display=\'none\'">' +
         '<div class="brand-text">' +
-          '<h2>' + icon('moon', 'brand-crescent icon-sm') + ' منصة أواب الإلكترونية</h2>' +
-          '<span>تعلّم وتنافس واكسب النقاط</span>' +
+          '<h2>منصة أواب الإلكترونية</h2>' +
         '</div>' +
       '</div>' +
       '<div class="header-right">' +
