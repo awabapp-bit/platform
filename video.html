@@ -97,10 +97,18 @@
 
     let html = '';
     if (ytId) {
+      const thumbUrl = 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg';
       html += '<div class="video-solo-wrap" id="videoWrap">' +
+          '<div class="video-cover" id="videoCover">' +
+            '<img class="video-cover-img" id="videoCoverImg" src="' + thumbUrl + '" alt="" loading="eager" ' +
+              'onerror="this.onerror=null; this.src=\'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg\';">' +
+            '<div class="video-cover-shade"></div>' +
+            '<button type="button" class="video-cover-play" id="videoCoverPlay" aria-label="تشغيل الفيديو">' +
+              icon('play', 'icon-xl') +
+            '</button>' +
+          '</div>' +
           '<div id="ytPlayerMount"></div>' +
           '<div class="player-click-catcher" id="playerClickCatcher"></div>' +
-          '<div class="yt-logo-mask"></div>' +
           '<div class="video-end-overlay" id="videoEndOverlay">' +
             '<button type="button" class="replay-btn" id="replayBtn">' + icon('rotateLeft', 'icon-md') + ' إعادة المشاهدة</button>' +
           '</div>' +
@@ -133,7 +141,7 @@
     '</div>';
 
     content.innerHTML = html;
-    if (ytId) initCustomPlayer(ytId);
+    if (ytId) setupVideoCover(ytId);
 
     // تسجيل المشاهدة تلقائيًا وتحديث حالة اكتمال المحاضرة
     const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
@@ -188,13 +196,29 @@
     }
   }
 
-  function initCustomPlayer(ytId) {
+  /* ---------------- غلاف الفيديو: صورة الغلاف فقط بدون أي معلومات عن القناة، والتشغيل الفعلي يبدأ بعد ضغط المستخدم ---------------- */
+  function setupVideoCover(ytId) {
+    const cover = document.getElementById('videoCover');
+    const playBtn = document.getElementById('videoCoverPlay');
+    if (!cover || !playBtn) { initCustomPlayer(ytId); return; }
+
+    function startPlayback() {
+      cover.classList.add('is-hidden');
+      document.getElementById('videoWrap').classList.add('is-playing');
+      initCustomPlayer(ytId, true);
+      cover.removeEventListener('click', startPlayback);
+    }
+    cover.addEventListener('click', startPlayback);
+  }
+
+  function initCustomPlayer(ytId, autoplay) {
     loadYouTubeAPI(function () {
       ytPlayer = new YT.Player('ytPlayerMount', {
         videoId: ytId,
         playerVars: {
           controls: 0, disablekb: 1, modestbranding: 1, rel: 0,
-          iv_load_policy: 3, fs: 0, playsinline: 1
+          iv_load_policy: 3, fs: 0, playsinline: 1,
+          autoplay: autoplay ? 1 : 0
         },
         events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
       });
@@ -203,6 +227,7 @@
 
   function onPlayerReady() {
     ytReady = true;
+    ytPlayer.playVideo();
     setInterval(updateProgress, 250);
 
     document.getElementById('playerClickCatcher').addEventListener('click', togglePlay);
@@ -221,6 +246,7 @@
       const duration = ytPlayer.getDuration() || 0;
       ytPlayer.seekTo(duration * fraction, true);
       document.getElementById('progressFill').style.width = (fraction * 100) + '%';
+      track.style.setProperty('--fill', (fraction * 100) + '%');
     }
     track.addEventListener('mousedown', function (e) { seeking = true; seekFromEvent(e); });
     document.addEventListener('mousemove', function (e) { if (seeking) seekFromEvent(e); });
@@ -288,6 +314,24 @@
       }
     });
 
+    // تدوير الشاشة تلقائيًا للوضع الأفقي عند التكبير على الموبايل (يعمل على أندرويد/كروم غالبًا، وسافاري iOS لا يدعم قفل الاتجاه من المتصفح)
+    function tryLockLandscape() {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(function () {});
+      }
+    }
+    function tryUnlockOrientation() {
+      if (screen.orientation && screen.orientation.unlock) {
+        try { screen.orientation.unlock(); } catch (e) {}
+      }
+    }
+    document.addEventListener('fullscreenchange', function () {
+      if (isFullscreen()) tryLockLandscape(); else tryUnlockOrientation();
+    });
+    document.addEventListener('webkitfullscreenchange', function () {
+      if (isFullscreen()) tryLockLandscape(); else tryUnlockOrientation();
+    });
+
     document.addEventListener('fullscreenchange', updateIcon);
     document.addEventListener('webkitfullscreenchange', updateIcon);
   }
@@ -316,7 +360,10 @@
     if (!fill || !timeEl) return; // انتقل المستخدم لصفحة تانية
     const duration = ytPlayer.getDuration() || 0;
     const current = ytPlayer.getCurrentTime() || 0;
-    fill.style.width = (duration ? (current / duration) * 100 : 0) + '%';
+    const pct = (duration ? (current / duration) * 100 : 0);
+    fill.style.width = pct + '%';
+    const track = document.getElementById('progressTrack');
+    if (track) track.style.setProperty('--fill', pct + '%');
     timeEl.textContent = formatPlayerTime(current) + ' / ' + formatPlayerTime(duration);
   }
 

@@ -71,7 +71,7 @@ function renderAppHeader(user, userData, opts) {
         '<div class="notif-menu">' +
           '<button class="notif-btn" id="notifBtn" aria-label="الإشعارات">' + icon('bell', 'icon-md') + '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
           '<div class="notif-dropdown" id="notifDropdown">' +
-            '<div class="notif-head"><span>الإشعارات</span></div>' +
+            '<div class="notif-head"><span>الإشعارات</span><button type="button" class="notif-close-btn" id="notifCloseBtn" aria-label="إغلاق الإشعارات">' + icon('xmark', 'icon-sm') + '</button></div>' +
             '<div id="notifList"><div class="notif-empty">جارٍ التحميل...</div></div>' +
           '</div>' +
         '</div>' +
@@ -91,20 +91,36 @@ function renderAppHeader(user, userData, opts) {
   const dropdown = document.getElementById('accountDropdown');
   const notifBtn = document.getElementById('notifBtn');
   const notifDropdown = document.getElementById('notifDropdown');
+  const notifCloseBtn = document.getElementById('notifCloseBtn');
+
+  function openNotifDropdown() {
+    dropdown.classList.remove('open');
+    notifDropdown.classList.add('open');
+    document.body.classList.add('notif-open-lock');
+  }
+  function closeNotifDropdown() {
+    notifDropdown.classList.remove('open');
+    document.body.classList.remove('notif-open-lock');
+  }
 
   accountBtn.addEventListener('click', function (e) {
     e.stopPropagation();
-    notifDropdown.classList.remove('open');
+    closeNotifDropdown();
     dropdown.classList.toggle('open');
   });
   notifBtn.addEventListener('click', function (e) {
     e.stopPropagation();
     dropdown.classList.remove('open');
-    notifDropdown.classList.toggle('open');
+    if (notifDropdown.classList.contains('open')) closeNotifDropdown();
+    else openNotifDropdown();
+  });
+  notifCloseBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    closeNotifDropdown();
   });
   document.addEventListener('click', function (e) {
     if (!dropdown.contains(e.target) && e.target !== accountBtn) dropdown.classList.remove('open');
-    if (!notifDropdown.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)) notifDropdown.classList.remove('open');
+    if (!notifDropdown.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)) closeNotifDropdown();
   });
   document.getElementById('logoutBtn').addEventListener('click', function () {
     auth.signOut().then(function () { window.location.href = 'index.html'; });
