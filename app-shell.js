@@ -93,8 +93,28 @@ function renderAppHeader(user, userData, opts) {
   const notifDropdown = document.getElementById('notifDropdown');
   const notifCloseBtn = document.getElementById('notifCloseBtn');
 
+  // ننقل قائمة الإشعارات لتصبح ابنًا مباشرًا لـ body: الهيدر عليه backdrop-filter
+  // وده بيعمل "containing block" جديد بيكسر position:fixed لو العنصر فضل جواه،
+  // فكانت الإشعارات بتظهر داخل حدود الهيدر بدل ما تاخد الشاشة كاملة.
+  document.body.appendChild(notifDropdown);
+
+  function positionNotifDropdown() {
+    if (window.innerWidth <= 640) { notifDropdown.style.top = ''; notifDropdown.style.left = ''; return; }
+    const rect = notifBtn.getBoundingClientRect();
+    const width = 320;
+    let left = rect.left - 60;
+    if (left < 10) left = 10;
+    if (left + width > window.innerWidth - 10) left = window.innerWidth - width - 10;
+    notifDropdown.style.top = (rect.bottom + 10) + 'px';
+    notifDropdown.style.left = left + 'px';
+  }
+  window.addEventListener('resize', function () {
+    if (notifDropdown.classList.contains('open')) positionNotifDropdown();
+  });
+
   function openNotifDropdown() {
     dropdown.classList.remove('open');
+    positionNotifDropdown();
     notifDropdown.classList.add('open');
     document.body.classList.add('notif-open-lock');
   }
@@ -247,13 +267,13 @@ function renderFooter() {
   renderSupportFab();
 }
 
-/** يضيف زر "الدعم الفني" العائم أسفل الشاشة (رابط فارغ حاليًا لحين تجهيز صفحة الدعم) */
+/** يضيف زر "الدعم الفني" العائم أسفل الشاشة */
 function renderSupportFab() {
   if (document.getElementById('supportFab')) return;
   const fab = document.createElement('a');
   fab.id = 'supportFab';
   fab.className = 'support-fab';
-  fab.href = '#';
+  fab.href = 'support.html';
   fab.innerHTML = icon('headset') + ' <span>الدعم الفني</span>';
   document.body.appendChild(fab);
 }

@@ -230,8 +230,11 @@
     ytPlayer.playVideo();
     setInterval(updateProgress, 250);
 
-    document.getElementById('playerClickCatcher').addEventListener('click', togglePlay);
-    document.getElementById('playPauseBtn').addEventListener('click', togglePlay);
+    document.getElementById('playPauseBtn').addEventListener('click', function () { togglePlay(); showControlsBar(); });
+    setupTapGestures();
+    scheduleHideControls();
+    document.getElementById('customControls').addEventListener('pointerdown', function () { showControlsBar(); });
+    document.getElementById('videoWrap').addEventListener('mousemove', function () { showControlsBar(); });
     document.getElementById('replayBtn').addEventListener('click', function () {
       document.getElementById('videoEndOverlay').classList.remove('show');
       ytPlayer.seekTo(0, true);
@@ -343,6 +346,131 @@
     else ytPlayer.playVideo();
   }
 
+  /* ---------------- إخفاء/إظهار أدوات التحكم تلقائيًا بعد 5 ثوانٍ من عدم التفاعل ---------------- */
+  let hideControlsTimer = null;
+  function scheduleHideControls() {
+    clearTimeout(hideControlsTimer);
+    hideControlsTimer = setTimeout(function () {
+      if (ytPlayer && ytReady && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        const wrap = document.getElementById('videoWrap');
+        if (wrap) wrap.classList.add('controls-hidden');
+      }
+    }, 5000);
+  }
+  function showControlsBar() {
+    const wrap = document.getElementById('videoWrap');
+    if (wrap) wrap.classList.remove('controls-hidden');
+    scheduleHideControls();
+  }
+  function hideControlsBar() {
+    clearTimeout(hideControlsTimer);
+    const wrap = document.getElementById('videoWrap');
+    if (wrap) wrap.classList.add('controls-hidden');
+  }
+  function toggleControlsVisibility() {
+    const wrap = document.getElementById('videoWrap');
+    if (!wrap) return;
+    if (wrap.classList.contains('controls-hidden')) showControlsBar();
+    else hideControlsBar();
+  }
+
+  /* ---------------- تقديم/ترجيع 10 ثوانٍ بالضغط المزدوج + تسريع ×2 بالضغط المطوّل ---------------- */
+  function seekBy(deltaSeconds) {
+    if (!ytPlayer || !ytReady) return;
+    const duration = ytPlayer.getDuration() || 0;
+    const current = ytPlayer.getCurrentTime() || 0;
+    const next = Math.max(0, Math.min(duration, current + deltaSeconds));
+    ytPlayer.seekTo(next, true);
+  }
+
+  function flashSeekIndicator(side) {
+    const wrap = document.getElementById('videoWrap');
+    if (!wrap) return;
+    const el = document.createElement('div');
+    el.className = 'seek-flash ' + side;
+    const arrow = side === 'fwd'
+      ? '<svg viewBox="0 0 512 512" fill="currentColor" width="24" height="24"><path d="M470.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 82.4C118.8 195.6 0 313.4 0 458.6 0 469.3 6.5 479 16.3 483.2s21.5 2.1 29.3-5.7C88.6 434.6 158.9 400 256 400l0 80c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l160-160z"/></svg>'
+      : '<svg viewBox="0 0 512 512" fill="currentColor" width="24" height="24"><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6l0-82.4c137.1 5.3 205.9 39.9 249.6 91.5 7.7 7.9 19.6 10.7 30.3 5.7s16.3-13.9 16.3-24.6c0-145.2-118.8-263-256-267.7L256 32c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-160 160z"/></svg>';
+    el.innerHTML = arrow + '<span>10 ثوانٍ</span>';
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () {
+      el.classList.remove('show');
+      setTimeout(function () { el.remove(); }, 200);
+    }, 550);
+  }
+
+  function setupTapGestures() {
+    const catcher = document.getElementById('playerClickCatcher');
+    const wrap = document.getElementById('videoWrap');
+    if (!catcher || !wrap) return;
+
+    let tapTimer = null;
+    let lastTapTime = 0;
+    let lastTapSide = null;
+    let longPressTimer = null;
+    let longPressActive = false;
+    let previousRate = 1;
+    let startX = 0, startY = 0;
+
+    catcher.addEventListener('pointerdown', function (e) {
+      startX = e.clientX; startY = e.clientY;
+      longPressActive = false;
+      longPressTimer = setTimeout(function () {
+        longPressActive = true;
+        previousRate = ytPlayer.getPlaybackRate();
+        ytPlayer.setPlaybackRate(2);
+        wrap.classList.add('speed-boost-active');
+      }, 400);
+    });
+
+    catcher.addEventListener('pointermove', function (e) {
+      if (!longPressTimer) return;
+      if (Math.abs(e.clientX - startX) > 12 || Math.abs(e.clientY - startY) > 12) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    });
+
+    function endPress(e) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+      if (longPressActive) {
+        longPressActive = false;
+        wrap.classList.remove('speed-boost-active');
+        if (ytPlayer && ytReady) ytPlayer.setPlaybackRate(previousRate || 1);
+        return;
+      }
+      const rect = catcher.getBoundingClientRect();
+      const clientX = (e.clientX !== undefined && e.clientX !== 0) ? e.clientX : startX;
+      const x = clientX - rect.left;
+      const side = x > rect.width / 2 ? 'right' : 'left';
+      const now = Date.now();
+      if (now - lastTapTime < 320 && side === lastTapSide) {
+        clearTimeout(tapTimer);
+        tapTimer = null;
+        lastTapTime = 0; lastTapSide = null;
+        if (side === 'right') { seekBy(10); flashSeekIndicator('fwd'); }
+        else { seekBy(-10); flashSeekIndicator('back'); }
+      } else {
+        lastTapTime = now; lastTapSide = side;
+        clearTimeout(tapTimer);
+        tapTimer = setTimeout(function () {
+          toggleControlsVisibility();
+          lastTapTime = 0; lastTapSide = null;
+        }, 320);
+      }
+    }
+
+    catcher.addEventListener('pointerup', endPress);
+    catcher.addEventListener('pointercancel', function () {
+      clearTimeout(longPressTimer); longPressTimer = null;
+      if (longPressActive && ytPlayer && ytReady) ytPlayer.setPlaybackRate(previousRate || 1);
+      longPressActive = false;
+      wrap.classList.remove('speed-boost-active');
+    });
+  }
+
   function onPlayerStateChange(e) {
     const btn = document.getElementById('playPauseBtn');
     const overlay = document.getElementById('videoEndOverlay');
@@ -351,6 +479,8 @@
       if (e.data === YT.PlayerState.ENDED) overlay.classList.add('show');
       else if (e.data === YT.PlayerState.PLAYING) overlay.classList.remove('show');
     }
+    if (e.data === YT.PlayerState.PLAYING) scheduleHideControls();
+    else showControlsBar();
   }
 
   function updateProgress() {
