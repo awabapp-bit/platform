@@ -6,19 +6,261 @@
 <title>الاختبار — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
+<!-- Font Awesome للأيقونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  /* ===== الأنماط الأساسية ===== */
+  .exam-container {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-lift);
+    border: 1px solid var(--border);
+  }
+  .exam-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    background: var(--gold-pale);
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+  }
+  .exam-timer i { color: var(--gold); }
+  .exam-timer #timerDisplay {
+    font-weight: 800;
+    color: var(--gold);
+    direction: ltr;
+  }
+
+  /* ===== شريط التنقل بين الأسئلة ===== */
+  .exam-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+  .exam-nav .q-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .exam-nav .q-btn:hover { transform: scale(1.05); }
+  .exam-nav .q-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(27,77,53,0.3);
+  }
+  .exam-nav .q-btn.answered {
+    border-color: var(--success);
+    background: #E6F2EA;
+    color: var(--success);
+  }
+  .exam-nav .q-btn.viewed {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+    color: var(--gold);
+  }
+  .exam-nav .q-btn.unseen {
+    border-color: var(--border);
+    background: var(--bg);
+    color: var(--text-muted);
+  }
+
+  /* ===== منطقة السؤال ===== */
+  .exam-question-area {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+  .exam-question-area .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+  }
+  .exam-question-area .q-text i { color: var(--gold); margin-left: 8px; }
+
+  .quiz-options {
+    display: grid;
+    gap: 10px;
+  }
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .quiz-option:hover { border-color: var(--primary-light); }
+  .quiz-option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+  }
+  .quiz-option .opt-label { font-size: 14.5px; color: var(--text); }
+
+  /* ===== أزرار التنقل ===== */
+  .exam-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .exam-actions .btn { width: auto; min-width: 100px; }
+
+  /* ===== زر التسليم ===== */
+  .submit-btn-wrapper {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .btn-submit-final {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: #fff;
+    border: none;
+    padding: 14px 40px;
+    border-radius: var(--radius-sm);
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 20px rgba(168,120,42,0.3);
+  }
+  .btn-submit-final:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(168,120,42,0.4);
+  }
+  .btn-submit-final:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ===== نافذة تأكيد التسليم (Custom) ===== */
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(18,52,36,0.65);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 400px;
+    width: 100%;
+    padding: 30px 28px;
+    box-shadow: var(--shadow-lift);
+    text-align: center;
+  }
+  .confirm-box .icon-big {
+    font-size: 48px;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .confirm-box h3 {
+    font-family: 'Amiri', serif;
+    color: var(--primary-dark);
+    margin: 0 0 8px;
+    font-size: 20px;
+  }
+  .confirm-box p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0 0 20px;
+    line-height: 1.7;
+  }
+  .confirm-box .confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  .confirm-box .confirm-actions .btn { width: auto; min-width: 80px; }
+
+  /* ===== نتيجة الاختبار ===== */
+  .exam-result {
+    margin-top: 24px;
+    padding: 24px;
+    background: var(--gold-pale);
+    border-radius: var(--radius);
+    border: 1px solid var(--gold-light);
+    text-align: center;
+  }
+  .exam-result .score {
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--gold);
+    font-family: 'Amiri', serif;
+  }
+  .exam-result .details {
+    margin-top: 12px;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .exam-result .details span { font-weight: 700; color: var(--primary-dark); }
+</style>
 </head>
 <body>
 
 <header class="app-header" id="appHeader"></header>
 
-<main class="page" style="max-width:720px;">
-  <a class="back-link" id="backLink" href="competition.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> رجوع للمحاضرة</a>
+<main class="page" style="max-width:760px;">
+  <a class="back-link" id="backLink" href="competition.html">
+    <i class="fas fa-arrow-right"></i> رجوع للمحاضرة
+  </a>
   <h1 class="page-title" id="examTitle">جارٍ التحميل...</h1>
+
+  <div class="exam-timer">
+    <i class="fas fa-hourglass-half"></i>
+    <span>المدة المتبقية: </span>
+    <span id="timerDisplay">00:00</span>
+  </div>
 
   <div id="content">
     <div class="center-loading"><div class="loader"></div></div>
   </div>
 </main>
+
+<!-- ===== نافذة تأكيد التسليم ===== -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="icon-big"><i class="fas fa-exclamation-triangle"></i></div>
+    <h3>تأكيد تسليم الاختبار</h3>
+    <p>هل أنت متأكد من تسليم الاختبار؟<br>لن تتمكن من تعديل إجاباتك بعد التسليم.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-primary" id="confirmYesBtn"><i class="fas fa-check"></i> نعم</button>
+      <button class="btn btn-outline" id="confirmNoBtn"><i class="fas fa-times"></i> لا</button>
+    </div>
+  </div>
+</div>
 
 <footer class="site-footer" id="siteFooter"></footer>
 
@@ -29,6 +271,10 @@
 <script src="icons.js"></script>
 <script src="app-shell.js"></script>
 <script>
+  // ============================================================
+  // exam.html — صفحة الاختبار (موقع المستخدم)
+  // ============================================================
+
   const params = new URLSearchParams(window.location.search);
   const compId = params.get('comp');
   const lessonId = params.get('lesson');
@@ -38,10 +284,35 @@
   document.getElementById('backLink').href = 'competition.html?id=' + encodeURIComponent(compId);
 
   let currentUser = null;
+  let currentUserData = null;
   let compData = null;
+  let examData = null;
+  let lessonData = null;
+  let userAnswers = {};
+  let currentQuestionIndex = 0;
+  let questionIds = [];
+  let timerInterval = null;
+  let startTime = Date.now();
+  let examDuration = 10;
+  let isSubmitted = false;
 
+  // ===== نافذة التأكيد =====
+  const confirmOverlay = document.getElementById('confirmOverlay');
+  const confirmYesBtn = document.getElementById('confirmYesBtn');
+  const confirmNoBtn = document.getElementById('confirmNoBtn');
+
+  function showConfirm() { confirmOverlay.classList.add('open'); }
+  function hideConfirm() { confirmOverlay.classList.remove('open'); }
+
+  confirmNoBtn.addEventListener('click', hideConfirm);
+  confirmOverlay.addEventListener('click', function (e) {
+    if (e.target === this) hideConfirm();
+  });
+
+  // ===== المصادقة والتحميل =====
   requireAuth(function (user, userData) {
     currentUser = user;
+    currentUserData = userData;
     renderAppHeader(user, userData, { showPoints: true });
     renderFooter();
     load();
@@ -52,128 +323,270 @@
       if (!snap.exists()) { window.location.href = 'home.html'; return; }
       compData = snap.val();
       const lessons = compData.lessons || {};
-      const lesson = lessons[lessonId];
-      if (!lesson || !lesson.exams || !lesson.exams[examId]) { window.location.href = 'competition.html?id=' + encodeURIComponent(compId); return; }
+      lessonData = lessons[lessonId];
+      if (!lessonData || !lessonData.exams || !lessonData.exams[examId]) {
+        window.location.href = 'competition.html?id=' + encodeURIComponent(compId);
+        return;
+      }
 
       db.ref('userEnrollments/' + currentUser.uid + '/' + compId).once('value').then(function (eSnap) {
         if (!eSnap.exists()) {
           document.getElementById('examTitle').textContent = 'محتوى مغلق';
           document.getElementById('content').innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);">' + icon('lock', 'icon-xl') + '</div>' +
-            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3><p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الاختبار.</p>' +
+            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
+            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3>' +
+            '<p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الاختبار.</p>' +
             '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
           return;
         }
         loadWithAccess();
       });
-
-      function loadWithAccess() {
-      db.ref('userProgress/' + currentUser.uid + '/' + compId).once('value').then(function (pSnap) {
-        const progressData = pSnap.val() || {};
-        const access = getLessonAccessState(lessons, progressData, lessonId);
-        const content = document.getElementById('content');
-        const exam = lesson.exams[examId];
-        document.getElementById('examTitle').textContent = exam.title || 'الاختبار';
-
-        if (!access.allowed) {
-          const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
-          content.innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);">' + icon('lock', 'icon-xl') + '</div>' +
-            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">' + reasonText + '</p></div>';
-          return;
-        }
-
-        const lessonProgress = progressData[lessonId] || {};
-        const examProgress = (lessonProgress.exams && lessonProgress.exams[examId]) || null;
-
-        if (examProgress && examProgress.completed) {
-          content.innerHTML =
-            '<div class="already-done-card">' +
-              '<div class="big-icon">' + icon('circleCheck', 'icon-xl') + '</div>' +
-              '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">أنجزت هذا الاختبار بالفعل</h3>' +
-              '<p class="muted">حصلت على <strong>' + (examProgress.earnedPoints || 0) + '</strong> نقطة · ' + (examProgress.score || 0) + ' إجابة صحيحة</p>' +
-              '<p class="muted" style="font-size:12px;">الاختبار له محاولة واحدة فقط، ولا يمكن إعادته.</p>' +
-              '<a class="btn btn-outline btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">العودة للمحاضرة</a>' +
-            '</div>';
-          return;
-        }
-
-        renderExam(exam, lesson);
-      });
-      }
     });
   }
 
-  function renderExam(exam, lesson) {
-    const content = document.getElementById('content');
-    const questions = exam.questions || {};
-    const qIds = Object.keys(questions);
+  function loadWithAccess() {
+    db.ref('userProgress/' + currentUser.uid + '/' + compId).once('value').then(function (pSnap) {
+      const progressData = pSnap.val() || {};
+      const access = getLessonAccessState(compData.lessons || {}, progressData, lessonId);
+      const content = document.getElementById('content');
+      examData = lessonData.exams[examId];
+      document.getElementById('examTitle').textContent = examData.title || 'الاختبار';
 
-    if (qIds.length === 0) {
-      content.innerHTML = '<div class="already-done-card"><p class="muted">لا توجد أسئلة في هذا الاختبار بعد.</p></div>';
-      return;
+      if (!access.allowed) {
+        const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
+        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
+          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">' + reasonText + '</p></div>';
+        return;
+      }
+
+      const lessonProgress = progressData[lessonId] || {};
+      const examProgress = (lessonProgress.exams && lessonProgress.exams[examId]) || null;
+
+      if (examProgress && examProgress.completed) {
+        content.innerHTML = '<div class="already-done-card">' +
+          '<div class="big-icon"><i class="fas fa-check-circle" style="font-size:46px; color:var(--success);"></i></div>' +
+          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">أنجزت هذا الاختبار بالفعل</h3>' +
+          '<p class="muted">حصلت على <strong>' + (examProgress.earnedPoints || 0) + '</strong> نقطة · ' +
+          (examProgress.score || 0) + ' إجابة صحيحة</p>' +
+          '<a class="btn btn-outline btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">العودة للمحاضرة</a></div>';
+        return;
+      }
+
+      // قراءة المدة
+      examDuration = examData.duration || 10;
+      startTime = Date.now();
+      document.getElementById('timerDisplay').textContent = formatTime(examDuration * 60);
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimer, 1000);
+
+      const questions = examData.questions || {};
+      questionIds = Object.keys(questions);
+      if (questionIds.length === 0) {
+        content.innerHTML = '<div class="already-done-card"><p class="muted">لا توجد أسئلة في هذا الاختبار بعد.</p></div>';
+        return;
+      }
+
+      userAnswers = {};
+      renderExam();
+    });
+  }
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  }
+
+  function updateTimer() {
+    if (isSubmitted) return;
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const remaining = Math.max(0, (examDuration * 60) - elapsed);
+    document.getElementById('timerDisplay').textContent = formatTime(remaining);
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      alert('⏰ انتهى الوقت المحدد للاختبار. سيتم تسليم إجاباتك تلقائياً.');
+      submitExam(true);
+    }
+  }
+
+  // ===== عرض الاختبار =====
+  function renderExam() {
+    const content = document.getElementById('content');
+    const total = questionIds.length;
+    const qId = questionIds[currentQuestionIndex];
+    const q = examData.questions[qId];
+    const isLast = (currentQuestionIndex === total - 1);
+
+    // شريط التنقل
+    let navHtml = '<div class="exam-nav">';
+    questionIds.forEach((id, idx) => {
+      const isActive = idx === currentQuestionIndex;
+      const isAnswered = (userAnswers[id] !== undefined);
+      const isViewed = (idx <= currentQuestionIndex);
+      let cls = 'q-btn';
+      if (isActive) cls += ' active';
+      else if (isAnswered) cls += ' answered';
+      else if (isViewed) cls += ' viewed';
+      else cls += ' unseen';
+      navHtml += `<button class="${cls}" data-index="${idx}">${idx+1}</button>`;
+    });
+    navHtml += '</div>';
+
+    // السؤال
+    let qHtml = '<div class="exam-question-area">';
+    qHtml += `<div class="q-text"><i class="fas fa-question-circle"></i> ${currentQuestionIndex+1}. ${escapeHtml(q.text)}</div>`;
+    qHtml += '<div class="quiz-options">';
+    q.options.forEach((opt, oi) => {
+      const checked = (userAnswers[qId] === oi) ? 'checked' : '';
+      qHtml += `<label class="quiz-option">
+        <input type="radio" name="q_${qId}" value="${oi}" ${checked} onchange="saveAnswer('${qId}', ${oi})">
+        <span class="opt-label">${escapeHtml(opt)}</span>
+      </label>`;
+    });
+    qHtml += '</div></div>';
+
+    // أزرار التنقل (بدون زر مراجعة)
+    let actionsHtml = '<div class="exam-actions">';
+    if (currentQuestionIndex > 0) {
+      actionsHtml += `<button class="btn btn-outline btn-sm" onclick="goToQuestion(${currentQuestionIndex-1})">
+        <i class="fas fa-chevron-right"></i> السابق
+      </button>`;
+    }
+    if (currentQuestionIndex < total - 1) {
+      actionsHtml += `<button class="btn btn-outline btn-sm" onclick="goToQuestion(${currentQuestionIndex+1})">
+        التالي <i class="fas fa-chevron-left"></i>
+      </button>`;
+    }
+    actionsHtml += '</div>';
+
+    // زر التسليم (يظهر فقط في آخر سؤال)
+    let submitHtml = '';
+    if (isLast && !isSubmitted) {
+      submitHtml = `
+        <div class="submit-btn-wrapper">
+          <button class="btn-submit-final" onclick="openConfirm()">
+            <i class="fas fa-paper-plane"></i> تسليم الاختبار
+          </button>
+        </div>
+      `;
     }
 
-    let html = '<div class="attempt-note">' + icon('hourglass', 'icon-sm') + ' هذا الاختبار له محاولة واحدة فقط، فكّر جيدًا قبل التسليم.</div>';
-    html += '<form id="quizForm">';
-    qIds.forEach(function (qId, i) {
-      const q = questions[qId];
-      html += '<div class="quiz-q"><p class="q-text">' + (i + 1) + '. ' + escapeHtml(q.text) + '</p><div class="quiz-options">';
-      (q.options || []).forEach(function (opt, oi) {
-        html += '<label class="quiz-option"><input type="radio" name="q_' + qId + '" value="' + oi + '" required> ' + escapeHtml(opt) + '</label>';
-      });
-      html += '</div></div>';
-    });
-    html += '<button type="submit" class="btn btn-primary">تسليم الإجابات نهائيًا</button></form>';
-    html += '<div id="quizResultWrap"></div>';
-    content.innerHTML = html;
+    content.innerHTML = navHtml + qHtml + actionsHtml + submitHtml + '<div id="resultArea"></div>';
 
-    document.getElementById('quizForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (!confirm('هل أنت متأكد؟ لن تتمكن من إعادة هذا الاختبار بعد التسليم.')) return;
-
-      let earnedPoints = 0;
-      let correctCount = 0;
-
-      qIds.forEach(function (qId) {
-        const q = questions[qId];
-        const selected = document.querySelector('input[name="q_' + qId + '"]:checked');
-        const selectedIndex = selected ? parseInt(selected.value, 10) : -1;
-        const isCorrect = selectedIndex === q.correct;
-        if (isCorrect) { correctCount++; earnedPoints += Number(q.points) || 0; }
-
-        document.querySelectorAll('input[name="q_' + qId + '"]').forEach(function (input) {
-          const optionEl = input.closest('.quiz-option');
-          const idx = parseInt(input.value, 10);
-          if (idx === q.correct) { optionEl.classList.add('correct'); optionEl.insertAdjacentHTML('beforeend', icon('circleCheck', 'icon-md')); }
-          else if (input.checked) { optionEl.classList.add('wrong'); optionEl.insertAdjacentHTML('beforeend', icon('circleXmark', 'icon-md')); }
-          input.disabled = true;
-        });
-      });
-
-      document.getElementById('quizForm').querySelector('button[type="submit"]').style.display = 'none';
-
-      const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
-      progRef.child('exams/' + examId).set({
-        completed: true, score: correctCount, earnedPoints: earnedPoints, answeredAt: firebase.database.ServerValue.TIMESTAMP
-      }).then(function () {
-        return db.ref('users/' + currentUser.uid + '/points').transaction(function (current) { return (current || 0) + earnedPoints; });
-      }).then(function () {
-        return progRef.once('value');
-      }).then(function (snap) {
-        const lp = snap.val() || {};
-        const c = computeLessonCompletion(lesson, lp);
-        return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
-      }).then(function () {
-        document.getElementById('quizResultWrap').innerHTML =
-          '<div class="already-done-card" style="margin-top:20px;">' +
-            '<div class="score" style="font-size:40px; font-weight:800; color:var(--gold); font-family:\'Amiri\',serif;">' + earnedPoints + '</div>' +
-            '<p class="muted">نقطة مكتسبة · ' + correctCount + ' من ' + qIds.length + ' إجابات صحيحة</p>' +
-            '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">العودة للمحاضرة</a>' +
-          '</div>';
+    // أحداث أزرار التنقل
+    document.querySelectorAll('.exam-nav .q-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (!isSubmitted) goToQuestion(parseInt(this.dataset.index));
       });
     });
   }
+
+  // ===== دوال التنقل والحفظ =====
+  function goToQuestion(index) {
+    if (isSubmitted) return;
+    currentQuestionIndex = index;
+    renderExam();
+  }
+
+  function saveAnswer(qId, selected) {
+    if (isSubmitted) return;
+    userAnswers[qId] = selected;
+    const btns = document.querySelectorAll('.exam-nav .q-btn');
+    const idx = questionIds.indexOf(qId);
+    if (idx >= 0 && btns[idx]) {
+      btns[idx].classList.remove('unseen', 'viewed', 'active');
+      btns[idx].classList.add('answered');
+    }
+  }
+
+  // ===== فتح نافذة التأكيد =====
+  function openConfirm() {
+    if (isSubmitted) return;
+    showConfirm();
+  }
+
+  // حدث زر "نعم" في نافذة التأكيد (مرة واحدة)
+  confirmYesBtn.addEventListener('click', function () {
+    hideConfirm();
+    if (!isSubmitted) submitExam(false);
+  });
+
+  // ===== تسليم الاختبار =====
+  function submitExam(autoSubmit) {
+    if (isSubmitted) return;
+    isSubmitted = true;
+    clearInterval(timerInterval);
+
+    const total = questionIds.length;
+    let correct = 0;
+    let earnedPoints = 0;
+    const answersRecord = {};
+
+    questionIds.forEach((qId) => {
+      const q = examData.questions[qId];
+      const selected = userAnswers[qId];
+      answersRecord[qId] = (selected !== undefined) ? selected : -1;
+      if (selected !== undefined && selected === q.correct) {
+        correct++;
+        earnedPoints += q.points || 10;
+      }
+    });
+
+    // حفظ النتيجة
+    const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
+    const examDataToSave = {
+      completed: true,
+      score: correct,
+      earnedPoints: earnedPoints,
+      answers: answersRecord,
+      answeredAt: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    progRef.child('exams/' + examId).set(examDataToSave)
+      .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + earnedPoints))
+      .then(() => progRef.once('value'))
+      .then((snap) => {
+        const lp = snap.val() || {};
+        const c = computeLessonCompletion(lessonData, lp);
+        return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
+      })
+      .then(() => {
+        const percentage = Math.round((correct / total) * 100);
+        document.getElementById('resultArea').innerHTML = `
+          <div class="exam-result">
+            <div class="score"><i class="fas fa-trophy" style="color:var(--gold);"></i> ${earnedPoints} نقطة</div>
+            <div class="details">إجابات صحيحة: <span>${correct}</span> من <span>${total}</span></div>
+            <div class="details">نسبة النجاح: <span>${percentage}%</span></div>
+            <div style="margin-top:16px;">
+              <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
+                <i class="fas fa-arrow-left"></i> العودة للمحاضرة
+              </a>
+            </div>
+          </div>
+        `;
+        document.querySelectorAll('.exam-actions button, .btn-submit-final').forEach(b => b.disabled = true);
+        sendExamResultEmail({
+          studentName: currentUserData.name || '',
+          studentEmail: currentUserData.email || currentUser.email || '',
+          competitionName: compData.title || '',
+          lessonName: lessonData.title || '',
+          score: correct,
+          totalQuestions: total,
+          percentage: percentage,
+          earnedPoints: earnedPoints,
+          completionDate: formatArabicDate(Date.now())
+        });
+      })
+      .catch(err => {
+        alert('❌ حدث خطأ أثناء حفظ النتيجة: ' + err.message);
+        isSubmitted = false; // السماح بإعادة المحاولة
+      });
+  }
+
+  // ===== ربط الدوال في النطاق العام =====
+  window.saveAnswer = saveAnswer;
+  window.goToQuestion = goToQuestion;
+  window.openConfirm = openConfirm;
 </script>
 </body>
 </html>

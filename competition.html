@@ -6,17 +6,42 @@
 <title>تفاصيل المحتوى — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
+<!-- Font Awesome للأيقونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  /* إضافة دعم للأسطر الجديدة في النصوص */
+  .preserve-linebreaks {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .course-hero .hero-body p {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .accordion-body .content-item .ci-left {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .enroll-lock-card p {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+</style>
 </head>
 <body>
 
 <header class="app-header" id="appHeader"></header>
 
 <main class="page">
-  <a class="back-link" href="home.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> كل المحتوى</a>
+  <a class="back-link" href="home.html">
+    <i class="fas fa-arrow-right"></i> كل المحتوى
+  </a>
 
   <div id="courseHero"></div>
 
-  <h2 style="font-family:'Amiri',serif; color:var(--primary-dark); font-size:19px; margin:0 0 14px;">المحاضرات</h2>
+  <h2 style="font-family:'Amiri',serif; color:var(--primary-dark); font-size:19px; margin:0 0 14px;">
+    <i class="fas fa-book-open" style="color:var(--gold);"></i> المحاضرات
+  </h2>
 
   <div id="lessonsWrap">
     <div class="center-loading"><div class="loader"></div></div>
@@ -26,9 +51,11 @@
 <!-- نافذة الوصف الكامل -->
 <div class="modal-overlay" id="descModal">
   <div class="modal">
-    <button class="modal-close" id="closeDescModal"></button>
+    <button class="modal-close" id="closeDescModal">
+      <i class="fas fa-times"></i>
+    </button>
     <h3 id="descModalTitle" style="font-family:'Amiri',serif; color:var(--primary-dark);"></h3>
-    <p id="descModalBody" style="font-size:14px; line-height:1.8; color:var(--text);"></p>
+    <p id="descModalBody" style="font-size:14px; line-height:1.8; color:var(--text); white-space:pre-wrap; word-wrap:break-word;"></p>
   </div>
 </div>
 
@@ -36,7 +63,7 @@
 <div class="modal-overlay" id="subscribeModal">
   <div class="modal" style="max-width:400px; text-align:center;">
     <h3 id="subscribeModalTitle" style="font-family:'Amiri',serif; color:var(--primary-dark);">تأكيد الاشتراك</h3>
-    <p id="subscribeModalBody" style="font-size:14px; line-height:1.8; color:var(--text); margin:0 0 22px;">هل تريد تأكيد الاشتراك؟</p>
+    <p id="subscribeModalBody" style="font-size:14px; line-height:1.8; color:var(--text); margin:0 0 22px; white-space:pre-wrap; word-wrap:break-word;">هل تريد تأكيد الاشتراك؟</p>
     <div style="display:flex; gap:10px;">
       <button type="button" class="btn btn-primary" id="confirmSubscribeBtn" style="flex:1;">نعم</button>
       <button type="button" class="btn btn-outline" id="cancelSubscribeBtn" style="flex:1;">لا</button>
@@ -89,7 +116,7 @@
     renderLessons();
   }
 
-  /* ---------------- الاشتراك ---------------- */
+  /* ===== الاشتراك ===== */
   function subscribe() {
     const now = firebase.database.ServerValue.TIMESTAMP;
     const updates = {};
@@ -118,6 +145,7 @@
     });
   });
 
+  /* ===== عرض الهيرو (المعلومات الأساسية) ===== */
   const DESC_LIMIT = 160;
 
   function renderHero() {
@@ -141,12 +169,12 @@
         '</div>' +
         '<div class="hero-body">' +
           '<h1>' + escapeHtml(compData.title || 'بدون عنوان') + '</h1>' +
-          (desc ? '<p>' + escapeHtml(shownDesc) + '</p>' : '') +
-          (isLong ? '<button type="button" class="desc-more-btn" id="descMoreBtn">عرض المزيد ' + icon('chevronLeft', 'icon-sm') + '</button>' : '') +
+          (desc ? '<p class="preserve-linebreaks">' + escapeHtml(shownDesc) + '</p>' : '') +
+          (isLong ? '<button type="button" class="desc-more-btn" id="descMoreBtn">عرض المزيد <i class="fas fa-chevron-left"></i></button>' : '') +
           '<div class="hero-stats">' +
-            '<span class="hero-stat">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</span>' +
-            '<span class="hero-stat">' + icon('play', 'icon-sm') + ' ' + videosCount + ' فيديو</span>' +
-            '<span class="hero-stat">' + icon('listCheck', 'icon-sm') + ' ' + examsCount + ' اختبار</span>' +
+            '<span class="hero-stat"><i class="fas fa-book-open"></i> ' + lessonsCount + ' محاضرة</span>' +
+            '<span class="hero-stat"><i class="fas fa-play"></i> ' + videosCount + ' فيديو</span>' +
+            '<span class="hero-stat"><i class="fas fa-list-check"></i> ' + examsCount + ' اختبار</span>' +
           '</div>' +
           (isEnrolled ?
             '<div class="hero-progress-wrap">' +
@@ -156,8 +184,8 @@
           ) +
           '<div class="subscribe-bar">' +
             (isEnrolled
-              ? '<span class="subscribed-badge">' + icon('check', 'icon-sm') + ' أنت مشترك بالفعل</span>'
-              : '<button type="button" class="subscribe-btn" id="subscribeBtn">' + icon('bookOpen', 'icon-sm') + ' ' + subscribeLabel + '</button>') +
+              ? '<span class="subscribed-badge"><i class="fas fa-check"></i> أنت مشترك بالفعل</span>'
+              : '<button type="button" class="subscribe-btn" id="subscribeBtn"><i class="fas fa-book-open"></i> ' + subscribeLabel + '</button>') +
           '</div>' +
         '</div>' +
       '</div>';
@@ -165,7 +193,7 @@
     if (isLong) {
       document.getElementById('descMoreBtn').addEventListener('click', function () {
         document.getElementById('descModalTitle').textContent = compData.title || '';
-        document.getElementById('descModalBody').textContent = desc;
+        document.getElementById('descModalBody').textContent = desc; // سيتم عرضها مع white-space: pre-wrap
         document.getElementById('descModal').classList.add('open');
       });
     }
@@ -181,6 +209,7 @@
     }
   }
 
+  /* ===== عرض قائمة المحاضرات ===== */
   function renderLessons() {
     const wrap = document.getElementById('lessonsWrap');
     const lessons = compData.lessons || {};
@@ -196,7 +225,7 @@
       const isCourse = compData.type !== 'competition';
       wrap.innerHTML =
         '<div class="enroll-lock-card">' +
-          '<div class="big-icon">' + icon('lock', 'icon-xl') + '</div>' +
+          '<div class="big-icon"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
           '<h3>المحتوى مقفول</h3>' +
           '<p>' + (isCourse ? 'اشترك في الكورس أولاً' : 'انضم للمسابقة أولاً') + ' للوصول إلى المحاضرات والفيديوهات والاختبارات.</p>' +
         '</div>';
@@ -219,9 +248,9 @@
 
       let lockNote = '';
       if (access.reason === 'release') {
-        lockNote = '<span class="lesson-lock-msg">' + icon('clock', 'icon-sm') + ' يُنشر في ' + formatArabicDate(lesson.releaseAt) + '</span>';
+        lockNote = '<span class="lesson-lock-msg"><i class="fas fa-clock"></i> يُنشر في ' + formatArabicDate(lesson.releaseAt) + '</span>';
       } else if (access.reason === 'sequence') {
-        lockNote = '<span class="lesson-lock-msg">' + icon('lock', 'icon-sm') + ' أكمِل المحاضرة السابقة أولاً</span>';
+        lockNote = '<span class="lesson-lock-msg"><i class="fas fa-lock"></i> أكمِل المحاضرة السابقة أولاً</span>';
       }
 
       let bodyItems = '';
@@ -230,8 +259,8 @@
         const watched = !!(lessonProgress.videos && lessonProgress.videos[vid] && lessonProgress.videos[vid].watched);
         bodyItems +=
           '<a class="content-item video-item" href="video.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&video=' + encodeURIComponent(vid) + '">' +
-            '<span class="ci-left"><span class="ci-icon">' + icon('play', 'icon-sm') + '</span>' + escapeHtml(v.title || ('فيديو الشرح ' + (vi + 1))) + '</span>' +
-            '<span class="ci-right">' + (watched ? icon('check', 'icon-sm') + ' تمت المشاهدة' : 'مشاهدة') + '</span>' +
+            '<span class="ci-left"><span class="ci-icon"><i class="fas fa-play"></i></span>' + escapeHtml(v.title || ('فيديو الشرح ' + (vi + 1))) + '</span>' +
+            '<span class="ci-right">' + (watched ? '<i class="fas fa-check"></i> تمت المشاهدة' : 'مشاهدة') + '</span>' +
           '</a>';
       });
       examIds.forEach(function (eid, ei) {
@@ -241,8 +270,8 @@
         const examDone = !!(examProgress && examProgress.completed);
         bodyItems +=
           '<a class="content-item exam-item" href="exam.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&exam=' + encodeURIComponent(eid) + '">' +
-            '<span class="ci-left"><span class="ci-icon">' + icon('listCheck', 'icon-sm') + '</span>' + escapeHtml(ex.title || ('الاختبار ' + (ei + 1))) + '</span>' +
-            '<span class="ci-right">' + (examDone ? icon('check', 'icon-sm') + ' أنجزت +' + (examProgress.earnedPoints || 0) : qCount + ' سؤال · ابدأ') + '</span>' +
+            '<span class="ci-left"><span class="ci-icon"><i class="fas fa-list-check"></i></span>' + escapeHtml(ex.title || ('الاختبار ' + (ei + 1))) + '</span>' +
+            '<span class="ci-right">' + (examDone ? '<i class="fas fa-check"></i> أنجزت +' + (examProgress.earnedPoints || 0) : qCount + ' سؤال · ابدأ') + '</span>' +
           '</a>';
       });
 
@@ -252,8 +281,8 @@
         const isPdf = m.type === 'pdf';
         bodyItems +=
           '<a class="content-item material-item ' + (isPdf ? '' : 'image-type') + '" href="' + escapeHtml(m.url) + '" target="_blank" rel="noopener">' +
-            '<span class="ci-left"><span class="ci-icon">' + icon(isPdf ? 'filePdf' : 'image', 'icon-sm') + '</span>' + escapeHtml(m.name || 'مرفق') + '</span>' +
-            '<span class="ci-right">' + icon('arrowUpRightFromSquare', 'icon-sm') + ' فتح</span>' +
+            '<span class="ci-left"><span class="ci-icon"><i class="fas fa-' + (isPdf ? 'file-pdf' : 'image') + '"></i></span>' + escapeHtml(m.name || 'مرفق') + '</span>' +
+            '<span class="ci-right"><i class="fas fa-external-link-alt"></i> فتح</span>' +
           '</a>';
       });
       if (!bodyItems) {
@@ -265,13 +294,13 @@
           '<button class="accordion-header" ' + (isLocked ? 'disabled' : '') + '>' +
             '<span class="lesson-info">' +
               '<span class="lesson-num ' + (done ? 'done' : '') + '">' +
-                (done ? icon('check', 'icon-sm') : (isLocked ? icon('lock', 'icon-sm') : (index + 1))) +
+                (done ? '<i class="fas fa-check"></i>' : (isLocked ? '<i class="fas fa-lock"></i>' : (index + 1))) +
               '</span>' +
               '<span><h4 style="margin:0 0 3px; font-size:15px;">' + escapeHtml(lesson.title || 'محاضرة') + '</h4>' +
                 (isLocked ? lockNote : '<span style="font-size:12px; color:var(--text-muted);">' + videoIds.length + ' فيديو · ' + examIds.length + ' اختبار' + (done ? ' · تم الإنجاز' : '') + '</span>') +
               '</span>' +
             '</span>' +
-            (isLocked ? '' : '<span class="chevron">' + icon('chevronDown', 'icon-sm') + '</span>') +
+            (isLocked ? '' : '<span class="chevron"><i class="fas fa-chevron-down"></i></span>') +
           '</button>' +
           (isLocked ? '' : '<div class="accordion-body"><div class="accordion-body-inner">' + bodyItems + '</div></div>') +
         '</div>';
@@ -286,7 +315,7 @@
     });
   }
 
-  document.getElementById('closeDescModal').innerHTML = icon('xmark');
+  /* ===== إغلاق نافذة الوصف ===== */
   document.getElementById('closeDescModal').addEventListener('click', function () {
     document.getElementById('descModal').classList.remove('open');
   });

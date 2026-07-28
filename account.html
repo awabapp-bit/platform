@@ -6,76 +6,538 @@
 <title>الحساب الشخصي — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
+<!-- Font Awesome للأيقونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  /* ===== التبويبات ===== */
+  .account-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .account-tab {
+    padding: 12px 22px;
+    border: none;
+    background: none;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .account-tab:hover { color: var(--primary); }
+  .account-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .account-tab i { font-size: 16px; }
+
+  .tab-content { display: none; animation: fadeIn 0.3s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== بطاقة المستوى ===== */
+  .tier-card {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .tier-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% 15%, rgba(201,154,74,0.25), transparent 55%);
+    pointer-events: none;
+  }
+  .tier-card .tier-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+  .tier-card .tier-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--rank-color, var(--gold-light));
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .tier-card .tier-name {
+    font-family: 'Amiri', serif;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .tier-card .tier-rank-pill {
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(255,255,255,0.16);
+    color: var(--rank-color, var(--gold-light));
+    padding: 3px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .tier-card .tier-points {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+  .tier-card .tier-level-big {
+    margin-inline-start: auto;
+    font-family: 'Amiri', serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--rank-color, var(--gold-light));
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .tier-card .tier-level-big span {
+    display: block;
+    font-family: 'Cairo', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+  .tier-card .tier-progress-wrap {
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .tier-card .tier-progress-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.18);
+    overflow: hidden;
+  }
+  .tier-card .tier-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--gold-light), var(--gold));
+    transition: width 0.5s ease;
+  }
+  .tier-card .tier-next-note {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 8px;
+  }
+
+  /* ===== معلومات الحساب ===== */
+  .info-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .info-row .label i { color: var(--gold); width: 18px; }
+  .info-row .value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ===== زر تعديل الملف ===== */
+  .edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+  .edit-profile-btn:hover {
+    background: rgba(27,77,53,0.06);
+    transform: translateY(-1px);
+  }
+
+  /* ===== بطاقة الاشتراك ===== */
+  .enrolled-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s ease;
+  }
+  .enrolled-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+    border-color: var(--primary-light);
+  }
+  .enrolled-card .ec-cover {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-pale);
+    font-size: 22px;
+  }
+  .enrolled-card .ec-body { flex: 1; min-width: 0; }
+  .enrolled-card .ec-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .enrolled-card .ec-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ===== بطاقة تاريخ الاختبارات ===== */
+  .exam-history-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    transition: all 0.15s ease;
+  }
+  .exam-history-card:hover {
+    box-shadow: var(--shadow);
+    border-color: var(--primary-light);
+  }
+  .exam-history-card .exam-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .exam-history-card .exam-info .exam-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .exam-history-card .exam-info .exam-title i {
+    color: var(--gold);
+    margin-left: 6px;
+  }
+  .exam-history-card .exam-score {
+    font-weight: 800;
+    color: var(--gold);
+    font-size: 14px;
+  }
+  .exam-history-card .exam-score i { margin-left: 4px; }
+  .exam-detail-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+  }
+  .exam-detail-btn:hover {
+    background: rgba(27,77,53,0.06);
+  }
+
+  /* ===== نافذة عرض الإجابات ===== */
+  .exam-answers-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(18,52,36,0.65);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .exam-answers-popup.open { display: flex; }
+  .exam-answers-content {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 620px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 28px 30px;
+    box-shadow: var(--shadow-lift);
+    position: relative;
+  }
+  .exam-answers-content .popup-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: var(--bg);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .exam-answers-content .popup-close:hover {
+    background: var(--border);
+  }
+  .exam-answers-content h3 {
+    font-family: 'Amiri', serif;
+    color: var(--primary-dark);
+    margin: 0 0 18px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .exam-answers-content h3 i { color: var(--gold); }
+
+  .exam-answer-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .exam-answer-item:last-child { border-bottom: none; }
+  .exam-answer-item .q-text {
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 14.5px;
+    color: var(--text);
+  }
+  .exam-answer-item .q-text i { color: var(--gold); margin-left: 6px; }
+  .exam-answer-item .a-detail {
+    font-size: 13.5px;
+    color: var(--text);
+    margin: 2px 0;
+  }
+  .exam-answer-item .a-detail strong { color: var(--primary-dark); }
+  .exam-answer-item .a-status {
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .exam-answer-item .a-status.correct { color: var(--success); }
+  .exam-answer-item .a-status.wrong { color: var(--danger); }
+  .exam-answer-item .a-status.unanswered { color: var(--text-muted); }
+
+  /* ===== تعديل الملف ===== */
+  #editProfileWrap .field { margin-bottom: 14px; }
+  #editProfileWrap .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+  }
+  #editProfileWrap .field input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: #FCFBF8;
+    color: var(--text);
+    transition: border-color 0.15s ease;
+  }
+  #editProfileWrap .field input:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+  .edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .edit-actions .btn { width: auto; }
+
+  /* ===== الحالات الفارغة ===== */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state i {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+  .empty-state p { font-size: 14px; }
+
+  /* ===== استجابة ===== */
+  @media (max-width: 600px) {
+    .account-tabs { gap: 4px; }
+    .account-tab { padding: 10px 14px; font-size: 13px; }
+    .tier-card { padding: 18px 20px; }
+    .tier-card .tier-top { gap: 12px; }
+    .tier-card .tier-level-big { font-size: 26px; }
+    .exam-history-card { flex-direction: column; align-items: stretch; }
+    .exam-history-card .exam-info { gap: 2px; }
+    .exam-detail-btn { align-self: flex-start; }
+    .exam-answers-content { padding: 20px; }
+  }
+</style>
 </head>
 <body>
 
 <header class="app-header" id="appHeader"></header>
 
-<main class="page" style="max-width:560px;">
-  <a class="back-link" href="home.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> الرئيسية</a>
-  <h1 class="page-title">الحساب الشخصي</h1>
-  <p class="page-sub">بياناتك الأساسية وتقدّمك ومستواك</p>
+<main class="page" style="max-width:740px;">
+  <a class="back-link" href="home.html">
+    <i class="fas fa-arrow-right"></i> الرئيسية
+  </a>
+  <h1 class="page-title"><i class="fas fa-user-circle" style="color:var(--gold);"></i> حسابي</h1>
 
-  <div id="tierCardWrap"></div>
-
-  <div class="info-card">
-    <div class="info-row"><span class="label">الاسم</span><span class="value" id="userName">—</span></div>
-    <div class="info-row"><span class="label">البريد الإلكتروني</span><span class="value" id="userEmail">—</span></div>
-    <div class="info-row"><span class="label">النقاط</span><span class="value" id="userPoints">—</span></div>
+  <!-- التبويبات -->
+  <div class="account-tabs" id="tabsContainer">
+    <button class="account-tab active" data-tab="info">
+      <i class="fas fa-id-card"></i> معلوماتي
+    </button>
+    <button class="account-tab" data-tab="subscriptions">
+      <i class="fas fa-book"></i> اشتراكاتي
+    </button>
+    <button class="account-tab" data-tab="exams">
+      <i class="fas fa-pencil-alt"></i> اختباراتي
+    </button>
   </div>
 
-  <h3 style="font-family:'Amiri',serif; color:var(--primary-dark); font-size:17px; margin:24px 0 12px;">الكورسات والمسابقات المشترك بها</h3>
-  <div id="enrolledWrap">
-    <div class="center-loading" style="min-height:80px;"><div class="loader"></div></div>
-  </div>
+  <!-- ===== تبويب المعلومات ===== -->
+  <div class="tab-content active" id="tab-info">
+    <div id="tierCardWrap"></div>
 
-  <button class="btn btn-outline" id="openChangePass" style="margin-top:10px;">تغيير كلمة المرور</button>
-
-  <div id="changePassWrap" style="display:none; margin-top:22px;">
     <div class="info-card">
-      <h3 style="font-family:'Amiri',serif;color:var(--primary-dark);margin:0 0 16px;">تغيير كلمة المرور</h3>
-      <div class="form-msg" id="passMsg"></div>
+      <div class="info-row">
+        <span class="label"><i class="fas fa-user"></i> الاسم</span>
+        <span class="value" id="userName">—</span>
+      </div>
+      <div class="info-row">
+        <span class="label"><i class="fas fa-envelope"></i> البريد الإلكتروني</span>
+        <span class="value" id="userEmail">—</span>
+      </div>
+      <div class="info-row">
+        <span class="label"><i class="fas fa-trophy"></i> المستوى</span>
+        <span class="value" id="userLevel">—</span>
+      </div>
+    </div>
 
-      <form id="changePassForm" novalidate>
-        <div class="field">
-          <label for="oldPassword">كلمة المرور الحالية</label>
-          <div class="password-toggle-wrap">
-            <input type="password" id="oldPassword" autocomplete="current-password" required>
-            <button type="button" class="password-toggle" data-target="oldPassword" aria-label="إظهار كلمة المرور"></button>
-          </div>
-        </div>
-        <div class="field">
-          <label for="newPassword">كلمة المرور الجديدة</label>
-          <div class="password-toggle-wrap">
-            <input type="password" id="newPassword" autocomplete="new-password" required>
-            <button type="button" class="password-toggle" data-target="newPassword" aria-label="إظهار كلمة المرور"></button>
-          </div>
-        </div>
-        <div class="field">
-          <label for="confirmNewPassword">تأكيد كلمة المرور الجديدة</label>
-          <div class="password-toggle-wrap">
-            <input type="password" id="confirmNewPassword" autocomplete="new-password" required>
-            <button type="button" class="password-toggle" data-target="confirmNewPassword" aria-label="إظهار كلمة المرور"></button>
-          </div>
-        </div>
+    <button class="edit-profile-btn" id="editProfileBtn">
+      <i class="fas fa-pen"></i> تعديل الملف الشخصي
+    </button>
 
-        <ul class="rules-list" id="rulesList">
-          <li data-rule="length"><span class="tick"></span> 8 أحرف على الأقل</li>
-          <li data-rule="upper"><span class="tick"></span> حرف كبير (A-Z)</li>
-          <li data-rule="lower"><span class="tick"></span> حرف صغير (a-z)</li>
-          <li data-rule="number"><span class="tick"></span> رقم واحد على الأقل</li>
-          <li data-rule="symbol"><span class="tick"></span> رمز واحد على الأقل (!@#$...)</li>
-          <li data-rule="match"><span class="tick"></span> تطابق كلمتَي المرور</li>
-        </ul>
-
-        <div style="display:flex; gap:10px;">
-          <button type="submit" class="btn btn-primary" id="savePassBtn">حفظ كلمة المرور</button>
-          <button type="button" class="btn btn-outline" id="cancelChangePass">إلغاء</button>
+    <div id="editProfileWrap" style="display:none; margin-top:20px;">
+      <div class="info-card">
+        <h3 style="font-family:'Amiri',serif; color:var(--primary-dark); margin:0 0 16px;">
+          <i class="fas fa-user-edit" style="color:var(--gold);"></i> تعديل الملف الشخصي
+        </h3>
+        <div class="form-msg" id="editProfileMsg"></div>
+        <div class="field">
+          <label><i class="fas fa-user"></i> الاسم الجديد</label>
+          <input type="text" id="editNameInput" placeholder="أدخل اسمك الكامل">
         </div>
-      </form>
+        <div class="field">
+          <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
+          <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها">
+          <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">يجب أن تكون 8 أحرف على الأقل لتغيير كلمة المرور</div>
+        </div>
+        <div class="edit-actions">
+          <button class="btn btn-primary" id="saveProfileBtn"><i class="fas fa-save"></i> حفظ التغييرات</button>
+          <button class="btn btn-outline" id="cancelEditBtn"><i class="fas fa-times"></i> إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== تبويب الاشتراكات ===== -->
+  <div class="tab-content" id="tab-subscriptions">
+    <div id="enrolledWrap">
+      <div class="center-loading"><div class="loader"></div></div>
+    </div>
+  </div>
+
+  <!-- ===== تبويب الاختبارات ===== -->
+  <div class="tab-content" id="tab-exams">
+    <div id="examsHistoryWrap">
+      <div class="center-loading"><div class="loader"></div></div>
     </div>
   </div>
 </main>
+
+<!-- ===== نافذة عرض الإجابات ===== -->
+<div class="exam-answers-popup" id="answersPopup">
+  <div class="exam-answers-content">
+    <button class="popup-close" onclick="document.getElementById('answersPopup').classList.remove('open')">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3><i class="fas fa-eye"></i> تفاصيل الإجابات</h3>
+    <div id="answersList"></div>
+  </div>
+</div>
 
 <footer class="site-footer" id="siteFooter"></footer>
 
@@ -85,164 +547,326 @@
 <script src="firebase-config.js"></script>
 <script src="icons.js"></script>
 <script src="app-shell.js"></script>
-<script src="password-rules.js"></script>
 <script>
-  document.querySelectorAll('.password-toggle').forEach(function (btn) { btn.innerHTML = icon('eye'); });
+  // ============================================================
+  // account.html — الحساب الشخصي
+  // ============================================================
 
   let currentUser = null;
+  let currentUserData = null;
 
   requireAuth(function (user, userData) {
     currentUser = user;
+    currentUserData = userData;
     renderAppHeader(user, userData, { showPoints: false });
     renderFooter();
-    document.getElementById('userName').textContent = userData.name || '—';
-    document.getElementById('userEmail').textContent = userData.email || user.email || '—';
-    document.getElementById('userPoints').textContent = userData.points || 0;
-    renderTierCard(userData.points || 0);
-    loadEnrolledCourses(user.uid);
+    renderInfoTab();
+    loadSubscriptions();
+    loadExamsHistory();
+    setupTabs();
+    setupEditProfile();
   });
 
-  function renderTierCard(points) {
-    const t = getUserTier(points);
-    const wrap = document.getElementById('tierCardWrap');
-    wrap.innerHTML =
-      '<div class="tier-card" style="--rank-color:' + t.rank.color + ';">' +
-        '<div class="tier-top">' +
-          '<div class="tier-icon">' + icon(t.rank.icon, 'icon-lg') + '</div>' +
-          '<div>' +
-            '<div class="tier-name">المستوى ' + t.level + ' <span class="tier-rank-pill">' + t.rank.name + '</span></div>' +
-            '<div class="tier-points">' + points + ' نقطة · من أصل ' + t.maxLevel + ' مستوى</div>' +
-          '</div>' +
-          '<div class="tier-level-big">' + t.level + '<span>/' + t.maxLevel + '</span></div>' +
-        '</div>' +
-        '<div class="tier-progress-wrap">' +
-          '<div class="tier-progress-bar"><div class="tier-progress-fill" style="width:' + t.progress + '%;"></div></div>' +
-          '<div class="tier-next-note">' +
-            (t.isMax ? 'وصلت لأعلى مستوى! 👑' : 'محتاج ' + t.pointsToNext + ' نقطة كمان للوصول للمستوى ' + (t.level + 1) + ' (' + t.progress + '%)') +
-          '</div>' +
-        '</div>' +
-      '</div>';
+  // ===== تبويب المعلومات =====
+  function renderInfoTab() {
+    const tier = getUserTier(currentUserData.points || 0);
+
+    document.getElementById('userName').textContent = currentUserData.name || '—';
+    document.getElementById('userEmail').textContent = currentUserData.email || currentUser.email || '—';
+    document.getElementById('userLevel').textContent = 'المستوى ' + tier.level + ' (' + tier.rank.name + ')';
+
+    // بطاقة المستوى
+    document.getElementById('tierCardWrap').innerHTML = `
+      <div class="tier-card" style="--rank-color: ${tier.rank.color};">
+        <div class="tier-top">
+          <div class="tier-icon"><i class="fas fa-${tier.rank.icon}"></i></div>
+          <div>
+            <div class="tier-name">
+              ${tier.rank.name}
+              <span class="tier-rank-pill">المستوى ${tier.level}</span>
+            </div>
+            <div class="tier-points"><i class="fas fa-star" style="color:var(--gold);"></i> ${tier.points} نقطة</div>
+          </div>
+          <div class="tier-level-big">${tier.level}<span>/${tier.maxLevel}</span></div>
+        </div>
+        <div class="tier-progress-wrap">
+          <div class="tier-progress-bar">
+            <div class="tier-progress-fill" style="width: ${tier.progress}%;"></div>
+          </div>
+          <div class="tier-next-note">
+            ${tier.isMax ? '🎉 وصلت لأعلى مستوى! 👑' : 'محتاج ' + tier.pointsToNext + ' نقطة للمستوى ' + (tier.level + 1) + ' (' + tier.progress + '%)'}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
-  function loadEnrolledCourses(uid) {
+  // ===== تبويب الاشتراكات =====
+  function loadSubscriptions() {
     const wrap = document.getElementById('enrolledWrap');
-    Promise.all([
-      db.ref('userEnrollments/' + uid).once('value'),
-      db.ref('userProgress/' + uid).once('value')
-    ]).then(function (results) {
-      const enrollments = results[0].val() || {};
-      const progress = results[1].val() || {};
-      const compIds = Object.keys(enrollments);
+    db.ref('userEnrollments/' + currentUser.uid).on('value', function (snap) {
+      const enrolls = snap.val() || {};
+      const ids = Object.keys(enrolls);
+      if (ids.length === 0) {
+        wrap.innerHTML = `<div class="empty-state"><i class="fas fa-book-open"></i><p>لا توجد اشتراكات حالية</p></div>`;
+        return;
+      }
+      Promise.all(ids.map(id => db.ref('competitions/' + id).once('value').then(s => ({ id, data: s.val() }))))
+        .then(results => {
+          const html = results.filter(r => r.data).map(r => `
+            <a class="enrolled-card" href="competition.html?id=${encodeURIComponent(r.id)}">
+              <div class="ec-cover"><i class="fas fa-${r.data.type !== 'competition' ? 'book' : 'trophy'}"></i></div>
+              <div class="ec-body">
+                <div class="ec-title">${escapeHtml(r.data.title || 'بدون عنوان')}</div>
+                <div class="ec-sub">${r.data.type !== 'competition' ? 'كورس' : 'مسابقة'}</div>
+              </div>
+            </a>
+          `).join('');
+          wrap.innerHTML = html || `<div class="empty-state"><i class="fas fa-book-open"></i><p>لا توجد اشتراكات</p></div>`;
+        });
+    });
+  }
 
-      if (compIds.length === 0) {
-        wrap.innerHTML = '<div class="empty-state" style="padding:30px 15px;"><div class="empty-state-icon">' + icon('bookOpen', 'icon-lg') + '</div><p style="font-size:13px;">لسه ماشتركتش في أي كورس أو مسابقة، تصفّح المحتوى المتاح من الرئيسية.</p></div>';
+  // ===== تبويب الاختبارات =====
+  function loadExamsHistory() {
+    const wrap = document.getElementById('examsHistoryWrap');
+    wrap.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
+
+    db.ref('userProgress/' + currentUser.uid).once('value').then(function (snap) {
+      const progress = snap.val() || {};
+      const examsList = [];
+
+      Object.keys(progress).forEach(compId => {
+        const compProgress = progress[compId] || {};
+        Object.keys(compProgress).forEach(lessonId => {
+          const lessonProg = compProgress[lessonId] || {};
+          const exams = lessonProg.exams || {};
+          Object.keys(exams).forEach(examId => {
+            const e = exams[examId];
+            // فقط الاختبارات المكتملة
+            if (e.completed === true) {
+              examsList.push({
+                compId,
+                lessonId,
+                examId,
+                score: e.score || 0,
+                earnedPoints: e.earnedPoints || 0,
+                answers: e.answers || {},
+                answeredAt: e.answeredAt || Date.now()
+              });
+            }
+          });
+        });
+      });
+
+      examsList.sort((a, b) => b.answeredAt - a.answeredAt);
+      renderExamsHistory(examsList);
+    }).catch(err => {
+      wrap.innerHTML = '<p style="color:var(--danger);"><i class="fas fa-exclamation-circle"></i> حدث خطأ: ' + err.message + '</p>';
+    });
+  }
+
+  function renderExamsHistory(list) {
+    const wrap = document.getElementById('examsHistoryWrap');
+    if (list.length === 0) {
+      wrap.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>لم تخض أي اختبار حتى الآن</p></div>`;
+      return;
+    }
+
+    let html = '';
+    list.forEach((exam, idx) => {
+      html += `
+        <div class="exam-history-card">
+          <div class="exam-info">
+            <div class="exam-title"><i class="fas fa-pencil-alt"></i> اختبار #${idx+1}</div>
+            <div class="exam-score"><i class="fas fa-star"></i> ${exam.earnedPoints} نقطة · ${exam.score} إجابة صحيحة</div>
+          </div>
+          <button class="exam-detail-btn" data-comp="${exam.compId}" data-lesson="${exam.lessonId}" data-exam="${exam.examId}">
+            <i class="fas fa-eye"></i> عرض الإجابات
+          </button>
+        </div>
+      `;
+    });
+    wrap.innerHTML = html;
+
+    wrap.querySelectorAll('.exam-detail-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        showExamDetails(btn.dataset.comp, btn.dataset.lesson, btn.dataset.exam);
+      });
+    });
+  }
+
+  // ===== عرض تفاصيل الإجابات =====
+  function showExamDetails(compId, lessonId, examId) {
+    const popup = document.getElementById('answersPopup');
+    const list = document.getElementById('answersList');
+    list.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
+    popup.classList.add('open');
+
+    // جلب أسئلة الاختبار
+    db.ref('competitions/' + compId + '/lessons/' + lessonId + '/exams/' + examId).once('value').then(function (snap) {
+      const exam = snap.val();
+      if (!exam) { list.innerHTML = '<p>لا توجد بيانات للاختبار</p>'; return; }
+      const questions = exam.questions || {};
+      const qIds = Object.keys(questions);
+
+      // جلب إجابات المستخدم
+      db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId + '/exams/' + examId + '/answers').once('value').then(function (aSnap) {
+        const userAnswers = aSnap.val() || {};
+        let html = '';
+
+        qIds.forEach(qId => {
+          const q = questions[qId];
+          const selected = userAnswers[qId];
+          const isCorrect = (selected !== undefined && selected === q.correct);
+          const correctAnswer = q.options[q.correct] || '';
+          const userAnswer = (selected !== undefined && selected >= 0 && selected < q.options.length) ? q.options[selected] : '—';
+
+          let statusClass = 'unanswered';
+          let statusText = '❓ لم يجب';
+          if (selected !== undefined && selected >= 0) {
+            statusClass = isCorrect ? 'correct' : 'wrong';
+            statusText = isCorrect ? '✅ صحيح' : '❌ خاطئ';
+          }
+
+          html += `
+            <div class="exam-answer-item">
+              <div class="q-text"><i class="fas fa-question-circle"></i> ${escapeHtml(q.text)}</div>
+              <div class="a-detail"><strong>إجابتك:</strong> ${escapeHtml(userAnswer)}</div>
+              <div class="a-detail"><strong>الإجابة الصحيحة:</strong> ${escapeHtml(correctAnswer)}</div>
+              <div class="a-status ${statusClass}">${statusText}</div>
+            </div>
+          `;
+        });
+
+        list.innerHTML = html || '<p>لا توجد إجابات مسجلة</p>';
+      });
+    }).catch(err => {
+      list.innerHTML = '<p style="color:var(--danger);"><i class="fas fa-exclamation-circle"></i> حدث خطأ: ' + err.message + '</p>';
+    });
+  }
+
+  // ===== التبويبات =====
+  function setupTabs() {
+    const tabs = document.querySelectorAll('.account-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        tabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+      });
+    });
+  }
+
+  // ===== تعديل الملف الشخصي =====
+  function setupEditProfile() {
+    const editBtn = document.getElementById('editProfileBtn');
+    const wrap = document.getElementById('editProfileWrap');
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    const nameInput = document.getElementById('editNameInput');
+    const passInput = document.getElementById('editPassInput');
+    const msg = document.getElementById('editProfileMsg');
+
+    editBtn.addEventListener('click', function () {
+      wrap.style.display = 'block';
+      nameInput.value = currentUserData.name || '';
+      passInput.value = '';
+      msg.classList.remove('show');
+    });
+
+    cancelBtn.addEventListener('click', function () {
+      wrap.style.display = 'none';
+      msg.classList.remove('show');
+    });
+
+    document.getElementById('saveProfileBtn').addEventListener('click', function () {
+      msg.classList.remove('show');
+      const newName = nameInput.value.trim();
+      const newPass = passInput.value;
+
+      if (!newName) {
+        msg.textContent = 'الاسم مطلوب';
+        msg.className = 'form-msg show error';
         return;
       }
 
-      Promise.all(compIds.map(function (compId) {
-        return db.ref('competitions/' + compId).once('value').then(function (cSnap) { return { id: compId, data: cSnap.val() }; });
-      })).then(function (results) {
-        const cards = results.filter(function (r) { return r.data; }).map(function (r) {
-          const isCourse = r.data.type !== 'competition';
-          const pct = computeCourseProgress(r.data.lessons || {}, progress[r.id] || {});
-          return '<a class="enrolled-card" href="competition.html?id=' + encodeURIComponent(r.id) + '">' +
-            '<div class="ec-cover">' +
-              (r.data.coverUrl ? '<img src="' + escapeHtml(r.data.coverUrl) + '" alt="">' : icon(isCourse ? 'bookOpen' : 'trophy', 'icon-md')) +
-            '</div>' +
-            '<div class="ec-body">' +
-              '<div class="ec-title">' + escapeHtml(r.data.title || 'بدون عنوان') + '</div>' +
-              '<div class="ec-progress-wrap">' +
-                '<div class="ec-progress-bar"><div class="ec-progress-fill" style="width:' + pct + '%;"></div></div>' +
-                '<span class="ec-percent">' + pct + '%</span>' +
-              '</div>' +
-            '</div>' +
-          '</a>';
+      const updates = {};
+      let nameChanged = false;
+      let passChanged = false;
+
+      if (newName !== currentUserData.name) {
+        updates['users/' + currentUser.uid + '/name'] = newName;
+        nameChanged = true;
+      }
+
+      if (newPass.length >= 8) {
+        passChanged = true;
+      } else if (newPass.length > 0 && newPass.length < 8) {
+        msg.textContent = 'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل';
+        msg.className = 'form-msg show error';
+        return;
+      }
+
+      // تنفيذ التغييرات
+      const promises = [];
+
+      if (nameChanged) {
+        promises.push(currentUser.updateProfile({ displayName: newName }));
+      }
+
+      if (passChanged) {
+        const currentPass = prompt('🔐 أدخل كلمة المرور الحالية لتأكيد تغيير كلمة المرور:');
+        if (!currentPass) {
+          msg.textContent = 'تم إلغاء تغيير كلمة المرور';
+          msg.className = 'form-msg show error';
+          return;
+        }
+        const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
+        promises.push(
+          currentUser.reauthenticateWithCredential(cred)
+            .then(() => currentUser.updatePassword(newPass))
+        );
+      }
+
+      if (Object.keys(updates).length > 0) {
+        promises.push(db.ref().update(updates));
+      }
+
+      if (promises.length === 0) {
+        msg.textContent = 'لا توجد تغييرات لحفظها';
+        msg.className = 'form-msg show error';
+        return;
+      }
+
+      const btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+      Promise.all(promises)
+        .then(() => {
+          msg.textContent = '✅ تم تحديث الملف الشخصي بنجاح';
+          msg.className = 'form-msg show success';
+          // تحديث البيانات المحلية
+          if (nameChanged) currentUserData.name = newName;
+          setTimeout(() => location.reload(), 1200);
+        })
+        .catch(err => {
+          console.error(err);
+          const errorMsg = err.code === 'auth/wrong-password' ? 'كلمة المرور الحالية غير صحيحة' :
+                           err.code === 'auth/too-many-requests' ? 'محاولات كثيرة، حاول مرة أخرى بعد قليل' :
+                           err.message || 'حدث خطأ غير متوقع';
+          msg.textContent = '❌ ' + errorMsg;
+          msg.className = 'form-msg show error';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-save"></i> حفظ التغييرات';
         });
-        wrap.innerHTML = cards.join('') || '<div class="empty-state" style="padding:30px 15px;"><p style="font-size:13px;">لسه ماشتركتش في أي كورس أو مسابقة.</p></div>';
-      });
     });
   }
 
-  const openBtn = document.getElementById('openChangePass');
-  const wrap = document.getElementById('changePassWrap');
-  const cancelBtn = document.getElementById('cancelChangePass');
-
-  openBtn.addEventListener('click', function () { wrap.style.display = 'block'; openBtn.style.display = 'none'; });
-  cancelBtn.addEventListener('click', function () {
-    wrap.style.display = 'none';
-    openBtn.style.display = 'inline-flex';
-    document.getElementById('changePassForm').reset();
-    updateRules();
-  });
-
-  document.querySelectorAll('.password-toggle').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      const input = document.getElementById(btn.dataset.target);
-      const isPass = input.type === 'password';
-      input.type = isPass ? 'text' : 'password';
-      btn.innerHTML = icon(isPass ? 'eyeSlash' : 'eye');
-      btn.setAttribute('aria-label', isPass ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
-    });
-  });
-
-  const rulesList = document.getElementById('rulesList');
-  const newPasswordInput = document.getElementById('newPassword');
-  const confirmNewInput = document.getElementById('confirmNewPassword');
-
-  function updateRules() {
-    const rules = checkPasswordRules(newPasswordInput.value, confirmNewInput.value);
-    renderPasswordRules(rulesList, rules);
-    return rules;
-  }
-  newPasswordInput.addEventListener('input', updateRules);
-  confirmNewInput.addEventListener('input', updateRules);
-
-  function showPassMsg(text, type) {
-    const el = document.getElementById('passMsg');
-    el.textContent = text;
-    el.className = 'form-msg show ' + type;
-  }
-
-  function mapError(code) {
-    const map = {
-      'auth/wrong-password': 'كلمة المرور الحالية غير صحيحة',
-      'auth/invalid-credential': 'كلمة المرور الحالية غير صحيحة',
-      'auth/weak-password': 'كلمة المرور الجديدة ضعيفة',
-      'auth/requires-recent-login': 'يرجى تسجيل الدخول من جديد ثم إعادة المحاولة',
-      'auth/network-request-failed': 'تعذر الاتصال بالشبكة'
-    };
-    return map[code] || 'حدث خطأ، حاول مرة أخرى';
-  }
-
-  document.getElementById('changePassForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const oldPassword = document.getElementById('oldPassword').value;
-    const newPassword = newPasswordInput.value;
-    const rules = updateRules();
-
-    if (!oldPassword) { showPassMsg('من فضلك أدخل كلمة المرور الحالية', 'error'); return; }
-    if (!allRulesPass(rules)) { showPassMsg('من فضلك استوفِ جميع شروط كلمة المرور الجديدة', 'error'); return; }
-
-    const saveBtn = document.getElementById('savePassBtn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'جارٍ الحفظ...';
-
-    const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, oldPassword);
-
-    currentUser.reauthenticateWithCredential(credential)
-      .then(function () { return currentUser.updatePassword(newPassword); })
-      .then(function () {
-        showPassMsg('تم تغيير كلمة المرور بنجاح', 'success');
-        document.getElementById('changePassForm').reset();
-        updateRules();
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'حفظ كلمة المرور';
-      })
-      .catch(function (err) {
-        showPassMsg(mapError(err.code), 'error');
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'حفظ كلمة المرور';
-      });
+  // ===== إغلاق النافذة المنبثقة بالضغط على الخلفية =====
+  document.getElementById('answersPopup').addEventListener('click', function (e) {
+    if (e.target === this) this.classList.remove('open');
   });
 </script>
 </body>
