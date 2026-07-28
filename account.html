@@ -6,7 +6,7 @@
 <title>الحساب الشخصي — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
-<!-- Font Awesome للأيقونات -->
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
   /* ===== التبويبات ===== */
@@ -180,7 +180,6 @@
     color: var(--text);
   }
 
-  /* ===== زر تعديل الملف ===== */
   .edit-profile-btn {
     display: inline-flex;
     align-items: center;
@@ -201,7 +200,30 @@
     transform: translateY(-1px);
   }
 
-  /* ===== بطاقة الاشتراك ===== */
+  /* ===== زر حذف الحساب ===== */
+  .delete-account-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1.5px solid var(--danger);
+    color: var(--danger);
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    margin-top: 12px;
+  }
+  .delete-account-btn:hover {
+    background: rgba(179,67,43,0.08);
+    transform: translateY(-1px);
+  }
+  .delete-account-btn i { font-size: 14px; }
+
+  /* ===== الاشتراكات والاختبارات ===== */
   .enrolled-card {
     display: flex;
     align-items: center;
@@ -244,7 +266,6 @@
     color: var(--text-muted);
   }
 
-  /* ===== بطاقة تاريخ الاختبارات ===== */
   .exam-history-card {
     display: flex;
     justify-content: space-between;
@@ -301,7 +322,6 @@
     background: rgba(27,77,53,0.06);
   }
 
-  /* ===== نافذة عرض الإجابات ===== */
   .exam-answers-popup {
     position: fixed;
     inset: 0;
@@ -383,7 +403,6 @@
   .exam-answer-item .a-status.wrong { color: var(--danger); }
   .exam-answer-item .a-status.unanswered { color: var(--text-muted); }
 
-  /* ===== تعديل الملف ===== */
   #editProfileWrap .field { margin-bottom: 14px; }
   #editProfileWrap .field label {
     display: block;
@@ -415,7 +434,6 @@
   }
   .edit-actions .btn { width: auto; }
 
-  /* ===== الحالات الفارغة ===== */
   .empty-state {
     text-align: center;
     padding: 40px 20px;
@@ -430,7 +448,196 @@
   }
   .empty-state p { font-size: 14px; }
 
-  /* ===== استجابة ===== */
+  /* ============================================================
+     نافذة حذف الحساب المتكاملة (Modal)
+     ============================================================ */
+  .delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(18,52,36,0.7);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeInOverlay 0.3s ease;
+  }
+  .delete-modal-overlay.open { display: flex; }
+  @keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .delete-modal {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 480px;
+    width: 100%;
+    padding: 32px 30px;
+    box-shadow: var(--shadow-lift);
+    position: relative;
+    animation: slideUp 0.3s ease;
+    direction: rtl;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .delete-modal .modal-close {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--bg);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .delete-modal .modal-close:hover {
+    background: var(--border);
+  }
+
+  .delete-modal .modal-icon {
+    text-align: center;
+    font-size: 48px;
+    color: var(--danger);
+    margin-bottom: 12px;
+  }
+  .delete-modal .modal-icon i { font-size: 48px; }
+
+  .delete-modal h3 {
+    font-family: 'Amiri', serif;
+    color: var(--primary-dark);
+    font-size: 20px;
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  .delete-modal p {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.8;
+    margin: 0 0 18px;
+  }
+  .delete-modal .field {
+    margin-bottom: 14px;
+  }
+  .delete-modal .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+  }
+  .delete-modal .field input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: #FCFBF8;
+    color: var(--text);
+    transition: border-color 0.15s ease;
+  }
+  .delete-modal .field input:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+
+  .delete-modal .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .delete-modal .modal-actions .btn {
+    width: auto;
+    flex: 1;
+    min-width: 100px;
+  }
+  .delete-modal .modal-actions .btn-danger {
+    background: linear-gradient(135deg, var(--danger), #8a3120);
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 20px rgba(179,67,43,0.25);
+  }
+  .delete-modal .modal-actions .btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(179,67,43,0.32);
+  }
+  .delete-modal .modal-actions .btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .delete-modal .error-msg {
+    font-size: 13px;
+    color: var(--danger);
+    background: #FBEAE6;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    display: none;
+  }
+  .delete-modal .error-msg.show { display: block; }
+
+  .delete-modal .success-msg {
+    font-size: 13px;
+    color: var(--success);
+    background: #E6F2EA;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    display: none;
+  }
+  .delete-modal .success-msg.show { display: block; }
+
+  .delete-modal .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .delete-modal .step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .delete-modal .step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s ease;
+  }
+  .delete-modal .step-dot.active {
+    background: var(--gold);
+  }
+  .delete-modal .step-dot.done {
+    background: var(--success);
+  }
+
   @media (max-width: 600px) {
     .account-tabs { gap: 4px; }
     .account-tab { padding: 10px 14px; font-size: 13px; }
@@ -441,6 +648,8 @@
     .exam-history-card .exam-info { gap: 2px; }
     .exam-detail-btn { align-self: flex-start; }
     .exam-answers-content { padding: 20px; }
+    .delete-modal { padding: 24px 18px; }
+    .delete-modal .modal-actions .btn { min-width: 80px; font-size: 13px; }
   }
 </style>
 </head>
@@ -454,7 +663,7 @@
   </a>
   <h1 class="page-title"><i class="fas fa-user-circle" style="color:var(--gold);"></i> حسابي</h1>
 
-  <!-- التبويبات -->
+  <!-- ===== التبويبات ===== -->
   <div class="account-tabs" id="tabsContainer">
     <button class="account-tab active" data-tab="info">
       <i class="fas fa-id-card"></i> معلوماتي
@@ -486,9 +695,14 @@
       </div>
     </div>
 
-    <button class="edit-profile-btn" id="editProfileBtn">
-      <i class="fas fa-pen"></i> تعديل الملف الشخصي
-    </button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <button class="edit-profile-btn" id="editProfileBtn">
+        <i class="fas fa-pen"></i> تعديل الملف الشخصي
+      </button>
+      <button class="delete-account-btn" id="deleteAccountBtn">
+        <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
+      </button>
+    </div>
 
     <div id="editProfileWrap" style="display:none; margin-top:20px;">
       <div class="info-card">
@@ -539,6 +753,47 @@
   </div>
 </div>
 
+<!-- ==============================================================
+     نافذة حذف الحساب المتكاملة (Modal)
+     ============================================================== -->
+<div class="delete-modal-overlay" id="deleteModal">
+  <div class="delete-modal">
+    <button class="modal-close" id="deleteModalClose" aria-label="إغلاق">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- المؤشر (نقاط المراحل) -->
+    <div class="step-indicator" id="stepIndicator">
+      <span class="step-dot active" data-step="1"></span>
+      <span class="step-dot" data-step="2"></span>
+      <span class="step-dot" data-step="3"></span>
+      <span class="step-dot" data-step="4"></span>
+    </div>
+
+    <!-- أيقونة -->
+    <div class="modal-icon" id="modalIcon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+
+    <!-- العنوان -->
+    <h3 id="modalTitle">تأكيد حذف الحساب</h3>
+
+    <!-- المحتوى الديناميكي -->
+    <div id="modalBody">
+      <!-- سيتم ملؤه بواسطة JavaScript -->
+    </div>
+
+    <!-- رسائل الخطأ/النجاح -->
+    <div class="error-msg" id="modalError"></div>
+    <div class="success-msg" id="modalSuccess"></div>
+
+    <!-- الأزرار -->
+    <div class="modal-actions" id="modalActions">
+      <!-- سيتم ملؤه بواسطة JavaScript -->
+    </div>
+  </div>
+</div>
+
 <footer class="site-footer" id="siteFooter"></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -565,6 +820,7 @@
     loadExamsHistory();
     setupTabs();
     setupEditProfile();
+    setupDeleteAccountModal();
   });
 
   // ===== تبويب المعلومات =====
@@ -575,7 +831,6 @@
     document.getElementById('userEmail').textContent = currentUserData.email || currentUser.email || '—';
     document.getElementById('userLevel').textContent = 'المستوى ' + tier.level + ' (' + tier.rank.name + ')';
 
-    // بطاقة المستوى
     document.getElementById('tierCardWrap').innerHTML = `
       <div class="tier-card" style="--rank-color: ${tier.rank.color};">
         <div class="tier-top">
@@ -643,7 +898,6 @@
           const exams = lessonProg.exams || {};
           Object.keys(exams).forEach(examId => {
             const e = exams[examId];
-            // فقط الاختبارات المكتملة
             if (e.completed === true) {
               examsList.push({
                 compId,
@@ -696,21 +950,18 @@
     });
   }
 
-  // ===== عرض تفاصيل الإجابات =====
   function showExamDetails(compId, lessonId, examId) {
     const popup = document.getElementById('answersPopup');
     const list = document.getElementById('answersList');
     list.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
     popup.classList.add('open');
 
-    // جلب أسئلة الاختبار
     db.ref('competitions/' + compId + '/lessons/' + lessonId + '/exams/' + examId).once('value').then(function (snap) {
       const exam = snap.val();
       if (!exam) { list.innerHTML = '<p>لا توجد بيانات للاختبار</p>'; return; }
       const questions = exam.questions || {};
       const qIds = Object.keys(questions);
 
-      // جلب إجابات المستخدم
       db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId + '/exams/' + examId + '/answers').once('value').then(function (aSnap) {
         const userAnswers = aSnap.val() || {};
         let html = '';
@@ -808,7 +1059,6 @@
         return;
       }
 
-      // تنفيذ التغييرات
       const promises = [];
 
       if (nameChanged) {
@@ -847,7 +1097,6 @@
         .then(() => {
           msg.textContent = '✅ تم تحديث الملف الشخصي بنجاح';
           msg.className = 'form-msg show success';
-          // تحديث البيانات المحلية
           if (nameChanged) currentUserData.name = newName;
           setTimeout(() => location.reload(), 1200);
         })
@@ -864,7 +1113,333 @@
     });
   }
 
-  // ===== إغلاق النافذة المنبثقة بالضغط على الخلفية =====
+  // ============================================================
+  // ✅ نافذة حذف الحساب المتكاملة (HTML + CSS + JS)
+  // ============================================================
+  function setupDeleteAccountModal() {
+    const deleteBtn = document.getElementById('deleteAccountBtn');
+    const modal = document.getElementById('deleteModal');
+    const closeBtn = document.getElementById('deleteModalClose');
+    const modalBody = document.getElementById('modalBody');
+    const modalActions = document.getElementById('modalActions');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalError = document.getElementById('modalError');
+    const modalSuccess = document.getElementById('modalSuccess');
+    const stepDots = document.querySelectorAll('.step-dot');
+
+    let currentStep = 1;
+    let totalSteps = 4;
+    let confirmText = '';
+    let password1 = '';
+    let password2 = '';
+
+    // دالة لتحديث نقاط المراحل
+    function updateSteps(step) {
+      stepDots.forEach((dot, index) => {
+        dot.classList.remove('active', 'done');
+        if (index + 1 === step) dot.classList.add('active');
+        else if (index + 1 < step) dot.classList.add('done');
+      });
+    }
+
+    // دالة لإعادة تعيين النافذة
+    function resetModal() {
+      currentStep = 1;
+      confirmText = '';
+      password1 = '';
+      password2 = '';
+      modalError.classList.remove('show');
+      modalSuccess.classList.remove('show');
+      modalError.textContent = '';
+      modalSuccess.textContent = '';
+      updateSteps(1);
+    }
+
+    // دالة لعرض الخطوة الحالية
+    function renderStep(step) {
+      modalError.classList.remove('show');
+      modalSuccess.classList.remove('show');
+      modalError.textContent = '';
+      modalSuccess.textContent = '';
+
+      switch (step) {
+        case 1: // التأكيد الأولي
+          modalIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+          modalTitle.textContent = '⚠️ تأكيد حذف الحساب';
+          modalBody.innerHTML = `
+            <p style="font-size:15px; color:var(--text);">
+              <strong>هل أنت متأكد أنك تريد حذف حسابك نهائياً؟</strong>
+            </p>
+            <p style="font-size:13.5px; color:var(--text-muted);">
+              سيتم حذف كل بياناتك: نقاطك، تقدمك، اشتراكاتك، إشعاراتك.<br>
+              <strong style="color:var(--danger);">لا يمكن استرجاع أي من هذه البيانات بعد الحذف.</strong>
+            </p>
+          `;
+          modalActions.innerHTML = `
+            <button class="btn btn-outline" id="deleteStepCancel" style="flex:1;">إلغاء</button>
+            <button class="btn btn-danger" id="deleteStepNext" style="flex:1;">نعم، متأكد</button>
+          `;
+          document.getElementById('deleteStepCancel').addEventListener('click', closeModal);
+          document.getElementById('deleteStepNext').addEventListener('click', function () {
+            goToStep(2);
+          });
+          break;
+
+        case 2: // تأكيد كتابي (كتابة كلمة "حذف")
+          modalIcon.innerHTML = '<i class="fas fa-pen"></i>';
+          modalTitle.textContent = '✍️ تأكيد كتابي';
+          modalBody.innerHTML = `
+            <p style="font-size:14px; color:var(--text-muted);">
+              للتأكيد، اكتب كلمة <strong style="color:var(--danger);">"حذف"</strong> في المربع التالي:
+            </p>
+            <div class="field">
+              <input type="text" id="deleteConfirmInput" placeholder="اكتب حذف هنا" autocomplete="off">
+            </div>
+          `;
+          modalActions.innerHTML = `
+            <button class="btn btn-outline" id="deleteStepBack" style="flex:1;">رجوع</button>
+            <button class="btn btn-danger" id="deleteStepNext" style="flex:1;" disabled>تأكيد</button>
+          `;
+          const input = document.getElementById('deleteConfirmInput');
+          const nextBtn = document.getElementById('deleteStepNext');
+          input.addEventListener('input', function () {
+            nextBtn.disabled = (this.value.trim() !== 'حذف');
+          });
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && this.value.trim() === 'حذف') {
+              goToStep(3);
+            }
+          });
+          document.getElementById('deleteStepBack').addEventListener('click', function () {
+            goToStep(1);
+          });
+          document.getElementById('deleteStepNext').addEventListener('click', function () {
+            if (input.value.trim() === 'حذف') {
+              confirmText = 'حذف';
+              goToStep(3);
+            }
+          });
+          setTimeout(() => input.focus(), 100);
+          break;
+
+        case 3: // كلمة المرور (المرة الأولى)
+          modalIcon.innerHTML = '<i class="fas fa-lock"></i>';
+          modalTitle.textContent = '🔐 أدخل كلمة المرور (مرة أولى)';
+          modalBody.innerHTML = `
+            <p style="font-size:14px; color:var(--text-muted);">
+              أدخل كلمة المرور الحالية لتأكيد الهوية (المرة الأولى):
+            </p>
+            <div class="field">
+              <input type="password" id="deletePass1" placeholder="كلمة المرور" autocomplete="off">
+            </div>
+          `;
+          modalActions.innerHTML = `
+            <button class="btn btn-outline" id="deleteStepBack" style="flex:1;">رجوع</button>
+            <button class="btn btn-danger" id="deleteStepNext" style="flex:1;">التالي</button>
+          `;
+          const input1 = document.getElementById('deletePass1');
+          document.getElementById('deleteStepBack').addEventListener('click', function () {
+            goToStep(2);
+          });
+          document.getElementById('deleteStepNext').addEventListener('click', function () {
+            const val = input1.value.trim();
+            if (!val) {
+              showError('يرجى إدخال كلمة المرور.');
+              return;
+            }
+            password1 = val;
+            goToStep(4);
+          });
+          input1.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              const val = this.value.trim();
+              if (val) { password1 = val; goToStep(4); }
+              else showError('يرجى إدخال كلمة المرور.');
+            }
+          });
+          setTimeout(() => input1.focus(), 100);
+          break;
+
+        case 4: // كلمة المرور (المرة الثانية)
+          modalIcon.innerHTML = '<i class="fas fa-lock"></i>';
+          modalTitle.textContent = '🔐 أدخل كلمة المرور (مرة ثانية)';
+          modalBody.innerHTML = `
+            <p style="font-size:14px; color:var(--text-muted);">
+              أدخل كلمة المرور الحالية مرة أخرى للتأكيد (المرة الثانية):
+            </p>
+            <div class="field">
+              <input type="password" id="deletePass2" placeholder="كلمة المرور" autocomplete="off">
+            </div>
+          `;
+          modalActions.innerHTML = `
+            <button class="btn btn-outline" id="deleteStepBack" style="flex:1;">رجوع</button>
+            <button class="btn btn-danger" id="deleteStepNext" style="flex:1;">تأكيد الحذف</button>
+          `;
+          const input2 = document.getElementById('deletePass2');
+          document.getElementById('deleteStepBack').addEventListener('click', function () {
+            goToStep(3);
+          });
+          document.getElementById('deleteStepNext').addEventListener('click', function () {
+            const val = input2.value.trim();
+            if (!val) {
+              showError('يرجى إدخال كلمة المرور.');
+              return;
+            }
+            password2 = val;
+            if (password1 !== password2) {
+              showError('❌ كلمتا المرور غير متطابقتين. حاول مرة أخرى.');
+              // نرجع للخطوة 3 عشان يعيد إدخال كلمة المرور
+              setTimeout(() => goToStep(3), 800);
+              return;
+            }
+            // تنفيذ حذف الحساب
+            executeDelete();
+          });
+          input2.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              const val = this.value.trim();
+              if (!val) { showError('يرجى إدخال كلمة المرور.'); return; }
+              password2 = val;
+              if (password1 !== password2) {
+                showError('❌ كلمتا المرور غير متطابقتين. حاول مرة أخرى.');
+                setTimeout(() => goToStep(3), 800);
+                return;
+              }
+              executeDelete();
+            }
+          });
+          setTimeout(() => input2.focus(), 100);
+          break;
+      }
+      updateSteps(step);
+    }
+
+    // الانتقال لخطوة معينة
+    function goToStep(step) {
+      if (step < 1 || step > totalSteps) return;
+      currentStep = step;
+      renderStep(step);
+    }
+
+    // عرض رسالة خطأ
+    function showError(msg) {
+      modalError.textContent = msg;
+      modalError.classList.add('show');
+    }
+
+    // عرض رسالة نجاح
+    function showSuccess(msg) {
+      modalSuccess.textContent = msg;
+      modalSuccess.classList.add('show');
+    }
+
+    // تنفيذ عملية الحذف
+    function executeDelete() {
+      // تعطيل الأزرار وإظهار التحميل
+      const actions = document.getElementById('modalActions');
+      actions.innerHTML = `
+        <button class="btn btn-danger" style="flex:1; justify-content:center;" disabled>
+          <span class="loading-spinner"></span> جاري حذف الحساب...
+        </button>
+      `;
+      modalIcon.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+      modalTitle.textContent = '⏳ جاري حذف الحساب...';
+      modalBody.innerHTML = '<p style="text-align:center; color:var(--text-muted);">يرجى الانتظار، يتم حذف بياناتك...</p>';
+      modalError.classList.remove('show');
+      modalSuccess.classList.remove('show');
+
+      const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password1);
+
+      currentUser.reauthenticateWithCredential(credential)
+        .then(function () {
+          return deleteUserAccountData(currentUser.uid);
+        })
+        .then(function () {
+          return currentUser.delete();
+        })
+        .then(function () {
+          // نجاح
+          modalIcon.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success);"></i>';
+          modalTitle.textContent = '✅ تم حذف الحساب بنجاح';
+          modalBody.innerHTML = `
+            <p style="text-align:center; color:var(--text-muted);">
+              نأسف لفراقك، نتمنى رؤيتك مرة أخرى في المستقبل.
+            </p>
+          `;
+          actions.innerHTML = `
+            <button class="btn btn-primary" id="deleteFinalClose" style="flex:1;">تسجيل الخروج</button>
+          `;
+          document.getElementById('deleteFinalClose').addEventListener('click', function () {
+            window.location.href = 'index.html';
+          });
+          // بعد 3 ثواني، نغلق النافذة ونخرج
+          setTimeout(function () {
+            window.location.href = 'index.html';
+          }, 3000);
+        })
+        .catch(function (err) {
+          console.error('خطأ أثناء حذف الحساب:', err);
+          let errorMsg = '❌ فشل حذف الحساب: ';
+          if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+            errorMsg += 'كلمة المرور الحالية غير صحيحة.';
+          } else if (err.code === 'auth/requires-recent-login') {
+            errorMsg += 'يجب إعادة تسجيل الدخول أولاً، ثم المحاولة مرة أخرى.';
+          } else if (err.code === 'auth/too-many-requests') {
+            errorMsg += 'محاولات كثيرة، حاول مرة أخرى بعد قليل.';
+          } else {
+            errorMsg += err.message || 'خطأ غير متوقع.';
+          }
+          showError(errorMsg);
+          // إعادة تمكين الأزرار
+          actions.innerHTML = `
+            <button class="btn btn-outline" id="deleteStepBack" style="flex:1;">رجوع</button>
+            <button class="btn btn-danger" id="deleteStepNext" style="flex:1;">إعادة المحاولة</button>
+          `;
+          document.getElementById('deleteStepBack').addEventListener('click', function () {
+            goToStep(1);
+          });
+          document.getElementById('deleteStepNext').addEventListener('click', function () {
+            goToStep(3);
+          });
+          modalIcon.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i>';
+          modalTitle.textContent = '❌ فشل الحذف';
+        });
+    }
+
+    // فتح النافذة
+    function openModal() {
+      resetModal();
+      modal.classList.add('open');
+      renderStep(1);
+      document.body.style.overflow = 'hidden';
+    }
+
+    // إغلاق النافذة
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      resetModal();
+    }
+
+    // إغلاق بالضغط على الخلفية
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    // إغلاق بالضغط على زر الإغلاق
+    closeBtn.addEventListener('click', closeModal);
+
+    // إغلاق بالضغط على Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+
+    // ربط الزر بحذف الحساب
+    deleteBtn.addEventListener('click', openModal);
+  }
+
+  // ===== إغلاق نافذة عرض الإجابات =====
   document.getElementById('answersPopup').addEventListener('click', function (e) {
     if (e.target === this) this.classList.remove('open');
   });

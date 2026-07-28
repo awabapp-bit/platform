@@ -1,7 +1,5 @@
 /* ============================================================
    app-shell.js — قشرة التطبيق المشتركة لموقع المستخدم
-   التحقق من تسجيل الدخول، الهيدر، الإشعارات، الفوتر،
-   نظام المستويات، قواعد فتح المحاضرات، واكتمال المحاضرة.
    ============================================================ */
 
 /* ================= نظام إرسال إيميلات المنصة عبر Brevo ================= */
@@ -26,7 +24,6 @@ function sendPlatformEmail(toEmail, toName, subject, htmlContent) {
   });
 }
 
-/* ================= بناء رسالة نتيجة الاختبار (الأصلية) ================= */
 function buildExamResultEmail(data) {
   const studentName = data.studentName || 'طالبنا العزيز';
   const competitionName = data.competitionName || data.courseName || '';
@@ -92,14 +89,10 @@ function buildExamResultEmail(data) {
 '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F4EE; padding:24px 0;">' +
   '<tr><td align="center">' +
     '<table role="presentation" class="email-wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px; max-width:600px; background:#FFFFFF; border-radius:20px; overflow:hidden; box-shadow:0 10px 30px rgba(18,52,36,0.08);">' +
-
-      // الهيدر
       '<tr><td style="background:#1B4D35; padding:26px 30px; text-align:center;">' +
         '<p style="margin:0; font-size:22px; font-weight:800; color:#F3E7CF; letter-spacing:0.5px;">Awab <span style="color:#C99A4A;">|</span> أواب</p>' +
         '<p style="margin:6px 0 0; font-size:13px; color:#C9D8CE;">منصة أواب الإلكترونية</p>' +
       '</td></tr>' +
-
-      // المقدمة
       '<tr><td class="email-pad" style="padding:30px 30px 0;">' +
         '<p style="margin:0 0 14px; font-size:16px; color:#1F2A24;">السلام عليكم ورحمة الله وبركاته 🌿</p>' +
         '<p style="margin:0 0 6px; font-size:15px; line-height:1.9; color:#1F2A24;">' +
@@ -108,8 +101,6 @@ function buildExamResultEmail(data) {
           (lessonName ? '، ونسأل الله أن يجعل كل دقيقة قضيتها في مشاهدة <strong style="color:#123424;">' + escapeHtmlEmail(lessonName) + '</strong> في ميزان حسناتك.' : '.') +
         '</p>' +
       '</td></tr>' +
-
-      // بطاقة النتيجة
       '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
         '<div style="background:#F6F4EE; border:1px solid #E4DFD2; border-radius:16px; overflow:hidden;">' +
           '<div style="background:#F3E7CF; padding:14px 20px;">' +
@@ -126,22 +117,14 @@ function buildExamResultEmail(data) {
           '</table>' +
         '</div>' +
       '</td></tr>' +
-
-      // رسالة تشجيعية
       '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
         '<p style="margin:0 0 10px; font-size:15px; line-height:1.9; color:#1F2A24;">سواء كانت درجتك كاملة أو أقل، فافتكر إن هدفنا الأساسي مش جمع النقاط، لكن إننا نتعلم العقيدة الصحيحة ونقرب من ربنا.</p>' +
         '<p style="margin:0; font-size:15px; line-height:1.9; color:#1F2A24;">' + resultNote + '</p>' +
       '</td></tr>' +
-
-      // المحاضرة القادمة
       nextLessonBlock +
-
-      // خاتمة تحفيزية
       '<tr><td class="email-pad" style="padding:26px 30px 0;">' +
         '<p style="margin:0; font-size:15px; line-height:1.9; color:#1F2A24;">استمر للنهاية، فكل نقطة هتفرق، والأهم من الجوائز إنك تخرج فاهم أساس دينك.</p>' +
       '</td></tr>' +
-
-      // الآية
       '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
         '<div style="border-right:3px solid #A8782A; padding:6px 16px; background:#F6F4EE; border-radius:0 10px 10px 0;">' +
           '<p style="margin:0; font-size:15px; color:#123424; font-family:Georgia, serif;">قال الله تعالى:</p>' +
@@ -149,17 +132,13 @@ function buildExamResultEmail(data) {
           '<p style="margin:0; font-size:13px; color:#6B7A72;">[محمد: 19]</p>' +
         '</div>' +
       '</td></tr>' +
-
       '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
         '<p style="margin:0; font-size:15px; line-height:1.9; color:#1F2A24;">نسأل الله أن يرزقنا وإياكم العلم النافع، والعمل الصالح، والثبات على الحق.</p>' +
       '</td></tr>' +
-
-      // الفوتر
       '<tr><td style="padding:28px 30px 26px; text-align:center;">' +
         '<p style="margin:0 0 10px; font-size:15px; font-weight:700; color:#1B4D35;">🤍 فريق Awab | أواب</p>' +
         (completionDate ? '<p style="margin:0; font-size:11px; color:#9AA8A0;">تاريخ الاختبار: ' + escapeHtmlEmail(completionDate) + '</p>' : '') +
       '</td></tr>' +
-
     '</table>' +
   '</td></tr>' +
 '</table>' +
@@ -177,7 +156,6 @@ function sendExamResultEmail(data) {
   }
 }
 
-/** تهريب HTML بسيط للإيميل */
 function escapeHtmlEmail(str) {
   if (str == null) return '';
   return String(str)
@@ -190,7 +168,6 @@ function escapeHtmlEmail(str) {
 
 /* ================= الدوال الأساسية المساعدة ================= */
 
-/** يهرّب النص قبل إدراجه في HTML */
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str == null ? '' : String(str);
@@ -198,7 +175,6 @@ function escapeHtml(str) {
 }
 window.escapeHtml = escapeHtml;
 
-/** ينسّق تاريخ/وقت timestamp بالعربي المصري */
 function formatArabicDate(ts) {
   if (!ts) return '—';
   const d = new Date(ts);
@@ -206,7 +182,6 @@ function formatArabicDate(ts) {
 }
 window.formatArabicDate = formatArabicDate;
 
-/** يستخرج معرف فيديو يوتيوب من رابط */
 function extractYouTubeId(url) {
   if (!url) return null;
   const patterns = [
@@ -220,7 +195,7 @@ function extractYouTubeId(url) {
 }
 window.extractYouTubeId = extractYouTubeId;
 
-/* ================= نظام المستويات (1000 مستوى) ================= */
+/* ================= نظام المستويات ================= */
 
 const LEVEL_POINTS = 100;
 const MAX_LEVEL = 1000;
@@ -240,7 +215,6 @@ function getLevelRank(level) {
   return LEVEL_RANKS[LEVEL_RANKS.length - 1];
 }
 
-/** يحدد مستوى المستخدم ونسبة التقدم بناءً على نقاطه */
 function getUserTier(points) {
   points = Math.max(0, points || 0);
   let level = Math.floor(points / LEVEL_POINTS) + 1;
@@ -269,7 +243,6 @@ window.getUserTier = getUserTier;
 
 /* ================= دوال المحاضرات والتقدم ================= */
 
-/** يحدد حالة الوصول لمحاضرة معيّنة (منشورة/مقفولة بالتاريخ/بالترتيب) */
 function getLessonAccessState(lessons, progressData, lessonId) {
   const ids = Object.keys(lessons);
   const now = Date.now();
@@ -298,7 +271,6 @@ function getLessonAccessState(lessons, progressData, lessonId) {
 }
 window.getLessonAccessState = getLessonAccessState;
 
-/** يحسب هل المحاضرة مكتملة (كل الاختبارات أو فيديو واحد على الأقل) */
 function computeLessonCompletion(lesson, lessonProgress) {
   lessonProgress = lessonProgress || {};
   const exams = lesson.exams || {};
@@ -328,7 +300,6 @@ function computeLessonCompletion(lesson, lessonProgress) {
 }
 window.computeLessonCompletion = computeLessonCompletion;
 
-/** يحسب نسبة إتمام كورس/مسابقة كامل */
 function computeCourseProgress(lessons, progressData) {
   const ids = Object.keys(lessons || {});
   if (ids.length === 0) return 0;
@@ -339,7 +310,6 @@ window.computeCourseProgress = computeCourseProgress;
 
 /* ================= دوال المصادقة والهيدر ================= */
 
-/** يتحقق من تسجيل الدخول وصلاحيات المستخدم (غير محظور) */
 function requireAuth(onReady) {
   auth.onAuthStateChanged(function (user) {
     if (!user) {
@@ -377,7 +347,6 @@ function requireAuth(onReady) {
 }
 window.requireAuth = requireAuth;
 
-/** يرسم الهيدر الموحد داخل عنصر #appHeader */
 function renderAppHeader(user, userData, opts) {
   opts = opts || {};
   const showPoints = opts.showPoints !== false;
@@ -422,7 +391,6 @@ function renderAppHeader(user, userData, opts) {
       '</div>' +
     '</div>';
 
-  // ===== إدارة الإشعارات والقوائم =====
   const accountBtn = document.getElementById('accountBtn');
   const dropdown = document.getElementById('accountDropdown');
   const notifBtn = document.getElementById('notifBtn');
@@ -606,3 +574,34 @@ function renderSupportFab() {
   document.body.appendChild(fab);
 }
 window.renderSupportFab = renderSupportFab;
+
+/* ============================================================
+   ✅ دالة حذف حساب المستخدم (جديدة)
+   ============================================================ */
+
+/** يحذف كل بيانات حساب المستخدم من Realtime Database
+ *  (نقاط، تقدم، اشتراكات، إشعارات، محادثات، إلخ)
+ *  لا يحذف حساب المصادقة (Authentication) — يتم حذفه بشكل منفصل.
+ */
+function deleteUserAccountData(uid) {
+  const updates = {};
+  updates['users/' + uid] = null;
+  updates['userProgress/' + uid] = null;
+  updates['userEnrollments/' + uid] = null;
+  updates['notifications/' + uid] = null;
+  updates['notifiedLessons/' + uid] = null;
+  updates['conversations/' + uid] = null;
+  updates['messages/' + uid] = null;
+
+  // حذف من enrollments/{compId}/{uid}
+  return db.ref('enrollments').once('value').then(function (snap) {
+    const all = snap.val() || {};
+    Object.keys(all).forEach(function (compId) {
+      if (all[compId] && Object.prototype.hasOwnProperty.call(all[compId], uid)) {
+        updates['enrollments/' + compId + '/' + uid] = null;
+      }
+    });
+    return db.ref().update(updates);
+  });
+}
+window.deleteUserAccountData = deleteUserAccountData;
