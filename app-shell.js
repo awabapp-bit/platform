@@ -26,10 +26,146 @@ function sendPlatformEmail(toEmail, toName, subject, htmlContent) {
   });
 }
 
+/* ================= بناء رسالة نتيجة الاختبار (الأصلية) ================= */
 function buildExamResultEmail(data) {
-  // بناء الإيميل (اختصاراً للطول، لكنه موجود في النسخة الكاملة)
-  // هنا نعيد كائن افتراضي لتجنب الأخطاء
-  return { subject: 'نتيجة اختبار', html: '<p>نتيجة الاختبار...</p>' };
+  const studentName = data.studentName || 'طالبنا العزيز';
+  const competitionName = data.competitionName || data.courseName || '';
+  const courseName = data.courseName || data.competitionName || '';
+  const lessonName = data.lessonName || '';
+  const score = (data.score != null) ? data.score : 0;
+  const totalQuestions = (data.totalQuestions != null) ? data.totalQuestions : 0;
+  const percentage = (data.percentage != null) ? data.percentage : (totalQuestions ? Math.round((score / totalQuestions) * 100) : 0);
+  const earnedPoints = (data.earnedPoints != null) ? data.earnedPoints : null;
+  const rank = data.rank || null;
+  const completionDate = data.completionDate || formatArabicDate(Date.now());
+  const nextLessonName = data.nextLessonName || null;
+  const nextQuizQuestions = data.nextQuizQuestions || null;
+
+  const subject = 'نتيجتك في ' + lessonName + ' يا ' + studentName + (competitionName ? ' | ' + competitionName : '');
+
+  const isFull = totalQuestions > 0 && score >= totalQuestions;
+
+  const resultNote = isFull
+    ? 'مبروك! 🎉 لكن متخليش ده يخليك تتهاون في المحاضرات الجاية، المنافسة لسه في بدايتها.'
+    : 'لو درجتك أقل من اللي كنت متوقعها، متزعلش، دي فرصة تعرف إيه اللي فاتك وتراجعه، ولسه قدامنا أيام كتير تقدر تعوض فيها.';
+
+  const pointsRow = (earnedPoints != null) ?
+    '<tr>' +
+      '<td style="padding:10px 16px; color:#6B7A72; font-size:14px;">النقاط المكتسبة</td>' +
+      '<td style="padding:10px 16px; color:#123424; font-size:14px; font-weight:700; text-align:left;">' + escapeHtmlEmail(String(earnedPoints)) + '</td>' +
+    '</tr>' : '';
+
+  const rankRow = rank ?
+    '<tr>' +
+      '<td style="padding:10px 16px; color:#6B7A72; font-size:14px;">ترتيبك</td>' +
+      '<td style="padding:10px 16px; color:#123424; font-size:14px; font-weight:700; text-align:left;">' + escapeHtmlEmail(String(rank)) + '</td>' +
+    '</tr>' : '';
+
+  const nextLessonBlock = nextLessonName ?
+    '<tr><td style="padding:28px 30px 0;">' +
+      '<div style="background:#F3E7CF; border-radius:14px; padding:20px 22px;">' +
+        '<p style="margin:0 0 6px; font-size:14px; font-weight:700; color:#A8782A;">📚 المحاضرة القادمة</p>' +
+        '<p style="margin:0 0 4px; font-size:17px; font-weight:800; color:#123424;">' + escapeHtmlEmail(nextLessonName) + '</p>' +
+        (nextQuizQuestions ?
+          '<p style="margin:0; font-size:14px; color:#6B7A72;">وستتوفر بإذن الله مع اختبار جديد مكوّن من <strong style="color:#123424;">' + escapeHtmlEmail(String(nextQuizQuestions)) + '</strong> أسئلة.</p>'
+          : '') +
+      '</div>' +
+    '</td></tr>' : '';
+
+  const html =
+'<!DOCTYPE html>' +
+'<html lang="ar" dir="rtl">' +
+'<head>' +
+'<meta charset="UTF-8">' +
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+'<title>' + escapeHtmlEmail(subject) + '</title>' +
+'<style>' +
+  'body{margin:0;padding:0;background:#F6F4EE;}' +
+  '@media only screen and (max-width:600px){' +
+    '.email-wrap{width:100% !important;}' +
+    '.email-pad{padding-left:18px !important;padding-right:18px !important;}' +
+    '.score-num{font-size:34px !important;}' +
+  '}' +
+'</style>' +
+'</head>' +
+'<body style="margin:0; padding:0; background:#F6F4EE; font-family:Tahoma, Arial, sans-serif;">' +
+'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F4EE; padding:24px 0;">' +
+  '<tr><td align="center">' +
+    '<table role="presentation" class="email-wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px; max-width:600px; background:#FFFFFF; border-radius:20px; overflow:hidden; box-shadow:0 10px 30px rgba(18,52,36,0.08);">' +
+
+      // الهيدر
+      '<tr><td style="background:#1B4D35; padding:26px 30px; text-align:center;">' +
+        '<p style="margin:0; font-size:22px; font-weight:800; color:#F3E7CF; letter-spacing:0.5px;">Awab <span style="color:#C99A4A;">|</span> أواب</p>' +
+        '<p style="margin:6px 0 0; font-size:13px; color:#C9D8CE;">منصة أواب الإلكترونية</p>' +
+      '</td></tr>' +
+
+      // المقدمة
+      '<tr><td class="email-pad" style="padding:30px 30px 0;">' +
+        '<p style="margin:0 0 14px; font-size:16px; color:#1F2A24;">السلام عليكم ورحمة الله وبركاته 🌿</p>' +
+        '<p style="margin:0 0 6px; font-size:15px; line-height:1.9; color:#1F2A24;">' +
+          '<strong style="color:#123424;">' + escapeHtmlEmail(studentName) + '</strong>، جزاك الله خيرًا على مشاركتك في ' +
+          '<strong style="color:#123424;">' + escapeHtmlEmail(competitionName) + '</strong>' +
+          (lessonName ? '، ونسأل الله أن يجعل كل دقيقة قضيتها في مشاهدة <strong style="color:#123424;">' + escapeHtmlEmail(lessonName) + '</strong> في ميزان حسناتك.' : '.') +
+        '</p>' +
+      '</td></tr>' +
+
+      // بطاقة النتيجة
+      '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
+        '<div style="background:#F6F4EE; border:1px solid #E4DFD2; border-radius:16px; overflow:hidden;">' +
+          '<div style="background:#F3E7CF; padding:14px 20px;">' +
+            '<p style="margin:0; font-size:14px; font-weight:700; color:#A8782A;">📊 نتيجتك في اختبار ' + escapeHtmlEmail(lessonName) + '</p>' +
+          '</div>' +
+          '<div style="padding:22px 20px; text-align:center;">' +
+            '<span class="score-num" style="font-size:42px; font-weight:800; color:#A8782A; font-family:Georgia, serif;">' + escapeHtmlEmail(String(score)) + '</span>' +
+            '<span style="font-size:22px; color:#6B7A72;"> / ' + escapeHtmlEmail(String(totalQuestions)) + '</span>' +
+            '<p style="margin:6px 0 0; font-size:14px; color:#6B7A72;">نسبة النجاح: ' + escapeHtmlEmail(String(percentage)) + '%</p>' +
+          '</div>' +
+          '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E4DFD2;">' +
+            pointsRow +
+            rankRow +
+          '</table>' +
+        '</div>' +
+      '</td></tr>' +
+
+      // رسالة تشجيعية
+      '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
+        '<p style="margin:0 0 10px; font-size:15px; line-height:1.9; color:#1F2A24;">سواء كانت درجتك كاملة أو أقل، فافتكر إن هدفنا الأساسي مش جمع النقاط، لكن إننا نتعلم العقيدة الصحيحة ونقرب من ربنا.</p>' +
+        '<p style="margin:0; font-size:15px; line-height:1.9; color:#1F2A24;">' + resultNote + '</p>' +
+      '</td></tr>' +
+
+      // المحاضرة القادمة
+      nextLessonBlock +
+
+      // خاتمة تحفيزية
+      '<tr><td class="email-pad" style="padding:26px 30px 0;">' +
+        '<p style="margin:0; font-size:15px; line-height:1.9; color:#1F2A24;">استمر للنهاية، فكل نقطة هتفرق، والأهم من الجوائز إنك تخرج فاهم أساس دينك.</p>' +
+      '</td></tr>' +
+
+      // الآية
+      '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
+        '<div style="border-right:3px solid #A8782A; padding:6px 16px; background:#F6F4EE; border-radius:0 10px 10px 0;">' +
+          '<p style="margin:0; font-size:15px; color:#123424; font-family:Georgia, serif;">قال الله تعالى:</p>' +
+          '<p style="margin:8px 0 4px; font-size:17px; color:#1B4D35; font-weight:700;">﴿فَاعْلَمْ أَنَّهُ لَا إِلَٰهَ إِلَّا اللَّهُ﴾</p>' +
+          '<p style="margin:0; font-size:13px; color:#6B7A72;">[محمد: 19]</p>' +
+        '</div>' +
+      '</td></tr>' +
+
+      '<tr><td class="email-pad" style="padding:22px 30px 0;">' +
+        '<p style="margin:0; font-size:15px; line-height:1.9; color:#1F2A24;">نسأل الله أن يرزقنا وإياكم العلم النافع، والعمل الصالح، والثبات على الحق.</p>' +
+      '</td></tr>' +
+
+      // الفوتر
+      '<tr><td style="padding:28px 30px 26px; text-align:center;">' +
+        '<p style="margin:0 0 10px; font-size:15px; font-weight:700; color:#1B4D35;">🤍 فريق Awab | أواب</p>' +
+        (completionDate ? '<p style="margin:0; font-size:11px; color:#9AA8A0;">تاريخ الاختبار: ' + escapeHtmlEmail(completionDate) + '</p>' : '') +
+      '</td></tr>' +
+
+    '</table>' +
+  '</td></tr>' +
+'</table>' +
+'</body></html>';
+
+  return { subject: subject, html: html };
 }
 
 function sendExamResultEmail(data) {
@@ -41,6 +177,17 @@ function sendExamResultEmail(data) {
   }
 }
 
+/** تهريب HTML بسيط للإيميل */
+function escapeHtmlEmail(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /* ================= الدوال الأساسية المساعدة ================= */
 
 /** يهرّب النص قبل إدراجه في HTML */
@@ -49,7 +196,6 @@ function escapeHtml(str) {
   div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
 }
-// ربط في النطاق العام عشان الصفحات التانية تشوفه
 window.escapeHtml = escapeHtml;
 
 /** ينسّق تاريخ/وقت timestamp بالعربي المصري */
@@ -76,8 +222,8 @@ window.extractYouTubeId = extractYouTubeId;
 
 /* ================= نظام المستويات (1000 مستوى) ================= */
 
-const LEVEL_POINTS = 100;   // النقاط المطلوبة لكل مستوى
-const MAX_LEVEL = 1000;     // أعلى مستوى ممكن
+const LEVEL_POINTS = 100;
+const MAX_LEVEL = 1000;
 
 const LEVEL_RANKS = [
   { key: 'bronze',   name: 'برونزي',  icon: 'medal', upTo: 50,   color: '#A9714A' },
@@ -238,7 +384,6 @@ function renderAppHeader(user, userData, opts) {
   const header = document.getElementById('appHeader');
   if (!header) return;
 
-  // الحرف الأول للأيقونة
   const name = (userData.name || 'مستخدم').trim();
   const firstLetter = name.charAt(0).toUpperCase();
 
@@ -284,7 +429,6 @@ function renderAppHeader(user, userData, opts) {
   const notifDropdown = document.getElementById('notifDropdown');
   const notifCloseBtn = document.getElementById('notifCloseBtn');
 
-  // نقل قائمة الإشعارات لتصبح ابنًا مباشرًا لـ body (لتجاوز مشاكل backdrop-filter)
   document.body.appendChild(notifDropdown);
 
   function positionNotifDropdown() {
@@ -335,14 +479,12 @@ function renderAppHeader(user, userData, opts) {
     auth.signOut().then(function () { window.location.href = 'index.html'; });
   });
 
-  // تفعيل الإشعارات للمستخدم الحالي
   if (user) initNotifications(user.uid);
 }
 window.renderAppHeader = renderAppHeader;
 
 /* ================= دوال الإشعارات ================= */
 
-/** يفعّل جرس الإشعارات: يستمع لإشعارات المستخدم ويعرضها */
 function initNotifications(uid) {
   const notifRef = db.ref('notifications/' + uid);
   notifRef.limitToLast(30).on('value', function (snap) {
@@ -385,7 +527,6 @@ function initNotifications(uid) {
 }
 window.initNotifications = initNotifications;
 
-/** تتحقق من المحاضرات اللي معاد نشرها المجدول وصلت وتبعت إشعار */
 function checkAndNotifyReleasedLessons(uid, enrollments, competitionsData) {
   if (!uid || !enrollments || !competitionsData) return;
   const now = Date.now();
@@ -420,7 +561,6 @@ window.checkAndNotifyReleasedLessons = checkAndNotifyReleasedLessons;
 
 /* ================= دوال الفوتر والدعم الفني ================= */
 
-/** يرسم الفوتر الموحد داخل عنصر #siteFooter */
 function renderFooter() {
   const footer = document.getElementById('siteFooter');
   if (!footer) return;
@@ -456,7 +596,6 @@ function renderFooter() {
 }
 window.renderFooter = renderFooter;
 
-/** يضيف زر "الدعم الفني" العائم أسفل الشاشة */
 function renderSupportFab() {
   if (document.getElementById('supportFab')) return;
   const fab = document.createElement('a');
