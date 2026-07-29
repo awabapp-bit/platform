@@ -243,8 +243,22 @@ window.getUserTier = getUserTier;
 
 /* ================= دوال المحاضرات والتقدم ================= */
 
+/**
+ * يرتب معرّفات المحاضرات حسب حقل order (اللي بيتحكم فيه الأدمن من لوحة التحكم بأزرار الترتيب)،
+ * ولو محاضرة قديمة من غير order، بيتحافظ على ترتيب الإنشاء الأصلي كافتراضي.
+ * دالة موحّدة تُستخدم في كل مكان بيعتمد على ترتيب المحاضرات (القفل بالتتابع، صفحة المحتوى، إيميلات النتائج).
+ */
+function getSortedLessonIds(lessons) {
+  const ids = Object.keys(lessons || {});
+  return ids
+    .map(function (id, i) { return { id: id, orderKey: (lessons[id].order !== undefined ? lessons[id].order : i) }; })
+    .sort(function (a, b) { return a.orderKey - b.orderKey; })
+    .map(function (x) { return x.id; });
+}
+window.getSortedLessonIds = getSortedLessonIds;
+
 function getLessonAccessState(lessons, progressData, lessonId) {
-  const ids = Object.keys(lessons);
+  const ids = getSortedLessonIds(lessons);
   const now = Date.now();
   let previousDone = true;
   let result = null;
@@ -264,7 +278,10 @@ function getLessonAccessState(lessons, progressData, lessonId) {
         reason: !releasePassed ? 'release' : (!unlockedBySequence ? 'sequence' : null)
       };
     }
-    previousDone = releasePassed && done;
+    // محاضرة فيها مرفقات بس من غير فيديو أو اختبار متعتبرش شرطًا للتتابع:
+    // بتفضل ظاهرة عادي، لكن ميتقفلش اللي بعدها بسببها
+    const hasGatingContent = (Object.keys(lesson.videos || {}).length > 0) || (Object.keys(lesson.exams || {}).length > 0);
+    previousDone = releasePassed && (hasGatingContent ? done : true);
   });
 
   return result || { allowed: false, releasePassed: false, unlockedBySequence: false, reason: 'not_found' };

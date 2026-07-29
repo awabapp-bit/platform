@@ -213,7 +213,7 @@
   function renderLessons() {
     const wrap = document.getElementById('lessonsWrap');
     const lessons = compData.lessons || {};
-    const ids = Object.keys(lessons);
+    const ids = getSortedLessonIds(lessons);
 
     if (ids.length === 0) {
       wrap.innerHTML =
@@ -233,8 +233,21 @@
     }
 
     const now = Date.now();
+    // المحاضرات اللي لسه معادها ما جاش (releaseAt في المستقبل) تتخفي تمامًا من القائمة،
+    // وتظهر تلقائيًا لما يجي معادها (من غير ما نعرضها مقفولة بمعاد النشر)
+    const visibleIds = ids.filter(function (lessonId) {
+      const lesson = lessons[lessonId];
+      return !lesson.releaseAt || lesson.releaseAt <= now;
+    });
+
+    if (visibleIds.length === 0) {
+      wrap.innerHTML =
+        '<div class="empty-state"><div class="empty-state-icon">' + icon('video', 'icon-xl') + '</div><p>لا توجد محاضرات متاحة الآن</p></div>';
+      return;
+    }
+
     let html = '';
-    ids.forEach(function (lessonId, index) {
+    visibleIds.forEach(function (lessonId, index) {
       const lesson = lessons[lessonId];
       const lessonProgress = progressData[lessonId] || {};
       const done = !!lessonProgress.completed;
