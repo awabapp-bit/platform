@@ -359,6 +359,15 @@
         return;
       }
 
+      // معاد نشر خاص بالاختبار نفسه (منفصل عن معاد المحاضرة): لازم يتحقق هنا حتى لو المستخدم
+      // فتح الرابط مباشرة، لأن قائمة المحاضرات بتخفي الاختبار بس الرابط المباشر لازم يتقفل برضه
+      if (lessonData.exams[examId].releaseAt && lessonData.exams[examId].releaseAt > Date.now()) {
+        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-clock" style="font-size:46px;"></i></div>' +
+          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">هذا الاختبار لم يحن معاده بعد' +
+          (typeof formatArabicDate === 'function' ? '، يُتاح في ' + formatArabicDate(lessonData.exams[examId].releaseAt) : '') + '.</p></div>';
+        return;
+      }
+
       const lessonProgress = progressData[lessonId] || {};
       const examProgress = (lessonProgress.exams && lessonProgress.exams[examId]) || null;
 

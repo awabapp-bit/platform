@@ -278,6 +278,9 @@
       });
       examIds.forEach(function (eid, ei) {
         const ex = exams[eid];
+        // الاختبار له معاد نشر خاص به منفصل عن معاد المحاضرة: لو لسه ما جاش، يتخفي تمامًا زي المحاضرات
+        const examReleasePassed = !ex.releaseAt || ex.releaseAt <= now;
+        if (!examReleasePassed) return;
         const qCount = ex.questions ? Object.keys(ex.questions).length : 0;
         const examProgress = lessonProgress.exams && lessonProgress.exams[eid];
         const examDone = !!(examProgress && examProgress.completed);
