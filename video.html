@@ -134,9 +134,10 @@
     html += '<div class="comments-section">' +
       '<h3>' + icon('comment', 'icon-md') + ' الأسئلة والتعليقات</h3>' +
       '<div class="comment-form">' +
-        '<input type="text" id="commentInput" placeholder="اكتب سؤالك أو تعليقك هنا...">' +
+        '<input type="text" id="commentInput" placeholder="اكتب سؤالك أو تعليقك هنا..." maxlength="400">' +
         '<button class="btn btn-primary btn-sm" id="sendCommentBtn" style="width:auto;">إرسال</button>' +
       '</div>' +
+      '<div class="comment-msg" id="commentMsg"></div>' +
       '<div class="comment-list" id="commentList"><div class="center-loading" style="min-height:60px;"><div class="loader"></div></div></div>' +
     '</div>';
 
@@ -180,6 +181,7 @@
   let speedIndex = 0;
   let lastVolume = 100;
   let seeking = false;
+  let playbackStartedAt = 0;
 
   function loadYouTubeAPI(cb) {
     if (window.YT && window.YT.Player) { cb(); return; }
@@ -203,6 +205,7 @@
     if (!cover || !playBtn) { initCustomPlayer(ytId); return; }
 
     function startPlayback() {
+      playbackStartedAt = Date.now();
       cover.classList.add('is-hidden');
       document.getElementById('videoWrap').classList.add('is-playing');
       initCustomPlayer(ytId, true);
@@ -456,7 +459,13 @@
         lastTapTime = now; lastTapSide = side;
         clearTimeout(tapTimer);
         tapTimer = setTimeout(function () {
-          toggleControlsVisibility();
+          // نتجاهل أول لمسة تصل فور بدء التشغيل (قد تكون بقايا نفس نقرة "تشغيل")
+          // حتى لا تختفي الأدوات بمجرد ظهورها؛ بدل ما نخفيها، نبقيها ظاهرة ونجدّد المؤقّت
+          if (Date.now() - playbackStartedAt < 700) {
+            showControlsBar();
+          } else {
+            toggleControlsVisibility();
+          }
           lastTapTime = 0; lastTapSide = null;
         }, 320);
       }
@@ -562,7 +571,8 @@
       const ids = Object.keys(data).sort(function (a, b) { return (data[a].createdAt || 0) - (data[b].createdAt || 0); });
       const list = document.getElementById('commentList');
       if (ids.length === 0) {
-        list.innerHTML = '<p class="muted" style="font-size:13px;">لا توجد تعليقات بعد، كن أول من يعلّق.</p>';
+        list.innerHTML = '<div class="comment-empty">' + icon('comment', 'icon-lg') +
+          '<p>لا توجد تعليقات بعد، كن أول من يسأل أو يعلّق.</p></div>';
         return;
       }
       list.innerHTML = ids.map(function (id) {
@@ -582,7 +592,7 @@
         } else if (currentUserData.isAdmin) {
           replyHtml =
             '<div style="margin-inline-start:28px; margin-top:8px; display:flex; gap:6px;">' +
-              '<input type="text" class="reply-input" data-comment="' + id + '" placeholder="اكتب ردًا كإدارة المنصة..." style="flex:1; padding:8px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px;">' +
+              '<input type="text" class="reply-input" data-comment="' + id + '" placeholder="اكتب ردًا كإدارة المنصة..." style="flex:1; padding:8px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:16px;">' +
               '<button class="btn btn-gold btn-xs reply-send-btn" data-comment="' + id + '">' + icon('reply', 'icon-sm') + ' رد</button>' +
             '</div>';
         }
@@ -610,21 +620,63 @@
 
   function sendComment() {
     const input = document.getElementById('commentInput');
+    const btn = document.getElementById('sendCommentBtn');
+    const msg = document.getElementById('commentMsg');
     const text = input.value.trim();
-    if (!text) return;
+
+    msg.classList.remove('show');
+
+    if (!text) {
+      input.classList.remove('shake');
+      void input.offsetWidth; // إعادة تشغيل الأنيميشن لو المستخدم حاول أكتر من مرة
+      input.classList.add('shake');
+      input.focus();
+      return;
+    }
+
+    const originalBtnHtml = btn.innerHTML;
+    input.disabled = true;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>';
+
     commentsRef().push({
       uid: currentUser.uid,
       name: currentUserData.name || 'مستخدم',
       text: text,
       createdAt: firebase.database.ServerValue.TIMESTAMP
-    }).then(function () { input.value = ''; })
-      .catch(function (err) { alert('تعذر إرسال التعليق: ' + err.message); });
+    }).then(function () {
+      input.value = '';
+      input.disabled = false;
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
+      input.focus();
+    }).catch(function (err) {
+      msg.innerHTML = icon('exclamation-triangle', 'icon-sm') + ' تعذر إرسال التعليق' + (err && err.message ? ': ' + err.message : '') + '، حاول مرة أخرى';
+      msg.classList.add('show');
+      input.disabled = false;
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
+    });
   }
 
   function sendAdminReply(commentId) {
     const input = document.querySelector('.reply-input[data-comment="' + commentId + '"]');
+    const btn = document.querySelector('.reply-send-btn[data-comment="' + commentId + '"]');
     const text = input.value.trim();
-    if (!text) return;
+
+    if (!text) {
+      input.classList.remove('shake');
+      void input.offsetWidth;
+      input.classList.add('shake');
+      input.focus();
+      return;
+    }
+
+    const originalBtnHtml = btn.innerHTML;
+    input.disabled = true;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>';
+
     const commentRef = commentsRef().child(commentId);
     commentRef.once('value').then(function (snap) {
       const comment = snap.val();
@@ -642,11 +694,18 @@
             createdAt: firebase.database.ServerValue.TIMESTAMP
           }).catch(function (notifErr) {
             console.error('تعذر إرسال إشعار الرد:', notifErr);
-            alert('تم إرسال الرد، لكن تعذر إرسال إشعار للمستخدم: ' + notifErr.message + ' — راجع قواعد Firebase الخاصة بـ notifications.');
           });
         }
       });
-    }).catch(function (err) { alert('تعذر إرسال الرد: ' + err.message); });
+      // عند النجاح تُعاد قائمة التعليقات كاملةً تلقائيًا (الاستماع الحي)، فلا داعي لإعادة ضبط الزر يدويًا
+    }).catch(function (err) {
+      console.error('تعذر إرسال الرد:', err);
+      input.disabled = false;
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
+      btn.style.color = 'var(--danger)';
+      setTimeout(function () { btn.style.color = ''; }, 1600);
+    });
   }
 </script>
 </body>

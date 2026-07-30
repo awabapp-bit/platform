@@ -513,7 +513,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   color: var(--primary);
   font-weight: 700;
   margin-bottom: 18px;
+  transition: gap .15s ease, color .15s ease;
 }
+.back-link:hover { gap: 9px; color: var(--primary-dark); }
 
 /* ---------- Cards / grid ---------- */
 .grid {
@@ -1278,6 +1280,7 @@ a.lesson-row.locked { cursor: not-allowed; }
   padding: 30px 24px;
   text-align: center;
   box-shadow: var(--shadow);
+  animation: fadeInUp .4s cubic-bezier(.2,.8,.2,1);
 }
 .already-done-card .big-icon { color: var(--success); margin-bottom: 10px; }
 
@@ -1552,6 +1555,7 @@ a.lesson-row.locked { cursor: not-allowed; }
   box-shadow: var(--shadow-lift);
   margin-bottom: 20px;
   border: 1px solid rgba(6,48,31,0.14);
+  animation: fadeInUp .4s cubic-bezier(.2,.8,.2,1);
 }
 .video-solo-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .video-solo-wrap:fullscreen,
@@ -1582,6 +1586,8 @@ a.lesson-row.locked { cursor: not-allowed; }
   background: #0b0f0c;
   cursor: pointer;
   transition: opacity .35s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .video-cover.is-hidden { opacity: 0; pointer-events: none; }
 .video-cover-img {
@@ -1603,6 +1609,8 @@ a.lesson-row.locked { cursor: not-allowed; }
   box-shadow: 0 12px 34px rgba(0,0,0,0.45), 0 0 0 0 rgba(221,179,94,0.5);
   cursor: pointer; transition: transform .2s ease, box-shadow .2s ease;
   animation: coverPlayPulse 2.6s ease-in-out infinite;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .video-cover-play .icon { width: 32px; height: 32px; margin-inline-start: 4px; }
 .video-cover:hover .video-cover-play { transform: translate(-50%, -50%) scale(1.08); }
@@ -1739,24 +1747,40 @@ a.lesson-row.locked { cursor: not-allowed; }
 .comments-section {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 22px 24px 26px; box-shadow: var(--shadow);
+  animation: fadeInUp .45s cubic-bezier(.2,.8,.2,1) .05s both;
 }
 .comments-section h3 {
   font-family: 'Amiri', serif; font-size: 18.5px; color: var(--primary-dark);
   display: flex; align-items: center; gap: 8px; margin: 0 0 16px;
 }
 .comments-section h3 .icon { color: var(--gold); }
-.comment-form { display: flex; gap: 8px; margin-bottom: 20px; }
+.comment-form { display: flex; gap: 8px; margin-bottom: 10px; }
 .comment-form input {
   flex: 1; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 999px;
-  font-family: inherit; font-size: 14px; background: #FCFBF8; transition: border-color .15s ease;
+  font-family: inherit; font-size: 16px; background: #FCFBF8; transition: border-color .15s ease;
 }
 .comment-form input:focus { border-color: var(--gold); outline: none; }
+.comment-form input.shake { border-color: var(--danger); }
+.shake { animation: shakeError .4s ease; }
 .comment-form button { border-radius: 999px; }
+.comment-msg {
+  font-size: 12.5px; color: var(--danger); margin: 0 0 16px 2px;
+  display: none; align-items: center; gap: 6px;
+}
+.comment-msg.show { display: flex; }
+@keyframes shakeError {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
 .comment-list { display: flex; flex-direction: column; gap: 12px; }
 .comment-card {
   background: #FCFBF8; border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 13px 16px; transition: border-color .15s ease;
+  padding: 13px 16px; transition: border-color .15s ease, box-shadow .15s ease;
+  animation: fadeInUp .3s ease both;
 }
+.comment-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow); }
 .comment-card .c-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .comment-card .c-avatar {
   width: 28px; height: 28px; border-radius: 50%;
@@ -1767,6 +1791,11 @@ a.lesson-row.locked { cursor: not-allowed; }
 .comment-card .c-name { font-size: 12.5px; font-weight: 700; color: var(--primary-dark); }
 .comment-card .c-time { font-size: 10.5px; color: var(--text-muted); margin-inline-start: auto; }
 .comment-card .c-text { font-size: 13.5px; color: var(--text); line-height: 1.7; }
+.comment-empty {
+  text-align: center; padding: 26px 10px; color: var(--text-muted);
+}
+.comment-empty .icon { color: var(--border); margin-bottom: 8px; }
+.comment-empty p { font-size: 13px; margin: 0; }
 
 /* ================= صفحة الاختبار (محاولة واحدة) ================= */
 .attempt-note {
