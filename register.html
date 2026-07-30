@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <title>إنشاء حساب — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
@@ -59,7 +59,7 @@
         <li data-rule="match"><span class="tick"></span> تطابق كلمتَي المرور</li>
       </ul>
 
-      <button type="submit" class="btn btn-primary" id="registerBtn">إنشاء الحساب</button>
+      <button type="submit" class="btn btn-primary" id="registerBtn"><span>إنشاء الحساب</span></button>
     </form>
 
     <div class="auth-switch">
@@ -106,10 +106,23 @@
 
   fullNameInput.addEventListener('input', function () { nameField.classList.remove('has-error'); });
 
+  const emailField = document.getElementById('emailField');
+  document.getElementById('email').addEventListener('input', function () { emailField.classList.remove('has-error'); });
+
   function showMsg(text, type) {
     formMsg.textContent = text;
     formMsg.className = 'form-msg show ' + type;
   }
+
+  // ✅ حالة تحميل احترافية للزر: تعطيل + Spinner + نص متغيّر
+  function setBtnLoading(btn, loading, loadingText, idleText) {
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<span class="btn-spinner"></span><span>' + loadingText + '</span>'
+      : '<span>' + idleText + '</span>';
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function mapError(code) {
     const map = {
@@ -140,11 +153,23 @@
     }
     nameField.classList.remove('has-error');
 
-    if (!email) { showMsg('من فضلك أدخل بريدًا إلكترونيًا صحيحًا', 'error'); return; }
+    if (!email) {
+      emailField.classList.add('has-error');
+      showMsg('من فضلك أدخل بريدك الإلكتروني', 'error');
+      document.getElementById('email').focus();
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      emailField.classList.add('has-error');
+      showMsg('صيغة البريد الإلكتروني غير صحيحة', 'error');
+      document.getElementById('email').focus();
+      return;
+    }
+    emailField.classList.remove('has-error');
+
     if (!allRulesPass(rules)) { showMsg('من فضلك استوفِ جميع شروط كلمة المرور الموضحة أعلاه', 'error'); return; }
 
-    registerBtn.disabled = true;
-    registerBtn.textContent = 'جارٍ إنشاء الحساب...';
+    setBtnLoading(registerBtn, true, 'جارٍ إنشاء الحساب...', 'إنشاء الحساب');
 
     auth.createUserWithEmailAndPassword(email, password)
       .then(function (cred) {
@@ -169,8 +194,10 @@
       })
       .catch(function (err) {
         showMsg(mapError(err.code), 'error');
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'إنشاء الحساب';
+        if (err.code === 'auth/email-already-in-use' || err.code === 'auth/invalid-email') {
+          emailField.classList.add('has-error');
+        }
+        setBtnLoading(registerBtn, false, '', 'إنشاء الحساب');
       });
   });
 </script>

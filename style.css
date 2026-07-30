@@ -93,6 +93,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
+  animation: fadeInUp .45s cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .auth-card::before {
@@ -160,7 +171,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   padding: 13px 15px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   background: #FCFBF8;
   color: var(--text);
@@ -303,7 +314,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   color: var(--primary);
   border: 1.5px solid var(--primary);
 }
-.btn-outline:hover { background: var(--primary-tint); }
+.btn-outline:hover { background: var(--primary-tint); transform: translateY(-1px); }
 
 .btn-ghost {
   background: transparent;
@@ -313,7 +324,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   padding: 8px 14px;
   font-size: 13.5px;
 }
-.btn-ghost:hover { background: rgba(192,57,43,0.08); }
+.btn-ghost:hover { background: rgba(192,57,43,0.08); transform: translateY(-1px); }
 
 .btn-sm { width: auto; padding: 9px 16px; font-size: 13.5px; border-radius: 11px; }
 
@@ -579,13 +590,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(6,48,31,0.55);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .2s ease, visibility 0s linear .2s;
 }
-.modal-overlay.open { display: flex; }
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity .2s ease, visibility 0s linear 0s;
+}
 
 .modal {
   background: var(--card-bg);
@@ -597,6 +617,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   padding: 26px;
   box-shadow: var(--shadow-lift);
   position: relative;
+  transform: scale(0.94) translateY(10px);
+  transition: transform .22s cubic-bezier(.2,.8,.2,1);
+}
+.modal-overlay.open .modal {
+  transform: scale(1) translateY(0);
 }
 .modal.modal-wide { max-width: 640px; }
 
@@ -737,6 +762,34 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .center-loading { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
 
+/* Small inline spinner for buttons ("جارٍ ..." states) */
+.btn-spinner {
+  width: 15px; height: 15px;
+  border: 2.5px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+}
+.btn-outline .btn-spinner, .btn-ghost .btn-spinner {
+  border-color: rgba(12,92,70,0.25);
+  border-top-color: var(--primary);
+}
+.btn:disabled { cursor: not-allowed; }
+
+.loading-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  animation: spin .7s linear infinite;
+}
+.loading-spinner.dark { border-color: rgba(12,92,70,0.22); border-top-color: var(--primary); }
+
 /* Small utility */
 .mt-8 { margin-top: 8px; }
 .mt-16 { margin-top: 16px; }
@@ -744,10 +797,26 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .muted { color: var(--text-muted); }
 
 @media (max-width: 480px) {
-  .auth-card { padding: 28px 20px; }
+  .auth-shell { padding: 16px; }
+  .auth-card { padding: 26px 18px 22px; }
+  .auth-brand img { width: 56px; height: 56px; }
+  .auth-brand h1 { font-size: 21px; }
+  .field { margin-bottom: 14px; }
+  .field input { padding: 12px 14px; }
   .header-right { gap: 8px; }
   .points-badge { padding: 6px 10px; font-size: 12.5px; }
   .brand-block .brand-text h2 { font-size: 14.5px; }
+}
+
+@media (max-width: 360px) {
+  .auth-card { padding: 22px 14px 20px; }
+  .auth-brand h1 { font-size: 19px; }
+}
+
+/* Respect device safe areas (notch / home indicator) on phones */
+.auth-shell {
+  padding-top: calc(24px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ================= الصفحة الرئيسية: ترحيب + آية + متابعة التعلم + فلاتر ================= */

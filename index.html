@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <title>تسجيل الدخول — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
@@ -45,7 +45,7 @@
 
       <a href="#" class="forgot-link" id="openForgotBtn">نسيت كلمة المرور؟</a>
 
-      <button type="submit" class="btn btn-primary" id="loginBtn">تسجيل الدخول</button>
+      <button type="submit" class="btn btn-primary" id="loginBtn"><span id="loginBtnLabel">تسجيل الدخول</span></button>
     </form>
 
     <div class="auth-switch">
@@ -72,7 +72,7 @@
       <div class="form-msg" id="forgotMsg"></div>
 
       <div style="display:flex; gap:10px;">
-        <button class="btn btn-primary" id="confirmSendBtn">نعم، أرسل الرسالة</button>
+        <button class="btn btn-primary" id="confirmSendBtn"><span id="confirmSendBtnLabel">نعم، أرسل الرسالة</span></button>
         <button type="button" class="btn btn-outline" id="cancelForgotBtn">إلغاء</button>
       </div>
     </div>
@@ -150,6 +150,27 @@
     formMsg.className = 'form-msg show ' + type;
   }
 
+  // ✅ حالة تحميل احترافية للأزرار: تعطيل + Spinner + نص متغيّر
+  function setBtnLoading(btn, labelEl, loading, loadingText, idleText) {
+    btn.disabled = loading;
+    if (loading) {
+      btn.innerHTML = '<span class="btn-spinner"></span><span>' + loadingText + '</span>';
+    } else {
+      btn.innerHTML = '<span>' + idleText + '</span>';
+    }
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setFieldError(fieldEl, on) {
+    fieldEl.classList.toggle('has-error', !!on);
+  }
+
+  const emailField = document.getElementById('emailField');
+  const passwordField = document.getElementById('passwordField');
+  document.getElementById('email').addEventListener('input', function () { setFieldError(emailField, false); });
+  passwordInput.addEventListener('input', function () { setFieldError(passwordField, false); });
+
   function mapError(code) {
     const map = {
       'auth/invalid-email': 'صيغة البريد الإلكتروني غير صحيحة',
@@ -167,18 +188,33 @@
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     formMsg.classList.remove('show');
+    setFieldError(emailField, false);
+    setFieldError(passwordField, false);
 
     const email = document.getElementById('email').value.trim();
     const password = passwordInput.value;
     const remember = document.getElementById('rememberMe').checked;
 
-    if (!email || !password) {
-      showMsg('من فضلك أدخل البريد الإلكتروني وكلمة المرور', 'error');
+    if (!email) {
+      setFieldError(emailField, true);
+      showMsg('من فضلك أدخل بريدك الإلكتروني', 'error');
+      document.getElementById('email').focus();
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setFieldError(emailField, true);
+      showMsg('صيغة البريد الإلكتروني غير صحيحة', 'error');
+      document.getElementById('email').focus();
+      return;
+    }
+    if (!password) {
+      setFieldError(passwordField, true);
+      showMsg('كلمة المرور مطلوبة', 'error');
+      passwordInput.focus();
       return;
     }
 
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'جارٍ تسجيل الدخول...';
+    setBtnLoading(loginBtn, null, true, 'جارٍ تسجيل الدخول...', 'تسجيل الدخول');
 
     const persistence = remember
       ? firebase.auth.Auth.Persistence.LOCAL
@@ -218,9 +254,13 @@
           showMsg('تم وقف حسابك من قبل إدارة المنصة. تواصل مع الدعم الفني لمزيد من التفاصيل.', 'error');
         } else {
           showMsg(mapError(err.code), 'error');
+          if (err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found') {
+            setFieldError(emailField, true);
+          } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+            setFieldError(passwordField, true);
+          }
         }
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'تسجيل الدخول';
+        setBtnLoading(loginBtn, null, false, '', 'تسجيل الدخول');
       });
   });
 
@@ -240,6 +280,12 @@
     confirmBtn.textContent = 'نعم، أرسل الرسالة';
   }
 
+  forgotEmailInput.addEventListener('focus', function () {
+    setTimeout(function () {
+      forgotEmailInput.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 300);
+  });
+
   document.getElementById('openForgotBtn').addEventListener('click', function (e) {
     e.preventDefault();
     forgotEmailInput.value = document.getElementById('email').value.trim();
@@ -258,12 +304,18 @@
     if (!email) {
       forgotMsg.textContent = 'من فضلك أدخل بريدك الإلكتروني';
       forgotMsg.className = 'form-msg show error';
+      forgotEmailInput.focus();
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      forgotMsg.textContent = 'صيغة البريد الإلكتروني غير صحيحة';
+      forgotMsg.className = 'form-msg show error';
+      forgotEmailInput.focus();
       return;
     }
 
     const btn = this;
-    btn.disabled = true;
-    btn.textContent = 'جارٍ الإرسال...';
+    setBtnLoading(btn, null, true, 'جارٍ الإرسال...', 'نعم، أرسل الرسالة');
 
     auth.sendPasswordResetEmail(email, {
       url: RESET_SITE_URL
@@ -280,8 +332,7 @@
         };
         forgotMsg.textContent = map[err.code] || ('تعذر إرسال الرسالة (' + (err.code || 'خطأ غير معروف') + ')');
         forgotMsg.className = 'form-msg show error';
-        btn.disabled = false;
-        btn.textContent = 'نعم، أرسل الرسالة';
+        setBtnLoading(btn, null, false, '', 'نعم، أرسل الرسالة');
       });
   });
 </script>
