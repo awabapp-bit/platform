@@ -35,6 +35,28 @@
     color: var(--gold);
     direction: ltr;
   }
+  .violation-warning {
+    background: #FBEAE6;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .violation-warning.show { display: block; }
+  .violation-type-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-inline-start: 6px;
+  }
+  .violation-type-badge.tab { background: #FFF3CD; color: #856404; }
+  .violation-type-badge.blur { background: #F8D7DA; color: #721C24; }
 
   /* ===== شريط التنقل بين الأسئلة ===== */
   .exam-nav {
@@ -205,7 +227,7 @@
   }
   .confirm-box .confirm-actions .btn { width: auto; min-width: 80px; }
 
-  /* ===== نتيجة الاختبار ===== */
+  /* ===== نتيجة الاختبار (صفحة التسليم) ===== */
   .exam-result {
     margin-top: 24px;
     padding: 24px;
@@ -226,6 +248,61 @@
     color: var(--text);
   }
   .exam-result .details span { font-weight: 700; color: var(--primary-dark); }
+  .exam-result .submitted-badge {
+    display: inline-block;
+    background: var(--success);
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  .exam-result .already-submitted {
+    background: #FFF3CD;
+    border: 1px solid #FFC107;
+    color: #856404;
+  }
+  .exam-result .already-submitted .submitted-badge {
+    background: #FFC107;
+    color: #856404;
+  }
+
+  /* ===== حماية ===== */
+  .exam-protection-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center; align-items: center;
+    color: #fff; font-size: 18px; text-align: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .exam-protection-overlay.show { display: flex; }
+  .exam-protection-overlay .content {
+    background: var(--primary-dark);
+    padding: 30px 40px;
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+  }
+  .exam-protection-overlay .content i { font-size: 48px; color: var(--danger); display: block; margin-bottom: 16px; }
+  .exam-protection-overlay .violation-detail {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 8px;
+  }
+
+  /* ===== صفحة ممنوع إعادة الاختبار ===== */
+  .already-done-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .already-done-card .big-icon { color: var(--success); margin-bottom: 10px; }
+  .already-done-card .big-icon i { font-size: 46px; }
 </style>
 </head>
 <body>
@@ -238,10 +315,18 @@
   </a>
   <h1 class="page-title" id="examTitle">جارٍ التحميل...</h1>
 
-  <div class="exam-timer">
+  <div class="exam-timer" id="examTimer">
     <i class="fas fa-hourglass-half"></i>
     <span>المدة المتبقية: </span>
     <span id="timerDisplay">00:00</span>
+  </div>
+
+  <div class="violation-warning" id="violationWarning">
+    ⚠️ تنبيه: عدد المخالفات <span id="violationCount">0</span> من <span id="maxViolations">3</span>. تجاوز الحد يؤدي إلى تسليم الاختبار تلقائياً.
+    <div style="font-size:12px; margin-top:4px; opacity:0.8;">
+      <span class="violation-type-badge tab">🔄 تغيير تبويب</span>
+      <span class="violation-type-badge blur">📱 تصغير/تطبيق آخر</span>
+    </div>
   </div>
 
   <div id="content">
@@ -262,6 +347,16 @@
   </div>
 </div>
 
+<!-- ===== طبقة حماية (تظهر عند المخالفات) ===== -->
+<div class="exam-protection-overlay" id="protectionOverlay">
+  <div class="content">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p id="protectionMsg">⚠️ تم اكتشاف مخالفة.</p>
+    <p class="violation-detail" id="protectionDetail">الرجاء العودة للاختبار فوراً.</p>
+    <button class="btn btn-primary" id="returnToExamBtn" style="width:auto; margin-top:12px;">العودة للاختبار</button>
+  </div>
+</div>
+
 <footer class="site-footer" id="siteFooter"></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -272,7 +367,7 @@
 <script src="app-shell.js"></script>
 <script>
   // ============================================================
-  // exam.html — صفحة الاختبار (موقع المستخدم)
+  // exam.html — صفحة الاختبار مع منع إعادة المحاولة
   // ============================================================
 
   const params = new URLSearchParams(window.location.search);
@@ -291,12 +386,18 @@
   let userAnswers = {};
   let currentQuestionIndex = 0;
   let questionIds = [];
+  let questionsData = [];
   let timerInterval = null;
   let startTime = Date.now();
   let examDuration = 10;
   let isSubmitted = false;
+  let isForceEnded = false;
+  let violationCount = 0;
+  const MAX_VIOLATIONS_KEY = 'maxViolations';
+  let maxViolations = 3;
+  let sessionCheckInterval = null;
+  let isTabActive = true;
 
-  // ===== نافذة التأكيد =====
   const confirmOverlay = document.getElementById('confirmOverlay');
   const confirmYesBtn = document.getElementById('confirmYesBtn');
   const confirmNoBtn = document.getElementById('confirmNoBtn');
@@ -309,16 +410,42 @@
     if (e.target === this) hideConfirm();
   });
 
-  // ===== المصادقة والتحميل =====
   requireAuth(function (user, userData) {
     currentUser = user;
     currentUserData = userData;
     renderAppHeader(user, userData, { showPoints: true });
     renderFooter();
+
+    const savedSession = localStorage.getItem('awab_session_id');
+    if (!savedSession) {
+      startSession(user, navigator.userAgent).then(function() {
+        localStorage.setItem('awab_session_id', savedSession || 'temp');
+      });
+    }
+
+    db.ref('settings/' + MAX_VIOLATIONS_KEY).once('value').then(function(snap) {
+      if (snap.exists()) maxViolations = snap.val();
+      document.getElementById('maxViolations').textContent = maxViolations;
+    });
+
     load();
   });
 
   function load() {
+    checkSession(currentUser).then(function(result) {
+      if (!result.valid) {
+        alert('تم تسجيل الدخول من جهاز آخر. سيتم إنهاء الاختبار.');
+        window.location.href = 'home.html';
+        return;
+      }
+      return loadExamData();
+    }).catch(function(err) {
+      console.error(err);
+      window.location.href = 'home.html';
+    });
+  }
+
+  function loadExamData() {
     db.ref('competitions/' + compId).once('value').then(function (snap) {
       if (!snap.exists()) { window.location.href = 'home.html'; return; }
       compData = snap.val();
@@ -329,17 +456,17 @@
         return;
       }
 
-      db.ref('userEnrollments/' + currentUser.uid + '/' + compId).once('value').then(function (eSnap) {
+      return db.ref('userEnrollments/' + currentUser.uid + '/' + compId).once('value').then(function (eSnap) {
         if (!eSnap.exists()) {
           document.getElementById('examTitle').textContent = 'محتوى مغلق';
           document.getElementById('content').innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
+            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock"></i></div>' +
             '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3>' +
             '<p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الاختبار.</p>' +
             '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
           return;
         }
-        loadWithAccess();
+        return loadWithAccess();
       });
     });
   }
@@ -354,52 +481,247 @@
 
       if (!access.allowed) {
         const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
+        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock"></i></div>' +
           '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">' + reasonText + '</p></div>';
         return;
       }
 
-      // معاد نشر خاص بالاختبار نفسه (منفصل عن معاد المحاضرة): لازم يتحقق هنا حتى لو المستخدم
-      // فتح الرابط مباشرة، لأن قائمة المحاضرات بتخفي الاختبار بس الرابط المباشر لازم يتقفل برضه
-      if (lessonData.exams[examId].releaseAt && lessonData.exams[examId].releaseAt > Date.now()) {
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-clock" style="font-size:46px;"></i></div>' +
+      if (examData.releaseAt && examData.releaseAt > Date.now()) {
+        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-clock"></i></div>' +
           '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">هذا الاختبار لم يحن معاده بعد' +
-          (typeof formatArabicDate === 'function' ? '، يُتاح في ' + formatArabicDate(lessonData.exams[examId].releaseAt) : '') + '.</p></div>';
+          (typeof formatArabicDate === 'function' ? '، يُتاح في ' + formatArabicDate(examData.releaseAt) : '') + '.</p></div>';
         return;
       }
 
-      const lessonProgress = progressData[lessonId] || {};
-      const examProgress = (lessonProgress.exams && lessonProgress.exams[examId]) || null;
-
-      if (examProgress && examProgress.completed) {
-        content.innerHTML = '<div class="already-done-card">' +
-          '<div class="big-icon"><i class="fas fa-check-circle" style="font-size:46px; color:var(--success);"></i></div>' +
-          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">أنجزت هذا الاختبار بالفعل</h3>' +
-          '<p class="muted">حصلت على <strong>' + (examProgress.earnedPoints || 0) + '</strong> نقطة · ' +
-          (examProgress.score || 0) + ' إجابة صحيحة</p>' +
-          '<a class="btn btn-outline btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">العودة للمحاضرة</a></div>';
-        return;
-      }
-
-      // قراءة المدة
-      examDuration = examData.duration || 10;
-      startTime = Date.now();
-      document.getElementById('timerDisplay').textContent = formatTime(examDuration * 60);
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(updateTimer, 1000);
-
-      const questions = examData.questions || {};
-      questionIds = Object.keys(questions);
-      if (questionIds.length === 0) {
-        content.innerHTML = '<div class="already-done-card"><p class="muted">لا توجد أسئلة في هذا الاختبار بعد.</p></div>';
-        return;
-      }
-
-      userAnswers = {};
-      renderExam();
+      // ✅ الخطوة الجديدة: التحقق من وجود محاولة سابقة (حتى لو منتهية)
+      // نمنع بدء محاولة جديدة إذا كان هناك أي محاولة سابقة
+      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).once('value')
+        .then(function(attemptSnap) {
+          const attempt = attemptSnap.val();
+          if (attempt) {
+            // إذا كانت المحاولة موجودة (سواء نشطة أو منتهية)
+            if (attempt.submitted === true) {
+              // تم تسليمها سابقاً
+              showAlreadySubmitted('لقد قمت بتسليم هذا الاختبار مسبقاً. لا يمكنك إعادة المحاولة.');
+              return;
+            }
+            if (attempt.forceEnded === true) {
+              // تم إنهاؤها قسرياً
+              showAlreadySubmitted('تم إنهاء هذا الاختبار مسبقاً بسبب مخالفات. لا يمكنك إعادة المحاولة.');
+              return;
+            }
+            // إذا كانت المحاولة نشطة (لم تنتهِ)، نستعيدها
+            return restoreExam(attempt);
+          } else {
+            // لا توجد محاولة سابقة، نبدأ محاولة جديدة
+            return startNewExam();
+          }
+        })
+        .catch(function(err) {
+          console.error(err);
+          content.innerHTML = '<p class="muted">حدث خطأ أثناء التحقق من المحاولة.</p>';
+        });
     });
   }
 
+  // دالة عرض رسالة "تم التسليم مسبقاً"
+  function showAlreadySubmitted(message) {
+    document.getElementById('examTimer').style.display = 'none';
+    document.getElementById('violationWarning').style.display = 'none';
+    document.getElementById('content').innerHTML = `
+      <div class="already-done-card" style="border-color:var(--gold-light);">
+        <div class="big-icon" style="color:var(--gold);"><i class="fas fa-check-circle"></i></div>
+        <h3 style="margin:10px 0 6px; color:var(--primary-dark);">✅ تم التسليم</h3>
+        <p class="muted">${message}</p>
+        <a class="btn btn-primary btn-sm" style="width:auto; margin-top:14px;" href="competition.html?id=${encodeURIComponent(compId)}">
+          <i class="fas fa-arrow-left"></i> العودة للمحاضرة
+        </a>
+      </div>
+    `;
+  }
+
+  function startNewExam() {
+    const questionCount = examData.questionCount || 20;
+    getRandomQuestions(compId, lessonId, examId, questionCount)
+      .then(function(selectedQuestions) {
+        if (!selectedQuestions || selectedQuestions.length === 0) {
+          throw new Error('لا توجد أسئلة في هذا الاختبار. أضف أسئلة أولاً.');
+        }
+        return startExamAttempt(compId, lessonId, examId, currentUser.uid, selectedQuestions)
+          .then(function() {
+            return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid + '/sessionId')
+              .set(localStorage.getItem('awab_session_id'));
+          })
+          .then(function() {
+            questionsData = selectedQuestions;
+            questionIds = selectedQuestions.map(function(q) { return q.id; });
+            userAnswers = {};
+            examDuration = examData.duration || 10;
+            startTime = Date.now();
+            document.getElementById('timerDisplay').textContent = formatTime(examDuration * 60);
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            renderExam();
+            startProtection();
+            sessionCheckInterval = setInterval(checkSessionPeriodically, 5000);
+          });
+      })
+      .catch(function(err) {
+        document.getElementById('content').innerHTML = '<div class="already-done-card"><p class="muted">' + err.message + '</p></div>';
+      });
+  }
+
+  function restoreExam(attempt) {
+    if (attempt.submitted || attempt.forceEnded) {
+      // تم إنهاء المحاولة بالفعل
+      showAlreadySubmitted('هذه المحاولة انتهت. لا يمكنك إعادة الاختبار.');
+      return;
+    }
+    // استرجاع المحاولة النشطة
+    questionsData = attempt.questions || [];
+    questionIds = questionsData.map(function(q) { return q.id; });
+    userAnswers = attempt.answers || {};
+    violationCount = attempt.violations || 0;
+    document.getElementById('violationCount').textContent = violationCount;
+    if (violationCount >= maxViolations) {
+      submitExam(true);
+      return;
+    }
+    const elapsed = Math.floor((Date.now() - attempt.startedAt) / 1000);
+    const totalSeconds = examDuration * 60;
+    const remaining = Math.max(0, totalSeconds - elapsed);
+    document.getElementById('timerDisplay').textContent = formatTime(remaining);
+    if (remaining <= 0) {
+      submitExam(true);
+      return;
+    }
+    startTime = Date.now() - elapsed * 1000;
+    timerInterval = setInterval(updateTimer, 1000);
+    renderExam();
+    startProtection();
+    sessionCheckInterval = setInterval(checkSessionPeriodically, 5000);
+  }
+
+  function checkSessionPeriodically() {
+    if (isSubmitted || isForceEnded) return;
+    checkSession(currentUser).then(function(result) {
+      if (!result.valid) {
+        logViolation(currentUser.uid, compId + '_' + lessonId + '_' + examId, 'session_mismatch', 'تم اكتشاف جلسة جديدة من جهاز آخر');
+        submitExam(true);
+      }
+    });
+  }
+
+  // ===== نظام المخالفات المحسّن =====
+  function startProtection() {
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      logViolationAndIncrement('right_click', 'محاولة استخدام القائمة المنسدلة');
+    });
+
+    document.addEventListener('copy', function(e) {
+      e.preventDefault();
+      logViolationAndIncrement('copy_attempt', 'محاولة نسخ');
+    });
+    document.addEventListener('paste', function(e) {
+      e.preventDefault();
+      logViolationAndIncrement('paste_attempt', 'محاولة لصق');
+    });
+    document.addEventListener('cut', function(e) {
+      e.preventDefault();
+      logViolationAndIncrement('cut_attempt', 'محاولة قص');
+    });
+
+    document.addEventListener('keydown', function(e) {
+      const key = e.key;
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (ctrl && (key === 'c' || key === 'v' || key === 'u' || key === 's')) {
+        e.preventDefault();
+        logViolationAndIncrement('keyboard_shortcut', 'استخدام اختصار ' + key);
+      }
+      if (key === 'F12') {
+        e.preventDefault();
+        logViolationAndIncrement('devtools', 'فتح أدوات المطور');
+      }
+      if (e.altKey && (key === 'Tab' || key === 'F4')) {
+        e.preventDefault();
+        logViolationAndIncrement('alt_tab', 'استخدام Alt+Tab');
+      }
+    });
+
+    // مراقبة تغيير التبويب (visibilitychange)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        if (!isSubmitted && !isForceEnded) {
+          isTabActive = false;
+          const details = 'تم تغيير التبويب (الانتقال لتبويب آخر في المتصفح)';
+          logViolationAndIncrement('tab_switch', details);
+          showProtectionOverlay(
+            '⚠️ تم تغيير التبويب',
+            'هذا يُعتبر مخالفة (' + (violationCount + 1) + '/' + maxViolations + '). الرجاء العودة للاختبار فوراً.'
+          );
+        }
+      } else {
+        isTabActive = true;
+        hideProtectionOverlay();
+      }
+    });
+
+    // مراقبة فقدان التركيز (blur) - مع تجنب تكرار المخالفة
+    window.addEventListener('blur', function() {
+      if (document.hidden) return;
+      if (!isSubmitted && !isForceEnded) {
+        const details = 'تم تصغير المتصفح أو التبديل إلى تطبيق آخر (فقدان التركيز)';
+        logViolationAndIncrement('window_blur', details);
+        showProtectionOverlay(
+          '⚠️ تم تصغير المتصفح أو التبديل لتطبيق آخر',
+          'هذا يُعتبر مخالفة (' + (violationCount + 1) + '/' + maxViolations + '). الرجاء العودة للاختبار فوراً.'
+        );
+      }
+    });
+    window.addEventListener('focus', function() {
+      hideProtectionOverlay();
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+      if (!isSubmitted && !isForceEnded) {
+        e.preventDefault();
+        e.returnValue = 'هل أنت متأكد من مغادرة الصفحة؟ سيتم تسجيل مخالفة.';
+      }
+    });
+  }
+
+  function logViolationAndIncrement(type, details) {
+    if (isSubmitted || isForceEnded) return;
+    const examRef = compId + '_' + lessonId + '_' + examId;
+    logViolation(currentUser.uid, examRef, type, details);
+    incrementViolations(compId, lessonId, examId, currentUser.uid).then(function() {
+      violationCount++;
+      document.getElementById('violationCount').textContent = violationCount;
+      document.getElementById('violationWarning').classList.add('show');
+      if (violationCount >= maxViolations) {
+        submitExam(true);
+      }
+    });
+  }
+
+  function showProtectionOverlay(title, detail) {
+    const overlay = document.getElementById('protectionOverlay');
+    overlay.querySelector('#protectionMsg').textContent = title;
+    overlay.querySelector('#protectionDetail').textContent = detail;
+    overlay.classList.add('show');
+  }
+
+  function hideProtectionOverlay() {
+    document.getElementById('protectionOverlay').classList.remove('show');
+  }
+
+  document.getElementById('returnToExamBtn').addEventListener('click', function() {
+    hideProtectionOverlay();
+    window.focus();
+  });
+
+  // ===== العداد الزمني =====
   function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
@@ -407,7 +729,7 @@
   }
 
   function updateTimer() {
-    if (isSubmitted) return;
+    if (isSubmitted || isForceEnded) return;
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
     const remaining = Math.max(0, (examDuration * 60) - elapsed);
     document.getElementById('timerDisplay').textContent = formatTime(remaining);
@@ -422,11 +744,14 @@
   function renderExam() {
     const content = document.getElementById('content');
     const total = questionIds.length;
+    if (total === 0) {
+      content.innerHTML = '<p class="muted">لا توجد أسئلة.</p>';
+      return;
+    }
     const qId = questionIds[currentQuestionIndex];
-    const q = examData.questions[qId];
+    const q = questionsData[currentQuestionIndex];
     const isLast = (currentQuestionIndex === total - 1);
 
-    // شريط التنقل
     let navHtml = '<div class="exam-nav">';
     questionIds.forEach((id, idx) => {
       const isActive = idx === currentQuestionIndex;
@@ -441,7 +766,6 @@
     });
     navHtml += '</div>';
 
-    // السؤال
     let qHtml = '<div class="exam-question-area">';
     qHtml += `<div class="q-text"><i class="fas fa-question-circle"></i> ${currentQuestionIndex+1}. ${escapeHtml(q.text)}</div>`;
     qHtml += '<div class="quiz-options">';
@@ -454,7 +778,6 @@
     });
     qHtml += '</div></div>';
 
-    // أزرار التنقل (بدون زر مراجعة)
     let actionsHtml = '<div class="exam-actions">';
     if (currentQuestionIndex > 0) {
       actionsHtml += `<button class="btn btn-outline btn-sm" onclick="goToQuestion(${currentQuestionIndex-1})">
@@ -468,9 +791,8 @@
     }
     actionsHtml += '</div>';
 
-    // زر التسليم (يظهر فقط في آخر سؤال)
     let submitHtml = '';
-    if (isLast && !isSubmitted) {
+    if (isLast && !isSubmitted && !isForceEnded) {
       submitHtml = `
         <div class="submit-btn-wrapper">
           <button class="btn-submit-final" onclick="openConfirm()">
@@ -482,24 +804,24 @@
 
     content.innerHTML = navHtml + qHtml + actionsHtml + submitHtml + '<div id="resultArea"></div>';
 
-    // أحداث أزرار التنقل
     document.querySelectorAll('.exam-nav .q-btn').forEach(btn => {
       btn.addEventListener('click', function() {
-        if (!isSubmitted) goToQuestion(parseInt(this.dataset.index));
+        if (!isSubmitted && !isForceEnded) goToQuestion(parseInt(this.dataset.index));
       });
     });
   }
 
-  // ===== دوال التنقل والحفظ =====
   function goToQuestion(index) {
-    if (isSubmitted) return;
+    if (isSubmitted || isForceEnded) return;
     currentQuestionIndex = index;
     renderExam();
   }
 
   function saveAnswer(qId, selected) {
-    if (isSubmitted) return;
+    if (isSubmitted || isForceEnded) return;
     userAnswers[qId] = selected;
+    saveAnswer(compId, lessonId, examId, currentUser.uid, qId, selected)
+      .catch(function(err) { console.warn('فشل حفظ الإجابة:', err); });
     const btns = document.querySelectorAll('.exam-nav .q-btn');
     const idx = questionIds.indexOf(qId);
     if (idx >= 0 && btns[idx]) {
@@ -508,31 +830,34 @@
     }
   }
 
-  // ===== فتح نافذة التأكيد =====
+  window.saveAnswer = saveAnswer;
+  window.goToQuestion = goToQuestion;
+  window.openConfirm = openConfirm;
+
   function openConfirm() {
-    if (isSubmitted) return;
+    if (isSubmitted || isForceEnded) return;
     showConfirm();
   }
 
-  // حدث زر "نعم" في نافذة التأكيد (مرة واحدة)
   confirmYesBtn.addEventListener('click', function () {
     hideConfirm();
-    if (!isSubmitted) submitExam(false);
+    if (!isSubmitted && !isForceEnded) submitExam(false);
   });
 
-  // ===== تسليم الاختبار =====
   function submitExam(autoSubmit) {
     if (isSubmitted) return;
     isSubmitted = true;
     clearInterval(timerInterval);
+    clearInterval(sessionCheckInterval);
+    hideProtectionOverlay();
 
     const total = questionIds.length;
     let correct = 0;
     let earnedPoints = 0;
     const answersRecord = {};
 
-    questionIds.forEach((qId) => {
-      const q = examData.questions[qId];
+    questionIds.forEach((qId, idx) => {
+      const q = questionsData[idx];
       const selected = userAnswers[qId];
       answersRecord[qId] = (selected !== undefined) ? selected : -1;
       if (selected !== undefined && selected === q.correct) {
@@ -541,7 +866,6 @@
       }
     });
 
-    // حفظ النتيجة
     const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
     const examDataToSave = {
       completed: true,
@@ -550,6 +874,8 @@
       answers: answersRecord,
       answeredAt: firebase.database.ServerValue.TIMESTAMP
     };
+
+    endExamAttempt(compId, lessonId, examId, currentUser.uid, true, false);
 
     progRef.child('exams/' + examId).set(examDataToSave)
       .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + earnedPoints))
@@ -561,11 +887,19 @@
       })
       .then(() => {
         const percentage = Math.round((correct / total) * 100);
+        let autoMsg = '';
+        if (autoSubmit) {
+          autoMsg = '<div style="margin-top:8px;color:var(--danger);font-weight:700;"><i class="fas fa-exclamation-triangle"></i> تم التسليم تلقائياً.</div>';
+        }
+        // إخفاء المؤقت والتحذير
+        document.getElementById('examTimer').style.display = 'none';
+        document.getElementById('violationWarning').style.display = 'none';
         document.getElementById('resultArea').innerHTML = `
           <div class="exam-result">
             <div class="score"><i class="fas fa-trophy" style="color:var(--gold);"></i> ${earnedPoints} نقطة</div>
             <div class="details">إجابات صحيحة: <span>${correct}</span> من <span>${total}</span></div>
             <div class="details">نسبة النجاح: <span>${percentage}%</span></div>
+            ${autoMsg}
             <div style="margin-top:16px;">
               <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
                 <i class="fas fa-arrow-left"></i> العودة للمحاضرة
@@ -588,14 +922,39 @@
       })
       .catch(err => {
         alert('❌ حدث خطأ أثناء حفظ النتيجة: ' + err.message);
-        isSubmitted = false; // السماح بإعادة المحاولة
+        isSubmitted = false;
       });
   }
 
-  // ===== ربط الدوال في النطاق العام =====
-  window.saveAnswer = saveAnswer;
-  window.goToQuestion = goToQuestion;
-  window.openConfirm = openConfirm;
+  function forceEndExam(reason) {
+    if (isForceEnded) return;
+    isForceEnded = true;
+    clearInterval(timerInterval);
+    clearInterval(sessionCheckInterval);
+    hideProtectionOverlay();
+    endExamAttempt(compId, lessonId, examId, currentUser.uid, false, true);
+    document.getElementById('examTimer').style.display = 'none';
+    document.getElementById('violationWarning').style.display = 'none';
+    document.getElementById('content').innerHTML = `
+      <div class="already-done-card">
+        <div class="big-icon" style="color:var(--danger);"><i class="fas fa-exclamation-circle" style="font-size:46px;"></i></div>
+        <h3 style="margin:10px 0 6px; color:var(--danger);">تم إنهاء الاختبار</h3>
+        <p class="muted">${reason}</p>
+        <a class="btn btn-primary btn-sm" style="width:auto; margin-top:14px;" href="competition.html?id=${encodeURIComponent(compId)}">العودة للمحاضرة</a>
+      </div>
+    `;
+    document.querySelectorAll('.exam-actions button, .btn-submit-final').forEach(b => b.disabled = true);
+  }
+
+  window.forceEndExam = forceEndExam;
+
+  window.addEventListener('beforeunload', function() {
+    if (!isSubmitted && !isForceEnded) {
+      logViolation(currentUser.uid, compId + '_' + lessonId + '_' + examId, 'page_reload', 'إعادة تحميل الصفحة');
+      forceEndExam('تم إعادة تحميل الصفحة');
+    }
+  });
+
 </script>
 </body>
 </html>

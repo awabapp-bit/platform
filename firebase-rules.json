@@ -10,6 +10,13 @@
         }
       }
     },
+    "sessions": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['sessionId', 'device', 'lastActive', 'createdAt'])"
+      }
+    },
     "competitions": {
       ".read": "auth != null",
       ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
@@ -27,17 +34,81 @@
                   }
                 }
               }
+            },
+            "exams": {
+              "$examId": {
+                ".read": "auth != null",
+                ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+                "questions": {
+                  ".read": "auth != null && (auth.uid === root.child('examAttempts').child($compId).child($lessonId).child($examId).child(auth.uid).child('started').val() || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+                  ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+                }
+              }
             }
           }
         }
       }
     },
-    "enrollments": {
+    "examBank": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "$compId": {
+        "$lessonId": {
+          "$examId": {
+            "questions": {
+              ".read": "auth != null",
+              ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+            }
+          }
+        }
+      }
+    },
+    "examAttempts": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
       "$compId": {
-        "$uid": {
-          ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
-          ".write": "auth != null && auth.uid === $uid"
+        "$lessonId": {
+          "$examId": {
+            "$uid": {
+              ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+              ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+              "answers": {
+                ".validate": "newData.isNumber() || newData.isString()"
+              },
+              "violations": {
+                ".validate": "newData.isNumber()"
+              },
+              "violationList": {
+                ".validate": "newData.isArray()"
+              },
+              "submitted": {
+                ".validate": "newData.isBoolean()"
+              },
+              "forceEnded": {
+                ".validate": "newData.isBoolean()"
+              },
+              "startedAt": {
+                ".validate": "newData.isNumber()"
+              },
+              "submittedAt": {
+                ".validate": "newData.isNumber()"
+              },
+              "selectedQuestions": {
+                ".validate": "newData.isArray()"
+              },
+              "sessionId": {
+                ".validate": "newData.isString()"
+              }
+            }
+          }
+        }
+      }
+    },
+    "violations": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        "$violationId": {
+          ".validate": "newData.hasChildren(['type', 'timestamp', 'examRef', 'details'])"
         }
       }
     },
@@ -66,17 +137,24 @@
         ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
       }
     },
+    "conversations": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
+      }
+    },
     "messages": {
       "$uid": {
         ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
         ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
       }
     },
-    "conversations": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
+    "settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "maxViolations": {
+        ".validate": "newData.isNumber() && newData.val() >= 1"
       }
     }
   }

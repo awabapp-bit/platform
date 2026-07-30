@@ -243,11 +243,6 @@ window.getUserTier = getUserTier;
 
 /* ================= دوال المحاضرات والتقدم ================= */
 
-/**
- * يرتب معرّفات المحاضرات حسب حقل order (اللي بيتحكم فيه الأدمن من لوحة التحكم بأزرار الترتيب)،
- * ولو محاضرة قديمة من غير order، بيتحافظ على ترتيب الإنشاء الأصلي كافتراضي.
- * دالة موحّدة تُستخدم في كل مكان بيعتمد على ترتيب المحاضرات (القفل بالتتابع، صفحة المحتوى، إيميلات النتائج).
- */
 function getSortedLessonIds(lessons) {
   const ids = Object.keys(lessons || {});
   return ids
@@ -278,8 +273,6 @@ function getLessonAccessState(lessons, progressData, lessonId) {
         reason: !releasePassed ? 'release' : (!unlockedBySequence ? 'sequence' : null)
       };
     }
-    // محاضرة فيها مرفقات بس من غير فيديو أو اختبار متعتبرش شرطًا للتتابع:
-    // بتفضل ظاهرة عادي، لكن ميتقفلش اللي بعدها بسببها
     const hasGatingContent = (Object.keys(lesson.videos || {}).length > 0) || (Object.keys(lesson.exams || {}).length > 0);
     previousDone = releasePassed && (hasGatingContent ? done : true);
   });
@@ -593,13 +586,9 @@ function renderSupportFab() {
 window.renderSupportFab = renderSupportFab;
 
 /* ============================================================
-   ✅ دالة حذف حساب المستخدم (جديدة)
+   ✅ دالة حذف حساب المستخدم
    ============================================================ */
 
-/** يحذف كل بيانات حساب المستخدم من Realtime Database
- *  (نقاط، تقدم، اشتراكات، إشعارات، محادثات، إلخ)
- *  لا يحذف حساب المصادقة (Authentication) — يتم حذفه بشكل منفصل.
- */
 function deleteUserAccountData(uid) {
   const updates = {};
   updates['users/' + uid] = null;
@@ -610,7 +599,6 @@ function deleteUserAccountData(uid) {
   updates['conversations/' + uid] = null;
   updates['messages/' + uid] = null;
 
-  // حذف من enrollments/{compId}/{uid}
   return db.ref('enrollments').once('value').then(function (snap) {
     const all = snap.val() || {};
     Object.keys(all).forEach(function (compId) {
@@ -622,3 +610,242 @@ function deleteUserAccountData(uid) {
   });
 }
 window.deleteUserAccountData = deleteUserAccountData;
+
+/* ============================================================
+   🔐 نظام الجلسات (Sessions) — مع إجبار تسجيل الخروج من الأجهزة الأخرى
+   ============================================================ */
+
+/**
+ * بدء جلسة جديدة للمستخدم الحالي.
+ * يتم إنشاء sessionId فريد، وتخزينه في قاعدة البيانات.
+ * إذا كانت هناك جلسة سابقة، يتم إنهاؤها.
+ */
+function startSession(user, deviceInfo) {
+  const sessionId = user.uid + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+  const sessionData = {
+    sessionId: sessionId,
+    device: deviceInfo || navigator.userAgent || 'unknown',
+    lastActive: firebase.database.ServerValue.TIMESTAMP,
+    createdAt: firebase.database.ServerValue.TIMESTAMP
+  };
+  return db.ref('sessions/' + user.uid).set(sessionData);
+}
+window.startSession = startSession;
+
+/**
+ * التحقق من صحة الجلسة الحالية.
+ * إذا كانت الجلسة مختلفة (تم تسجيل الدخول من جهاز آخر)، يتم إرجاع false.
+ */
+function checkSession(user) {
+  return db.ref('sessions/' + user.uid).once('value').then(function(snap) {
+    const data = snap.val();
+    if (!data) return { valid: false, reason: 'no_session' };
+    const localSessionId = localStorage.getItem('awab_session_id');
+    if (!localSessionId || data.sessionId !== localSessionId) {
+      return { valid: false, reason: 'session_mismatch' };
+    }
+    db.ref('sessions/' + user.uid + '/lastActive').set(firebase.database.ServerValue.TIMESTAMP);
+    return { valid: true };
+  });
+}
+window.checkSession = checkSession;
+
+/**
+ * إنهاء جلسة المستخدم (تسجيل الخروج).
+ */
+function endSession(user) {
+  return db.ref('sessions/' + user.uid').remove();
+}
+window.endSession = endSession;
+
+/**
+ * ✅ قتل جميع الجلسات القديمة للمستخدم (باستثناء الجلسة الحالية).
+ * يتم استدعاؤها عند تسجيل الدخول من جهاز جديد.
+ */
+function killOtherSessions(user, currentSessionId) {
+  return db.ref('sessions/' + user.uid').once('value').then(function(snap) {
+    const data = snap.val();
+    if (!data) return;
+    // إذا كانت الجلسة المخزنة مختلفة عن الجلسة الحالية، نمسحها
+    if (data.sessionId !== currentSessionId) {
+      // تسجيل إشعار للمستخدم القديم (سيظهر له عند refresh)
+      return db.ref('notifications/' + user.uid).push({
+        type: 'session_killed',
+        title: '⚠️ تم تسجيل الدخول من جهاز آخر',
+        body: 'إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً لحماية حسابك.',
+        link: 'support.html',
+        read: false,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(function() {
+        // مسح الجلسة القديمة
+        return db.ref('sessions/' + user.uid').remove();
+      });
+    }
+  });
+}
+window.killOtherSessions = killOtherSessions;
+
+/**
+ * مراقبة التغييرات في الجلسة في الخلفية (تُستدعى مرة واحدة عند تحميل أي صفحة).
+ * إذا تغيرت الجلسة (تم تسجيل الدخول من جهاز آخر)، يتم تسجيل الخروج فوراً مع رسالة تحذيرية.
+ */
+function watchSessionChanges(user) {
+  if (!user) return;
+  const sessionRef = db.ref('sessions/' + user.uid);
+  sessionRef.on('value', function(snap) {
+    const data = snap.val();
+    if (!data) {
+      // الجلسة غير موجودة (تم حذفها من جهاز آخر)
+      // نخرج المستخدم فوراً مع رسالة تحذيرية
+      const msg = 'تم تسجيل الدخول إلى حسابك من جهاز آخر. إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً.';
+      alert('⚠️ ' + msg);
+      auth.signOut().then(function() {
+        window.location.href = 'index.html?session_killed=1';
+      });
+      return;
+    }
+    const localSessionId = localStorage.getItem('awab_session_id');
+    if (localSessionId && data.sessionId !== localSessionId) {
+      // تم تغيير الجلسة من جهاز آخر
+      const msg = 'تم تسجيل الدخول إلى حسابك من جهاز آخر. إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً.';
+      alert('⚠️ ' + msg);
+      auth.signOut().then(function() {
+        window.location.href = 'index.html?session_killed=1';
+      });
+    }
+  });
+}
+window.watchSessionChanges = watchSessionChanges;
+
+/* ============================================================
+   📝 تسجيل المخالفات
+   ============================================================ */
+
+function logViolation(uid, examRef, type, details) {
+  const violationRef = db.ref('violations/' + uid).push();
+  return violationRef.set({
+    type: type,
+    examRef: examRef,
+    details: details || '',
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  });
+}
+window.logViolation = logViolation;
+
+function getViolationCount(compId, lessonId, examId, uid) {
+  return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid + '/violations').once('value')
+    .then(function(snap) {
+      return snap.val() || 0;
+    });
+}
+window.getViolationCount = getViolationCount;
+
+function incrementViolations(compId, lessonId, examId, uid) {
+  const ref = db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid);
+  return ref.child('violations').transaction(function(current) {
+    return (current || 0) + 1;
+  });
+}
+window.incrementViolations = incrementViolations;
+
+/* ============================================================
+   📚 بنك الأسئلة العشوائي
+   ============================================================ */
+
+function getRandomQuestions(compId, lessonId, examId, count) {
+  return db.ref('competitions/' + compId + '/lessons/' + lessonId + '/exams/' + examId + '/questions').once('value')
+    .then(function(snap) {
+      const bank = snap.val() || {};
+      const keys = Object.keys(bank);
+      if (keys.length === 0) {
+        throw new Error('لا توجد أسئلة في هذا الاختبار. أضف أسئلة أولاً.');
+      }
+      const actualCount = Math.min(count, keys.length);
+      const shuffledKeys = shuffleArray(keys);
+      const selectedKeys = shuffledKeys.slice(0, actualCount);
+      const questions = selectedKeys.map(function(key) {
+        const q = bank[key];
+        const options = q.options || [];
+        const shuffledOptions = shuffleArray(options);
+        const correctIndex = shuffledOptions.indexOf(q.options[q.correct]);
+        return {
+          id: key,
+          text: q.text,
+          options: shuffledOptions,
+          correct: correctIndex,
+          points: q.points || 10
+        };
+      });
+      return shuffleArray(questions);
+    });
+}
+window.getRandomQuestions = getRandomQuestions;
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+window.shuffleArray = shuffleArray;
+
+/* ============================================================
+   💾 حفظ الإجابات ومزامنتها
+   ============================================================ */
+
+function saveAnswer(compId, lessonId, examId, uid, questionId, selectedIndex) {
+  const ref = db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid + '/answers/' + questionId);
+  return ref.set(selectedIndex);
+}
+window.saveAnswer = saveAnswer;
+
+function getSavedAnswers(compId, lessonId, examId, uid) {
+  return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid + '/answers').once('value')
+    .then(function(snap) {
+      return snap.val() || {};
+    });
+}
+window.getSavedAnswers = getSavedAnswers;
+
+function getExamAttempt(compId, lessonId, examId, uid) {
+  return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid).once('value')
+    .then(function(snap) {
+      return snap.val() || null;
+    });
+}
+window.getExamAttempt = getExamAttempt;
+
+function startExamAttempt(compId, lessonId, examId, uid, selectedQuestions) {
+  const attemptData = {
+    startedAt: firebase.database.ServerValue.TIMESTAMP,
+    submitted: false,
+    forceEnded: false,
+    violations: 0,
+    violationList: [],
+    answers: {},
+    selectedQuestions: selectedQuestions.map(function(q) { return q.id; }),
+    questions: selectedQuestions
+  };
+  return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid).set(attemptData);
+}
+window.startExamAttempt = startExamAttempt;
+
+function endExamAttempt(compId, lessonId, examId, uid, submitted, forceEnded) {
+  const updates = {
+    submitted: submitted || false,
+    forceEnded: forceEnded || false,
+    submittedAt: firebase.database.ServerValue.TIMESTAMP
+  };
+  return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + uid).update(updates);
+}
+window.endExamAttempt = endExamAttempt;
+
+function isExamActive(compId, lessonId, examId, uid) {
+  return getExamAttempt(compId, lessonId, examId, uid).then(function(attempt) {
+    if (!attempt) return false;
+    return !attempt.submitted && !attempt.forceEnded;
+  });
+}
+window.isExamActive = isExamActive;
