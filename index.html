@@ -110,7 +110,8 @@
   // ✅ عرض رسالة إذا تم تسجيل الخروج بسبب جلسة جديدة
   if (new URLSearchParams(window.location.search).get('session_killed') === '1') {
     document.getElementById('formMsg').innerHTML = icon('exclamation-triangle', 'icon-sm') +
-      ' تم تسجيل الدخول إلى حسابك من جهاز آخر. إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً.';
+      ' تم رصد محاولة تسجيل دخول جديدة إلى حسابك، فتم إنهاء جلستك الحالية تلقائيًا للحفاظ على أمان حسابك. ' +
+      'إذا كنت تشك أن شخصًا غير معروف قام بالدخول إلى حسابك، برجاء التواصل مع الدعم الفني فورًا.';
     document.getElementById('formMsg').className = 'form-msg show error';
   }
 
@@ -190,15 +191,14 @@
         const sessionId = cred.user.uid + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
         localStorage.setItem('awab_session_id', sessionId);
 
-        // ✅ تسجيل الجلسة الجديدة في Firebase
+        // ✅ تسجيل الجلسة الجديدة في Firebase — بما إن sessions/{uid} فيها
+        // جلسة واحدة بس، الكتابة هنا بتلغي أي جلسة سابقة تلقائيًا، والجهاز
+        // القديم هيكتشف ده لحظيًا (watchSessionKick) وهيتسجل خروج فورًا
         return db.ref('sessions/' + cred.user.uid).set({
           sessionId: sessionId,
           device: navigator.userAgent || 'unknown',
           lastActive: firebase.database.ServerValue.TIMESTAMP,
           createdAt: firebase.database.ServerValue.TIMESTAMP
-        }).then(function () {
-          // ✅ قتل أي جلسات سابقة (إذا كانت موجودة)
-          return killOtherSessions(cred.user, sessionId);
         }).then(function () {
           return db.ref('users/' + cred.user.uid).once('value').then(function (snap) {
             const data = snap.val();

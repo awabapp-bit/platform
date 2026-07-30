@@ -418,8 +418,8 @@
 
     const savedSession = localStorage.getItem('awab_session_id');
     if (!savedSession) {
-      startSession(user, navigator.userAgent).then(function() {
-        localStorage.setItem('awab_session_id', savedSession || 'temp');
+      startSession(user, navigator.userAgent).then(function(newSessionId) {
+        localStorage.setItem('awab_session_id', newSessionId);
       });
     }
 

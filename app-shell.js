@@ -337,6 +337,7 @@ function requireAuth(onReady) {
             });
             return;
           }
+          watchSessionKick(user);
           onReady(user, data);
           return;
         }
@@ -347,7 +348,7 @@ function requireAuth(onReady) {
           isAdmin: false,
           createdAt: firebase.database.ServerValue.TIMESTAMP
         };
-        return userRef.set(fallback).then(function () { onReady(user, fallback); });
+        return userRef.set(fallback).then(function () { watchSessionKick(user); onReady(user, fallback); });
       })
       .catch(function (err) {
         console.error(err);
@@ -364,7 +365,6 @@ function renderAppHeader(user, userData, opts) {
   if (!header) return;
 
   const name = (userData.name || 'مستخدم').trim();
-  const firstLetter = name.charAt(0).toUpperCase();
 
   header.innerHTML =
     '<div class="header-inner">' +
@@ -388,7 +388,7 @@ function renderAppHeader(user, userData, opts) {
         '</div>' +
         '<div class="account-menu">' +
           '<button class="account-btn" id="accountBtn" aria-label="حساب المستخدم">' +
-            '<div class="avatar">' + firstLetter + '</div>' +
+            '<div class="avatar">' + icon('user', 'icon-md') + '</div>' +
           '</button>' +
           '<div class="account-dropdown" id="accountDropdown">' +
             '<div style="padding: 8px 12px; font-weight: 700; color: var(--primary-dark); border-bottom: 1px solid var(--border); margin-bottom: 4px; display:flex; align-items:center; gap:8px;">' +
@@ -623,7 +623,11 @@ function startSession(user, deviceInfo) {
     lastActive: firebase.database.ServerValue.TIMESTAMP,
     createdAt: firebase.database.ServerValue.TIMESTAMP
   };
-  return db.ref('sessions/' + user.uid).set(sessionData);
+  // ملاحظة: sessions/{uid} فيها جلسة واحدة بس، فمجرد الكتابة هنا بتلغي
+  // أي جلسة سابقة تلقائيًا — الجهاز القديم هيكتشف ده فورًا عن طريق watchSessionKick
+  return db.ref('sessions/' + user.uid).set(sessionData).then(function () {
+    return sessionId; // مهم: لازم المستدعي يحفظه في localStorage
+  });
 }
 window.startSession = startSession;
 
@@ -645,6 +649,33 @@ function endSession(user) {
   return db.ref('sessions/' + user.uid).remove();
 }
 window.endSession = endSession;
+
+/* مراقبة فورية (Realtime) لجلسة المستخدم الحالية.
+   لو حد سجّل دخول على نفس الحساب من جهاز/متصفح تاني، القيمة في
+   sessions/{uid} بتتغيّر لحظيًا، فالجهاز الحالي (لو مش هو صاحب
+   الجلسة الجديدة) بيتسجل خروج فورًا ويترمي على صفحة الدخول
+   برسالة تحذير — من غير أي فرق وقت أو انتظار Polling. */
+function watchSessionKick(user) {
+  if (!user) return;
+  const localSessionId = localStorage.getItem('awab_session_id');
+  if (!localSessionId) return; // مفيش جلسة محفوظة على الجهاز ده أصلاً، معنديش حاجة أراقبها
+
+  const sessionRef = db.ref('sessions/' + user.uid);
+  sessionRef.on('value', function (snap) {
+    const currentLocalId = localStorage.getItem('awab_session_id');
+    if (!currentLocalId) { sessionRef.off('value'); return; } // خرج بنفسه
+
+    const data = snap.val();
+    if (!data || data.sessionId !== currentLocalId) {
+      sessionRef.off('value');
+      localStorage.removeItem('awab_session_id');
+      auth.signOut().catch(function () {}).then(function () {
+        window.location.href = 'index.html?session_killed=1';
+      });
+    }
+  });
+}
+window.watchSessionKick = watchSessionKick;
 
 /* ============================================================
    📝 تسجيل المخالفات

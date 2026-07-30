@@ -12,8 +12,29 @@
 <header class="app-header" id="appHeader"></header>
 
 <main class="page">
-  <h1 class="page-title">المحتوى التعليمي</h1>
-  <p class="page-sub">كورسات ومسابقات لتطوير مستواك وجمع النقاط</p>
+  <div class="hero-greet">
+    <div class="hero-greet-text">
+      <h1 id="heroGreetName">أهلًا بك 👋</h1>
+      <p>استمر في رحلتك التعليمية، وكل خطوة بتقرّبك من هدفك بإذن الله</p>
+    </div>
+    <div class="hero-mini-tier" id="heroMiniTier"></div>
+  </div>
+
+  <div class="ayah-banner" id="ayahBanner"></div>
+
+  <section class="continue-section" id="continueSection" style="display:none;">
+    <h2 class="section-title">استكمل من حيث توقفت</h2>
+    <div id="continueList"></div>
+  </section>
+
+  <div class="content-head">
+    <h2 class="section-title">كل المحتوى التعليمي</h2>
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" data-filter="all">الكل</button>
+      <button class="filter-tab" data-filter="course">كورسات</button>
+      <button class="filter-tab" data-filter="competition">مسابقات</button>
+    </div>
+  </div>
 
   <div id="content">
     <div class="center-loading"><div class="loader"></div></div>
@@ -36,6 +57,39 @@
 <script>
   (function() {
     const content = document.getElementById('content');
+    let currentFilter = 'all';
+    let cachedFiltered = {};
+    let cachedEnrolls = {};
+    let cachedProgress = {};
+
+    const AYAHS = [
+      { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', ref: 'سورة طه: 114' },
+      { text: 'إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاءُ', ref: 'سورة فاطر: 28' },
+      { text: 'مَن سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ', ref: 'حديث شريف — رواه مسلم' },
+      { text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', ref: 'سورة الطلاق: 2' },
+      { text: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', ref: 'سورة الشرح: 6' },
+      { text: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ', ref: 'حديث شريف — رواه ابن ماجه' }
+    ];
+
+    function renderAyah() {
+      const a = AYAHS[Math.floor(Math.random() * AYAHS.length)];
+      document.getElementById('ayahBanner').innerHTML =
+        '<p class="ayah-text">' + escapeHtml(a.text) + '</p>' +
+        '<p class="ayah-ref">' + escapeHtml(a.ref) + '</p>';
+    }
+
+    function renderHero(userData) {
+      const name = (userData.name || 'مستخدم').trim().split(/\s+/)[0];
+      document.getElementById('heroGreetName').textContent = 'أهلًا بك، ' + name + ' 👋';
+
+      const tier = getUserTier(userData.points || 0);
+      document.getElementById('heroMiniTier').innerHTML =
+        '<div class="hmt-icon">' + icon(tier.rank.icon, 'icon-sm') + '</div>' +
+        '<div class="hmt-text">' +
+          '<div class="hmt-label">' + tier.rank.name + ' • المستوى ' + tier.level + '</div>' +
+          '<div class="hmt-value">' + tier.points + ' نقطة</div>' +
+        '</div>';
+    }
 
     function showError(msg) {
       content.innerHTML =
@@ -46,12 +100,63 @@
         '</div>';
     }
 
+    function renderContinueLearning(competitionsData, enrollments, progressByComp) {
+      const section = document.getElementById('continueSection');
+      const list = document.getElementById('continueList');
+
+      const inProgress = Object.keys(enrollments)
+        .filter(function (id) { return competitionsData[id]; })
+        .map(function (id) {
+          const c = competitionsData[id];
+          const lessons = c.lessons || {};
+          const pct = computeCourseProgress(lessons, progressByComp[id] || {});
+          return { id: id, c: c, pct: pct, enrolledAt: enrollments[id] || 0 };
+        })
+        .filter(function (item) { return item.pct < 100; })
+        .sort(function (a, b) { return b.enrolledAt - a.enrolledAt; })
+        .slice(0, 3);
+
+      if (inProgress.length === 0) { section.style.display = 'none'; return; }
+      section.style.display = 'block';
+
+      list.innerHTML = inProgress.map(function (item) {
+        const isCourse = item.c.type !== 'competition';
+        return (
+          '<a class="enrolled-card" href="competition.html?id=' + encodeURIComponent(item.id) + '">' +
+            '<div class="ec-cover">' +
+              (item.c.coverUrl ? '<img src="' + escapeHtml(item.c.coverUrl) + '" alt="">' : icon(isCourse ? 'bookOpen' : 'trophy', 'icon-md')) +
+            '</div>' +
+            '<div class="ec-body">' +
+              '<div class="ec-title">' + escapeHtml(item.c.title || 'بدون عنوان') + '</div>' +
+              '<div class="ec-progress-wrap">' +
+                '<div class="ec-progress-bar"><div class="ec-progress-fill" style="width:' + item.pct + '%;"></div></div>' +
+                '<span class="ec-percent">' + item.pct + '%</span>' +
+              '</div>' +
+            '</div>' +
+            '<span class="btn btn-outline btn-sm" style="width:auto;">' + icon('chevronLeft', 'icon-sm') + '</span>' +
+          '</a>'
+        );
+      }).join('');
+    }
+
     function renderCompetitions(competitionsData, enrollments, progressByComp) {
-      const ids = Object.keys(competitionsData);
-      if (ids.length === 0) {
+      const allIds = Object.keys(competitionsData);
+      const ids = allIds.filter(function (id) {
+        if (currentFilter === 'all') return true;
+        const isCourse = competitionsData[id].type !== 'competition';
+        return currentFilter === 'course' ? isCourse : !isCourse;
+      });
+
+      if (allIds.length === 0) {
         content.innerHTML =
           '<div class="empty-state"><div class="empty-state-icon">' + icon('trophy', 'icon-xl') + '</div>' +
           '<p>لا يوجد محتوى متاح حاليًا، تابعنا قريبًا</p></div>';
+        return;
+      }
+      if (ids.length === 0) {
+        content.innerHTML =
+          '<div class="empty-state"><div class="empty-state-icon">' + icon('circleInfo', 'icon-xl') + '</div>' +
+          '<p>لا يوجد محتوى من هذا النوع حاليًا</p></div>';
         return;
       }
 
@@ -92,6 +197,15 @@
       content.innerHTML = html;
     }
 
+    document.getElementById('filterTabs').addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    });
+
     function truncateText(text, max) {
       if (!text || text.length <= max) return text;
       return text.slice(0, max).trim() + '…';
@@ -123,6 +237,9 @@
           // عرض الهيدر والفوتر
           renderAppHeader(user, userData, { showPoints: true });
           renderFooter();
+          watchSessionKick(user);
+          renderHero(userData);
+          renderAyah();
 
           // 2. تحميل المحتوى
           return Promise.all([
@@ -150,6 +267,11 @@
             if (hasContent) filtered[id] = comp;
           });
 
+          cachedFiltered = filtered;
+          cachedEnrolls = enrolls;
+          cachedProgress = progress;
+
+          renderContinueLearning(filtered, enrolls, progress);
           renderCompetitions(filtered, enrolls, progress);
         })
         .catch(function(err) {
