@@ -612,14 +612,9 @@ function deleteUserAccountData(uid) {
 window.deleteUserAccountData = deleteUserAccountData;
 
 /* ============================================================
-   🔐 نظام الجلسات (Sessions) — مع إجبار تسجيل الخروج من الأجهزة الأخرى
+   🔐 نظام الجلسات (Sessions)
    ============================================================ */
 
-/**
- * بدء جلسة جديدة للمستخدم الحالي.
- * يتم إنشاء sessionId فريد، وتخزينه في قاعدة البيانات.
- * إذا كانت هناك جلسة سابقة، يتم إنهاؤها.
- */
 function startSession(user, deviceInfo) {
   const sessionId = user.uid + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   const sessionData = {
@@ -632,10 +627,6 @@ function startSession(user, deviceInfo) {
 }
 window.startSession = startSession;
 
-/**
- * التحقق من صحة الجلسة الحالية.
- * إذا كانت الجلسة مختلفة (تم تسجيل الدخول من جهاز آخر)، يتم إرجاع false.
- */
 function checkSession(user) {
   return db.ref('sessions/' + user.uid).once('value').then(function(snap) {
     const data = snap.val();
@@ -650,72 +641,10 @@ function checkSession(user) {
 }
 window.checkSession = checkSession;
 
-/**
- * إنهاء جلسة المستخدم (تسجيل الخروج).
- */
 function endSession(user) {
-  return db.ref('sessions/' + user.uid').remove();
+  return db.ref('sessions/' + user.uid).remove();
 }
 window.endSession = endSession;
-
-/**
- * ✅ قتل جميع الجلسات القديمة للمستخدم (باستثناء الجلسة الحالية).
- * يتم استدعاؤها عند تسجيل الدخول من جهاز جديد.
- */
-function killOtherSessions(user, currentSessionId) {
-  return db.ref('sessions/' + user.uid').once('value').then(function(snap) {
-    const data = snap.val();
-    if (!data) return;
-    // إذا كانت الجلسة المخزنة مختلفة عن الجلسة الحالية، نمسحها
-    if (data.sessionId !== currentSessionId) {
-      // تسجيل إشعار للمستخدم القديم (سيظهر له عند refresh)
-      return db.ref('notifications/' + user.uid).push({
-        type: 'session_killed',
-        title: '⚠️ تم تسجيل الدخول من جهاز آخر',
-        body: 'إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً لحماية حسابك.',
-        link: 'support.html',
-        read: false,
-        createdAt: firebase.database.ServerValue.TIMESTAMP
-      }).then(function() {
-        // مسح الجلسة القديمة
-        return db.ref('sessions/' + user.uid').remove();
-      });
-    }
-  });
-}
-window.killOtherSessions = killOtherSessions;
-
-/**
- * مراقبة التغييرات في الجلسة في الخلفية (تُستدعى مرة واحدة عند تحميل أي صفحة).
- * إذا تغيرت الجلسة (تم تسجيل الدخول من جهاز آخر)، يتم تسجيل الخروج فوراً مع رسالة تحذيرية.
- */
-function watchSessionChanges(user) {
-  if (!user) return;
-  const sessionRef = db.ref('sessions/' + user.uid);
-  sessionRef.on('value', function(snap) {
-    const data = snap.val();
-    if (!data) {
-      // الجلسة غير موجودة (تم حذفها من جهاز آخر)
-      // نخرج المستخدم فوراً مع رسالة تحذيرية
-      const msg = 'تم تسجيل الدخول إلى حسابك من جهاز آخر. إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً.';
-      alert('⚠️ ' + msg);
-      auth.signOut().then(function() {
-        window.location.href = 'index.html?session_killed=1';
-      });
-      return;
-    }
-    const localSessionId = localStorage.getItem('awab_session_id');
-    if (localSessionId && data.sessionId !== localSessionId) {
-      // تم تغيير الجلسة من جهاز آخر
-      const msg = 'تم تسجيل الدخول إلى حسابك من جهاز آخر. إذا كنت لا تعرف هذا الجهاز، يُرجى التواصل مع الدعم الفني فوراً.';
-      alert('⚠️ ' + msg);
-      auth.signOut().then(function() {
-        window.location.href = 'index.html?session_killed=1';
-      });
-    }
-  });
-}
-window.watchSessionChanges = watchSessionChanges;
 
 /* ============================================================
    📝 تسجيل المخالفات
@@ -749,10 +678,11 @@ function incrementViolations(compId, lessonId, examId, uid) {
 window.incrementViolations = incrementViolations;
 
 /* ============================================================
-   📚 بنك الأسئلة العشوائي
+   📚 بنك الأسئلة العشوائي — المعدل (يقرأ من competitions مباشرة)
    ============================================================ */
 
 function getRandomQuestions(compId, lessonId, examId, count) {
+  // نقرأ من competitions مباشرة لأن المسؤول يضيف الأسئلة هناك
   return db.ref('competitions/' + compId + '/lessons/' + lessonId + '/exams/' + examId + '/questions').once('value')
     .then(function(snap) {
       const bank = snap.val() || {};

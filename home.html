@@ -22,73 +22,34 @@
 
 <footer class="site-footer" id="siteFooter"></footer>
 
+<!-- ===== Firebase + Libraries ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="icons.js"></script>
+
+<!-- ===== app-shell.js ===== -->
 <script src="app-shell.js"></script>
+
+<!-- ===== الصفحة الرئيسية ===== -->
 <script>
   (function() {
     const content = document.getElementById('content');
 
-    auth.onAuthStateChanged(function(user) {
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
-
-      db.ref('users/' + user.uid).once('value').then(function(snap) {
-        const userData = snap.val() || { name: 'مستخدم', points: 0 };
-        renderAppHeader(user, userData, { showPoints: true });
-        renderFooter();
-
-        return db.ref('competitions').once('value')
-          .then(function(snap) {
-            const allData = snap.val() || {};
-            return Promise.all([
-              Promise.resolve(allData),
-              db.ref('userEnrollments/' + user.uid).once('value'),
-              db.ref('userProgress/' + user.uid).once('value')
-            ]);
-          })
-          .then(function(results) {
-            const allData = results[0];
-            const enrolls = results[1].val() || {};
-            const progress = results[2].val() || {};
-
-            const filtered = {};
-            Object.keys(allData).forEach(id => {
-              const comp = allData[id];
-              const lessons = comp.lessons || {};
-              let hasContent = false;
-              Object.keys(lessons).forEach(lid => {
-                const lesson = lessons[lid];
-                if (lesson.videos && Object.keys(lesson.videos).length > 0) hasContent = true;
-                if (lesson.exams && Object.keys(lesson.exams).length > 0) hasContent = true;
-              });
-              if (hasContent) filtered[id] = comp;
-            });
-
-            renderCompetitions(filtered, enrolls, progress);
-          })
-          .catch(function(err) {
-            console.error('فشل التحميل:', err);
-            content.innerHTML =
-              '<div class="empty-state" style="border:2px solid var(--danger); border-radius:var(--radius); padding:30px;">' +
-                '<div class="empty-state-icon" style="color:var(--danger);">' + icon('circleXmark', 'icon-xl') + '</div>' +
-                '<h3 style="color:var(--danger);">تعذر تحميل المحتوى</h3>' +
-                '<p style="color:var(--text-muted);">تأكد من الاتصال بالإنترنت وقواعد Firebase.<br><strong>تفاصيل الخطأ في Console (F12).</strong></p>' +
-                '<button class="btn btn-primary btn-sm" onclick="location.reload()" style="width:auto; margin-top:10px;">إعادة المحاولة</button>' +
-              '</div>';
-          });
-      });
-    });
+    function showError(msg) {
+      content.innerHTML =
+        '<div class="empty-state" style="border:2px solid var(--danger); border-radius:var(--radius); padding:30px;">' +
+          '<div class="empty-state-icon" style="color:var(--danger);">' + icon('circleXmark', 'icon-xl') + '</div>' +
+          '<h3 style="color:var(--danger);">' + msg + '</h3>' +
+          '<button class="btn btn-primary btn-sm" onclick="location.reload()" style="width:auto; margin-top:10px;">إعادة المحاولة</button>' +
+        '</div>';
+    }
 
     function renderCompetitions(competitionsData, enrollments, progressByComp) {
       const ids = Object.keys(competitionsData);
       if (ids.length === 0) {
-        document.getElementById('content').innerHTML =
+        content.innerHTML =
           '<div class="empty-state"><div class="empty-state-icon">' + icon('trophy', 'icon-xl') + '</div>' +
           '<p>لا يوجد محتوى متاح حاليًا، تابعنا قريبًا</p></div>';
         return;
@@ -128,13 +89,74 @@
           '</a>';
       });
       html += '</div>';
-      document.getElementById('content').innerHTML = html;
+      content.innerHTML = html;
     }
 
     function truncateText(text, max) {
       if (!text || text.length <= max) return text;
       return text.slice(0, max).trim() + '…';
     }
+
+    // ===== بدء التشغيل =====
+    auth.onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // 1. جلب بيانات المستخدم
+      db.ref('users/' + user.uid).once('value')
+        .then(function(snap) {
+          let userData = snap.val();
+          if (!userData) {
+            userData = {
+              name: user.displayName || 'مستخدم',
+              email: user.email || '',
+              points: 0,
+              isAdmin: false,
+              createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+            db.ref('users/' + user.uid).set(userData).catch(function(e) {
+              console.warn('فشل حفظ بيانات المستخدم:', e);
+            });
+          }
+          // عرض الهيدر والفوتر
+          renderAppHeader(user, userData, { showPoints: true });
+          renderFooter();
+
+          // 2. تحميل المحتوى
+          return Promise.all([
+            db.ref('competitions').once('value'),
+            db.ref('userEnrollments/' + user.uid).once('value'),
+            db.ref('userProgress/' + user.uid).once('value')
+          ]);
+        })
+        .then(function(results) {
+          const allData = results[0].val() || {};
+          const enrolls = results[1].val() || {};
+          const progress = results[2].val() || {};
+
+          // تصفية العناصر التي تحتوي على محتوى فعلي
+          const filtered = {};
+          Object.keys(allData).forEach(id => {
+            const comp = allData[id];
+            const lessons = comp.lessons || {};
+            let hasContent = false;
+            Object.keys(lessons).forEach(lid => {
+              const lesson = lessons[lid];
+              if (lesson.videos && Object.keys(lesson.videos).length > 0) hasContent = true;
+              if (lesson.exams && Object.keys(lesson.exams).length > 0) hasContent = true;
+            });
+            if (hasContent) filtered[id] = comp;
+          });
+
+          renderCompetitions(filtered, enrolls, progress);
+        })
+        .catch(function(err) {
+          console.error('خطأ في تحميل المحتوى:', err);
+          showError('تعذر تحميل المحتوى: ' + (err.message || 'خطأ غير معروف'));
+        });
+    });
   })();
 </script>
 </body>
