@@ -778,7 +778,10 @@
     const q = questionsData[currentQuestionIndex];
     const isLast = (currentQuestionIndex === total - 1);
 
-    let navHtml = '<div class="exam-nav">';
+    let navHtml = '<div class="exam-progress-wrap">' +
+      '<div class="exam-progress-bar"><div class="exam-progress-fill" id="examProgressFill" style="width:0%;"></div></div>' +
+      '<span class="exam-progress-label" id="examProgressLabel">0 من ' + total + ' تمت الإجابة عليها</span>' +
+    '</div><div class="exam-nav">';
     questionIds.forEach((id, idx) => {
       const isActive = idx === currentQuestionIndex;
       const isAnswered = (userAnswers[id] !== undefined);
@@ -798,7 +801,7 @@
     q.options.forEach((opt, oi) => {
       const checked = (userAnswers[qId] === oi) ? 'checked' : '';
       qHtml += `<label class="quiz-option">
-        <input type="radio" name="q_${qId}" value="${oi}" ${checked} onchange="saveAnswer('${qId}', ${oi})">
+        <input type="radio" name="q_${qId}" value="${oi}" ${checked} onchange="recordAnswer('${qId}', ${oi})">
         <span class="opt-label">${escapeHtml(opt)}</span>
       </label>`;
     });
@@ -829,6 +832,7 @@
     }
 
     content.innerHTML = navHtml + qHtml + actionsHtml + submitHtml + '<div id="resultArea"></div>';
+    updateExamProgressBar();
 
     document.querySelectorAll('.exam-nav .q-btn').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -843,7 +847,7 @@
     renderExam();
   }
 
-  function saveAnswer(qId, selected) {
+  function recordAnswer(qId, selected) {
     if (isSubmitted || isForceEnded) return;
     userAnswers[qId] = selected;
     saveAnswer(compId, lessonId, examId, currentUser.uid, qId, selected)
@@ -854,11 +858,23 @@
       btns[idx].classList.remove('unseen', 'viewed', 'active');
       btns[idx].classList.add('answered');
     }
+    updateExamProgressBar();
   }
 
-  window.saveAnswer = saveAnswer;
+  window.recordAnswer = recordAnswer;
   window.goToQuestion = goToQuestion;
   window.openConfirm = openConfirm;
+
+  function updateExamProgressBar() {
+    const bar = document.getElementById('examProgressFill');
+    const label = document.getElementById('examProgressLabel');
+    if (!bar || !label) return;
+    const total = questionIds.length;
+    const answered = questionIds.filter(function (id) { return userAnswers[id] !== undefined; }).length;
+    const pct = total ? Math.round((answered / total) * 100) : 0;
+    bar.style.width = pct + '%';
+    label.textContent = answered + ' من ' + total + ' تمت الإجابة عليها';
+  }
 
   function openConfirm() {
     if (isSubmitted || isForceEnded) return;

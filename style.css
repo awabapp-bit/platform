@@ -2487,3 +2487,40 @@ body.support-body .app-header { flex-shrink: 0; }
   z-index: 1;
 }
 .comp-card .subs-count { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-muted); }
+
+/* ============================================================
+   📊 شريط تقدّم الإجابات داخل الاختبار
+   ============================================================ */
+.exam-progress-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.exam-progress-bar { flex: 1; height: 8px; background: var(--border); border-radius: 999px; overflow: hidden; }
+.exam-progress-fill { height: 100%; background: var(--gradient-primary); border-radius: 999px; transition: width .3s ease; }
+.exam-progress-label { font-size: 12px; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
+
+/* ============================================================
+   ⬆️ زر العودة لأعلى الصفحة
+   ============================================================ */
+.back-to-top {
+  position: fixed;
+  bottom: 88px;
+  inset-inline-end: 22px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lift);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+}
+.back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
+.back-to-top:hover { background: var(--primary-tint); transform: translateY(-2px); }
+.back-to-top .icon { width: 17px; height: 17px; }
+@media (max-width: 560px) {
+  .back-to-top { bottom: 78px; inset-inline-end: 16px; width: 40px; height: 40px; }
+}

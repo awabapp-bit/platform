@@ -147,7 +147,7 @@
         return (
           '<a class="enrolled-card" href="competition.html?id=' + encodeURIComponent(item.id) + '">' +
             '<div class="ec-cover">' +
-              (item.c.coverUrl ? '<img src="' + escapeHtml(item.c.coverUrl) + '" alt="">' : icon(isCourse ? 'bookOpen' : 'trophy', 'icon-md')) +
+              (item.c.coverUrl ? '<img src="' + escapeHtml(item.c.coverUrl) + '" alt="" loading="lazy">' : icon(isCourse ? 'bookOpen' : 'trophy', 'icon-md')) +
             '</div>' +
             '<div class="ec-body">' +
               '<div class="ec-title">' + escapeHtml(item.c.title || 'بدون عنوان') + '</div>' +
@@ -207,7 +207,7 @@
               (isNew ? '<span class="badge-new">جديد</span>' : '') +
               '<span class="content-type-badge ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
               (isEnrolled ? '<span class="enrolled-ribbon">' + icon('check', 'icon-sm') + ' أنت مشترك بالفعل</span>' : '') +
-              (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
+              (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
             '</div>' +
             '<div class="body">' +
               '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +

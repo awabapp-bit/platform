@@ -168,6 +168,31 @@ function escapeHtmlEmail(str) {
 
 /* ================= الدوال الأساسية المساعدة ================= */
 
+/* ================= زر العودة لأعلى الصفحة ================= */
+function initBackToTop() {
+  if (document.getElementById('backToTopBtn')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'backToTopBtn';
+  btn.className = 'back-to-top';
+  btn.setAttribute('aria-label', 'العودة لأعلى الصفحة');
+  btn.innerHTML = icon('chevronUp', 'icon-md');
+  document.body.appendChild(btn);
+
+  btn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  window.addEventListener('scroll', function () {
+    btn.classList.toggle('show', window.scrollY > 420);
+  }, { passive: true });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initBackToTop);
+} else {
+  initBackToTop();
+}
+
 /* ================= تأثير الموجة على الأزرار ================= */
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('.btn');
