@@ -12,12 +12,18 @@
 <header class="app-header" id="appHeader"></header>
 
 <main class="page">
-  <div class="hero-greet">
-    <div class="hero-greet-text">
-      <h1 id="heroGreetName">أهلًا بك 👋</h1>
-      <p>استمر في رحلتك التعليمية، وكل خطوة بتقرّبك من هدفك بإذن الله</p>
+  <div class="home-hero">
+    <div class="hero-greet">
+      <div class="hero-greet-text">
+        <h1 id="heroGreetName">أهلًا بك 👋</h1>
+        <p>استمر في رحلتك التعليمية، وكل خطوة بتقرّبك من هدفك بإذن الله</p>
+      </div>
+      <div class="hero-mini-tier" id="heroMiniTier"></div>
     </div>
-    <div class="hero-mini-tier" id="heroMiniTier"></div>
+    <div class="hero-cta-row">
+      <button type="button" class="btn btn-primary" id="heroCtaLearn">ابدأ التعلم</button>
+      <button type="button" class="btn btn-outline" id="heroCtaCompetitions">المسابقات</button>
+    </div>
   </div>
 
   <div class="ayah-banner" id="ayahBanner"></div>
@@ -26,6 +32,15 @@
     <h2 class="section-title">استكمل من حيث توقفت</h2>
     <div id="continueList"></div>
   </section>
+
+  <div class="search-bar-wrap" id="searchBarWrap">
+    <div class="search-bar">
+      <span class="search-icon"></span>
+      <input type="text" id="searchInput" placeholder="ابحث عن كورس أو مسابقة..." autocomplete="off">
+      <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="مسح البحث"></button>
+    </div>
+    <div class="search-suggestions" id="searchSuggestions"></div>
+  </div>
 
   <div class="content-head">
     <h2 class="section-title">كل المحتوى التعليمي</h2>
@@ -37,7 +52,11 @@
   </div>
 
   <div id="content">
-    <div class="center-loading"><div class="loader"></div></div>
+    <div class="skeleton-grid">
+      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+    </div>
   </div>
 </main>
 
@@ -58,9 +77,13 @@
   (function() {
     const content = document.getElementById('content');
     let currentFilter = 'all';
+    let currentSearch = '';
     let cachedFiltered = {};
     let cachedEnrolls = {};
     let cachedProgress = {};
+
+    document.querySelector('#searchBarWrap .search-icon').innerHTML = icon('search', 'icon-sm');
+    document.getElementById('searchClearBtn').innerHTML = icon('xmark');
 
     const AYAHS = [
       { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', ref: 'سورة طه: 114' },
@@ -141,10 +164,15 @@
 
     function renderCompetitions(competitionsData, enrollments, progressByComp) {
       const allIds = Object.keys(competitionsData);
+      const q = currentSearch.trim().toLowerCase();
       const ids = allIds.filter(function (id) {
-        if (currentFilter === 'all') return true;
-        const isCourse = competitionsData[id].type !== 'competition';
-        return currentFilter === 'course' ? isCourse : !isCourse;
+        const c = competitionsData[id];
+        if (currentFilter !== 'all') {
+          const isCourse = c.type !== 'competition';
+          if (currentFilter === 'course' ? !isCourse : isCourse) return false;
+        }
+        if (q && (c.title || '').toLowerCase().indexOf(q) === -1 && (c.description || '').toLowerCase().indexOf(q) === -1) return false;
+        return true;
       });
 
       if (allIds.length === 0) {
@@ -156,7 +184,7 @@
       if (ids.length === 0) {
         content.innerHTML =
           '<div class="empty-state"><div class="empty-state-icon">' + icon('circleInfo', 'icon-xl') + '</div>' +
-          '<p>لا يوجد محتوى من هذا النوع حاليًا</p></div>';
+          '<p>' + (q ? 'مفيش نتائج مطابقة لبحثك' : 'لا يوجد محتوى من هذا النوع حاليًا') + '</p></div>';
         return;
       }
 
@@ -171,10 +199,12 @@
         const isEnrolled = !!enrollments[id];
         const pct = isEnrolled ? computeCourseProgress(lessons, progressByComp[id] || {}) : 0;
         const ctaLabel = isEnrolled ? 'متابعة التعلم' : (isCourse ? 'اشتراك في الكورس' : 'انضمام للمسابقة');
+        const isNew = c.createdAt && (Date.now() - c.createdAt) < (7 * 24 * 60 * 60 * 1000);
 
         html +=
           '<a class="comp-card ' + (isEnrolled ? 'is-enrolled' : '') + '" href="competition.html?id=' + encodeURIComponent(id) + '">' +
             '<div class="cover">' +
+              (isNew ? '<span class="badge-new">جديد</span>' : '') +
               '<span class="content-type-badge ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
               (isEnrolled ? '<span class="enrolled-ribbon">' + icon('check', 'icon-sm') + ' أنت مشترك بالفعل</span>' : '') +
               (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
@@ -197,13 +227,74 @@
       content.innerHTML = html;
     }
 
+    function setActiveFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.toggle('active', b.dataset.filter === filter); });
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    }
+
     document.getElementById('filterTabs').addEventListener('click', function (e) {
       const btn = e.target.closest('.filter-tab');
       if (!btn) return;
-      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
+      setActiveFilter(btn.dataset.filter);
+    });
+
+    document.getElementById('heroCtaLearn').addEventListener('click', function () {
+      setActiveFilter('course');
+      document.getElementById('content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('heroCtaCompetitions').addEventListener('click', function () {
+      setActiveFilter('competition');
+      document.getElementById('content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // ===== شريط البحث =====
+    const searchInput = document.getElementById('searchInput');
+    const searchBarWrap = document.getElementById('searchBarWrap');
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    let searchDebounce = null;
+
+    function renderSuggestions(q) {
+      if (!q) { searchSuggestions.classList.remove('open'); return; }
+      const matches = Object.keys(cachedFiltered)
+        .filter(function (id) { return (cachedFiltered[id].title || '').toLowerCase().indexOf(q) !== -1; })
+        .slice(0, 6);
+      if (matches.length === 0) {
+        searchSuggestions.innerHTML = '<div class="sug-empty">مفيش نتائج مطابقة</div>';
+      } else {
+        searchSuggestions.innerHTML = matches.map(function (id) {
+          const c = cachedFiltered[id];
+          const isCourse = c.type !== 'competition';
+          return '<a href="competition.html?id=' + encodeURIComponent(id) + '">' + icon(isCourse ? 'bookOpen' : 'trophy', 'icon-sm') + ' ' + escapeHtml(c.title || '') + '</a>';
+        }).join('');
+      }
+      searchSuggestions.classList.add('open');
+    }
+
+    searchInput.addEventListener('input', function () {
+      const val = searchInput.value;
+      searchBarWrap.classList.toggle('has-value', val.length > 0);
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(function () {
+        currentSearch = val;
+        renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+        renderSuggestions(val.trim().toLowerCase());
+      }, 180);
+    });
+    searchInput.addEventListener('focus', function () {
+      if (searchInput.value.trim()) renderSuggestions(searchInput.value.trim().toLowerCase());
+    });
+    searchClearBtn.addEventListener('click', function () {
+      searchInput.value = '';
+      currentSearch = '';
+      searchBarWrap.classList.remove('has-value');
+      searchSuggestions.classList.remove('open');
       renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+      searchInput.focus();
+    });
+    document.addEventListener('click', function (e) {
+      if (!searchBarWrap.contains(e.target)) searchSuggestions.classList.remove('open');
     });
 
     function truncateText(text, max) {

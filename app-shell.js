@@ -168,6 +168,54 @@ function escapeHtmlEmail(str) {
 
 /* ================= الدوال الأساسية المساعدة ================= */
 
+/* ================= تأثير الموجة على الأزرار ================= */
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('.btn');
+  if (!btn || btn.disabled) return;
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const span = document.createElement('span');
+  span.className = 'btn-ripple';
+  span.style.width = span.style.height = size + 'px';
+  span.style.left = (e.clientX - rect.left - size / 2) + 'px';
+  span.style.top = (e.clientY - rect.top - size / 2) + 'px';
+  btn.appendChild(span);
+  span.addEventListener('animationend', function () { span.remove(); });
+});
+
+/* ================= إشعارات Toast ================= */
+function getToastStack() {
+  let stack = document.getElementById('toastStack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'toastStack';
+    stack.className = 'toast-stack';
+    document.body.appendChild(stack);
+  }
+  return stack;
+}
+function showToast(message, type, duration) {
+  type = type || 'info';
+  duration = duration || 3800;
+  const iconName = type === 'success' ? 'circleCheck' : type === 'error' ? 'circleXmark' : type === 'warning' ? 'circleInfo' : 'circleInfo';
+  const stack = getToastStack();
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML =
+    '<span class="toast-icon">' + icon(iconName, 'icon-sm') + '</span>' +
+    '<span class="toast-text">' + escapeHtml(message) + '</span>' +
+    '<button type="button" class="toast-close" aria-label="إغلاق">' + icon('xmark') + '</button>';
+  stack.appendChild(el);
+  function remove() {
+    el.classList.add('hide');
+    setTimeout(function () { el.remove(); }, 220);
+  }
+  el.querySelector('.toast-close').addEventListener('click', remove);
+  const timer = setTimeout(remove, duration);
+  el.addEventListener('mouseenter', function () { clearTimeout(timer); });
+}
+window.showToast = showToast;
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str == null ? '' : String(str);

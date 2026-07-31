@@ -592,6 +592,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(6,48,31,0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -600,7 +602,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity .2s ease, visibility 0s linear .2s;
+  transition: opacity .22s ease, visibility 0s linear .22s;
 }
 .modal-overlay.open {
   opacity: 1;
@@ -2273,3 +2275,215 @@ body.support-body .app-header { flex-shrink: 0; }
 @media (max-width: 640px) {
   .support-msg-row { max-width: 88%; }
 }
+
+/* ============================================================
+   ✨ تأثير الموجة على الأزرار (Ripple Effect)
+   ============================================================ */
+.btn { position: relative; overflow: hidden; }
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: rgba(255,255,255,0.55);
+  pointer-events: none;
+  animation: btnRipple .6s ease-out;
+}
+.btn-outline .btn-ripple, .btn-ghost .btn-ripple { background: rgba(12,92,70,0.18); }
+@keyframes btnRipple {
+  to { transform: scale(2.6); opacity: 0; }
+}
+
+/* ============================================================
+   🔔 إشعارات Toast
+   ============================================================ */
+.toast-stack {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 380px;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--primary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lift);
+  padding: 13px 14px;
+  font-size: 13.5px;
+  color: var(--text);
+  animation: toastIn .28s cubic-bezier(.2,.8,.2,1);
+}
+.toast.hide { animation: toastOut .22s ease forwards; }
+.toast .toast-icon { flex-shrink: 0; margin-top: 1px; color: var(--primary); }
+.toast.success { border-inline-start-color: var(--success); }
+.toast.success .toast-icon { color: var(--success); }
+.toast.error { border-inline-start-color: var(--danger); }
+.toast.error .toast-icon { color: var(--danger); }
+.toast.warning { border-inline-start-color: var(--gold); }
+.toast.warning .toast-icon { color: var(--gold); }
+.toast .toast-text { flex: 1; line-height: 1.6; }
+.toast .toast-close { background: none; border: none; color: var(--text-muted); padding: 0; margin-inline-start: 4px; }
+.toast .toast-close .icon { width: 11px; height: 11px; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(.96); } }
+
+/* ============================================================
+   💀 هياكل التحميل (Skeleton Loading)
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(100deg, var(--border) 30%, #f2efe4 50%, var(--border) 70%);
+  background-size: 220% 100%;
+  animation: skeletonShine 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeletonShine { from { background-position: 140% 0; } to { background-position: -40% 0; } }
+.skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+.skeleton-card { border-radius: var(--radius); overflow: hidden; background: var(--card-bg); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.skeleton-card .sk-cover { height: 150px; border-radius: 0; }
+.skeleton-card .sk-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.skeleton-card .sk-line { height: 12px; }
+.skeleton-card .sk-line.w-70 { width: 70%; }
+.skeleton-card .sk-line.w-40 { width: 40%; }
+.skeleton-card .sk-btn { height: 34px; border-radius: 11px; margin-top: 4px; }
+
+/* ============================================================
+   🕌 الهيرو الرئيسي المحسّن (Home Hero)
+   ============================================================ */
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--gradient-primary);
+  padding: 40px 32px;
+  margin-bottom: 26px;
+  box-shadow: var(--shadow-lift);
+  isolation: isolate;
+}
+.home-hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 92% -10%, rgba(185,134,47,0.35) 0, transparent 45%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.08' stroke-width='1.2'%3E%3Cpath d='M60 4 L116 60 L60 116 L4 60 Z'/%3E%3Ccircle cx='60' cy='60' r='28'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, 120px 120px;
+  z-index: 0;
+}
+.home-hero > * { position: relative; z-index: 1; }
+.home-hero .hero-greet { margin-bottom: 20px; }
+.home-hero .hero-greet-text h1 { color: #fff; font-size: 26px; }
+.home-hero .hero-greet-text p { color: rgba(255,255,255,0.82); }
+.home-hero .hero-mini-tier { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.22); }
+.home-hero .hero-mini-tier .hmt-label { color: rgba(255,255,255,0.75); }
+.home-hero .hero-mini-tier .hmt-value { color: #fff; }
+.hero-cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-cta-row .btn { width: auto; padding: 13px 26px; }
+.hero-cta-row .btn-primary { background: var(--gradient-gold); box-shadow: 0 12px 26px rgba(185,134,47,0.35); }
+.hero-cta-row .btn-primary:hover { box-shadow: 0 16px 32px rgba(185,134,47,0.42); }
+.hero-cta-row .btn-outline { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); color: #fff; }
+.hero-cta-row .btn-outline:hover { background: rgba(255,255,255,0.18); }
+@media (max-width: 560px) {
+  .home-hero { padding: 28px 20px; }
+  .home-hero .hero-greet-text h1 { font-size: 21px; }
+  .hero-cta-row .btn { flex: 1 1 auto; }
+}
+
+/* ============================================================
+   🔍 شريط البحث
+   ============================================================ */
+.search-bar-wrap { position: relative; margin-bottom: 18px; }
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 12px 18px;
+  box-shadow: var(--shadow);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.search-bar:focus-within { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(185,134,47,0.12); }
+.search-bar .search-icon { color: var(--text-muted); flex-shrink: 0; }
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.search-bar input::placeholder { color: var(--text-muted); }
+.search-clear-btn {
+  background: var(--bg);
+  border: none;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.search-clear-btn .icon { width: 10px; height: 10px; }
+.search-bar-wrap.has-value .search-clear-btn { display: flex; }
+
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0; left: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  z-index: 30;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+}
+.search-suggestions.open { opacity: 1; visibility: visible; transform: translateY(0); transition: opacity .18s ease, transform .18s ease; }
+.search-suggestions a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.search-suggestions a:last-child { border-bottom: none; }
+.search-suggestions a:hover { background: var(--primary-tint); }
+.search-suggestions a .icon { color: var(--gold); flex-shrink: 0; }
+.search-suggestions .sug-empty { padding: 14px 16px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+/* ============================================================
+   🏷️ شارات إضافية على البطاقات
+   ============================================================ */
+.badge-new {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--gradient-gold);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-gold);
+  z-index: 1;
+}
+.comp-card .subs-count { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-muted); }
