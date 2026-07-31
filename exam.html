@@ -47,6 +47,7 @@
     display: none;
   }
   .violation-warning.show { display: block; }
+  .violation-warning.reload-info { background: var(--gold-pale); border-color: var(--gold); color: var(--gold-dark); }
   .violation-type-badge {
     display: inline-block;
     padding: 2px 10px;
@@ -329,6 +330,10 @@
     </div>
   </div>
 
+  <div class="violation-warning reload-info" id="reloadWarning">
+    <i class="fas fa-rotate-right"></i> تم إعادة تحميل صفحة الاختبار <span id="reloadCountDisplay">0</span> من <span id="maxReloads">10</span> مرات مسموح بها. إجاباتك محفوظة تلقائيًا.
+  </div>
+
   <div id="content">
     <div class="center-loading"><div class="loader"></div></div>
   </div>
@@ -395,6 +400,8 @@
   let violationCount = 0;
   const MAX_VIOLATIONS_KEY = 'maxViolations';
   let maxViolations = 3;
+  let reloadCount = 0;
+  const MAX_RELOADS = 10;
   let sessionCheckInterval = null;
   let isTabActive = true;
 
@@ -556,6 +563,8 @@
             questionsData = selectedQuestions;
             questionIds = selectedQuestions.map(function(q) { return q.id; });
             userAnswers = {};
+            reloadCount = 0;
+            updateReloadWarning();
             examDuration = examData.duration || 10;
             startTime = Date.now();
             document.getElementById('timerDisplay').textContent = formatTime(examDuration * 60);
@@ -577,6 +586,16 @@
       showAlreadySubmitted('هذه المحاولة انتهت. لا يمكنك إعادة الاختبار.');
       return;
     }
+
+    // ✅ السماح بإعادة تحميل الصفحة حتى MAX_RELOADS مرة قبل إنهاء الاختبار قسريًا
+    reloadCount = (attempt.reloadCount || 0) + 1;
+    if (reloadCount > MAX_RELOADS) {
+      forceEndExam('لقد تجاوزت الحد المسموح لإعادة تحميل صفحة الاختبار (' + MAX_RELOADS + ' مرات).');
+      return;
+    }
+    db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid + '/reloadCount').set(reloadCount);
+    updateReloadWarning();
+
     // استرجاع المحاولة النشطة
     questionsData = attempt.questions || [];
     questionIds = questionsData.map(function(q) { return q.id; });
@@ -600,6 +619,13 @@
     renderExam();
     startProtection();
     sessionCheckInterval = setInterval(checkSessionPeriodically, 5000);
+  }
+
+  function updateReloadWarning() {
+    const el = document.getElementById('reloadWarning');
+    document.getElementById('reloadCountDisplay').textContent = reloadCount;
+    document.getElementById('maxReloads').textContent = MAX_RELOADS;
+    if (el) el.classList.toggle('show', reloadCount > 0);
   }
 
   function checkSessionPeriodically() {
@@ -686,7 +712,7 @@
     window.addEventListener('beforeunload', function(e) {
       if (!isSubmitted && !isForceEnded) {
         e.preventDefault();
-        e.returnValue = 'هل أنت متأكد من مغادرة الصفحة؟ سيتم تسجيل مخالفة.';
+        e.returnValue = 'هل أنت متأكد من مغادرة الصفحة؟ إجاباتك محفوظة، لكن يُسمح بإعادة التحميل ' + MAX_RELOADS + ' مرات فقط طوال الاختبار.';
       }
     });
   }
@@ -950,8 +976,7 @@
 
   window.addEventListener('beforeunload', function() {
     if (!isSubmitted && !isForceEnded) {
-      logViolation(currentUser.uid, compId + '_' + lessonId + '_' + examId, 'page_reload', 'إعادة تحميل الصفحة');
-      forceEndExam('تم إعادة تحميل الصفحة');
+      logViolation(currentUser.uid, compId + '_' + lessonId + '_' + examId, 'page_reload', 'إعادة تحميل الصفحة (محاولة رقم ' + (reloadCount + 1) + ' من ' + MAX_RELOADS + ')');
     }
   });
 

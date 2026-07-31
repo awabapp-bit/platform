@@ -833,6 +833,7 @@ function startExamAttempt(compId, lessonId, examId, uid, selectedQuestions) {
     forceEnded: false,
     violations: 0,
     violationList: [],
+    reloadCount: 0,
     answers: {},
     selectedQuestions: selectedQuestions.map(function(q) { return q.id; }),
     questions: selectedQuestions

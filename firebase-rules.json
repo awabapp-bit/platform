@@ -80,6 +80,9 @@
               "violationList": {
                 ".validate": "newData.isArray()"
               },
+              "reloadCount": {
+                ".validate": "newData.isNumber()"
+              },
               "submitted": {
                 ".validate": "newData.isBoolean()"
               },
