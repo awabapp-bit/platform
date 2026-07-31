@@ -269,6 +269,116 @@
     color: #856404;
   }
 
+  /* ===== شاشة تأكيد بدء الاختبار ===== */
+  .exam-start-screen {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 30px 26px;
+    box-shadow: var(--shadow-lift);
+    text-align: center;
+    animation: startFadeIn .35s ease;
+  }
+  @keyframes startFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .exam-start-screen .start-icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--gold-pale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; color: var(--gold);
+  }
+  .exam-start-screen h2 {
+    font-family: 'Amiri', serif;
+    color: var(--primary-dark);
+    margin: 0 0 8px;
+    font-size: 22px;
+  }
+  .exam-start-screen .start-sub {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0 0 22px;
+    line-height: 1.7;
+  }
+  .start-info-grid {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; margin-bottom: 22px;
+  }
+  .start-info-grid .info-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--gold-pale);
+    color: var(--gold-dark);
+    padding: 8px 16px; border-radius: 999px;
+    font-weight: 700; font-size: 13.5px;
+  }
+  .start-info-grid .info-chip i { color: var(--gold); }
+  .start-section {
+    text-align: right;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .start-section h3 {
+    font-size: 15px;
+    color: var(--primary-dark);
+    margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .start-section h3 i { color: var(--gold); }
+  .start-list {
+    margin: 0; padding-inline-start: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .start-list li {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .violations-box {
+    background: #FBEAE6;
+    border-color: var(--danger);
+  }
+  .violations-box h3, .violations-box h3 i { color: var(--danger); }
+  .violations-note {
+    font-size: 13px;
+    color: var(--danger);
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.7;
+  }
+  .violations-list { padding-inline-start: 0; list-style: none; }
+  .violations-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    color: #7A2E22;
+    background: #fff;
+    border: 1px solid rgba(192,57,43,0.25);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+  }
+  .violations-list li i { color: var(--danger); margin-top: 2px; }
+  .start-agree {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 13.5px; color: var(--text);
+    margin: 6px 0 18px;
+    cursor: pointer;
+  }
+  .start-agree input {
+    width: 17px; height: 17px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+  .btn-start-exam {
+    width: auto; min-width: 220px;
+    padding: 13px 34px;
+    font-size: 16px;
+  }
+  .btn-start-exam:disabled { opacity: 0.5; cursor: not-allowed; }
+
   /* ===== حماية ===== */
   .exam-protection-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -520,8 +630,8 @@
             // إذا كانت المحاولة نشطة (لم تنتهِ)، نستعيدها
             return restoreExam(attempt);
           } else {
-            // لا توجد محاولة سابقة، نبدأ محاولة جديدة
-            return startNewExam();
+            // لا توجد محاولة سابقة، نعرض شاشة التأكيد والتعليمات أولاً
+            return showStartScreen();
           }
         })
         .catch(function(err) {
@@ -545,6 +655,80 @@
         </a>
       </div>
     `;
+  }
+
+  // ===== شاشة تأكيد بدء الاختبار (تعليمات + مخالفات) =====
+  function showStartScreen() {
+    document.getElementById('examTimer').style.display = 'none';
+    document.getElementById('violationWarning').style.display = 'none';
+    document.getElementById('reloadWarning').style.display = 'none';
+
+    const duration = examData.duration || 10;
+    const qCount = examData.questionCount || 20;
+    const content = document.getElementById('content');
+
+    content.innerHTML =
+      '<div class="exam-start-screen">' +
+        '<div class="start-icon"><i class="fas fa-file-signature"></i></div>' +
+        '<h2>أنت على وشك بدء الاختبار</h2>' +
+        '<p class="start-sub">من فضلك اقرأ التعليمات والمخالفات التالية جيداً، ثم اضغط "ابدأ الاختبار" عندما تكون جاهزاً. بمجرد الضغط سيبدأ العدّاد الزمني فوراً.</p>' +
+
+        '<div class="start-info-grid">' +
+          '<div class="info-chip"><i class="fas fa-list-ol"></i><span>' + qCount + ' سؤال</span></div>' +
+          '<div class="info-chip"><i class="fas fa-hourglass-half"></i><span>' + duration + ' دقيقة</span></div>' +
+          '<div class="info-chip"><i class="fas fa-triangle-exclamation"></i><span>' + maxViolations + ' مخالفات كحد أقصى</span></div>' +
+        '</div>' +
+
+        '<div class="start-section">' +
+          '<h3><i class="fas fa-circle-info"></i> تعليمات الاختبار</h3>' +
+          '<ul class="start-list">' +
+            '<li>بمجرد الضغط على "ابدأ الاختبار" يبدأ العدّاد الزمني ولا يتوقف حتى تنتهي المدة أو تُسلّم الاختبار بنفسك.</li>' +
+            '<li>يمكنك التنقل بين الأسئلة بحرية والإجابة بأي ترتيب قبل الضغط على زر "تسليم الاختبار".</li>' +
+            '<li>إجاباتك تُحفظ تلقائياً أولاً بأول، ويمكنك إعادة تحميل الصفحة عند الضرورة (بحد أقصى ' + MAX_RELOADS + ' مرات طوال الاختبار).</li>' +
+            '<li>بعد التسليم النهائي لن تتمكن من تعديل إجاباتك أو إعادة دخول الاختبار مرة أخرى.</li>' +
+            '<li>يجب إكمال الاختبار من نفس الجهاز والمتصفح الذي بدأت منه، دون تسجيل الدخول بحسابك من أي جهاز آخر أثناء الاختبار.</li>' +
+          '</ul>' +
+        '</div>' +
+
+        '<div class="start-section violations-box">' +
+          '<h3><i class="fas fa-ban"></i> مخالفات تؤدي إلى إغلاق الاختبار تلقائياً</h3>' +
+          '<p class="violations-note">عند الوصول إلى ' + maxViolations + ' مخالفات، سيتم تسليم اختبارك تلقائياً وإنهاؤه بغض النظر عن عدد الأسئلة التي أجبت عنها، ولن تُتاح لك محاولة أخرى.</p>' +
+          '<ul class="start-list violations-list">' +
+            '<li><i class="fas fa-arrow-right-arrow-left"></i> الخروج من صفحة الاختبار أو تغيير التبويب</li>' +
+            '<li><i class="fas fa-window-minimize"></i> تصغير المتصفح أو التبديل إلى تطبيق آخر (فقدان تركيز النافذة)</li>' +
+            '<li><i class="fas fa-keyboard"></i> استخدام Alt+Tab، أو اختصارات مثل Ctrl+C وCtrl+V وCtrl+S وCtrl+U</li>' +
+            '<li><i class="fas fa-code"></i> محاولة فتح أدوات المطوّر بالضغط على F12</li>' +
+            '<li><i class="fas fa-copy"></i> محاولة نسخ أو لصق أو قص أي محتوى من صفحة الاختبار</li>' +
+            '<li><i class="fas fa-computer-mouse"></i> الضغط بزر الفأرة الأيمن لفتح القائمة المنسدلة</li>' +
+            '<li><i class="fas fa-mobile-screen-button"></i> تسجيل الدخول بنفس الحساب من جهاز أو متصفح آخر أثناء الاختبار</li>' +
+            '<li><i class="fas fa-rotate-right"></i> تجاوز الحد المسموح لإعادة تحميل صفحة الاختبار (' + MAX_RELOADS + ' مرات)</li>' +
+          '</ul>' +
+        '</div>' +
+
+        '<label class="start-agree" for="agreeCheckbox">' +
+          '<input type="checkbox" id="agreeCheckbox">' +
+          '<span>قرأت التعليمات والمخالفات أعلاه وأوافق على بدء الاختبار الآن</span>' +
+        '</label>' +
+
+        '<button class="btn btn-primary btn-start-exam" id="startExamBtn" disabled>' +
+          '<i class="fas fa-play"></i> ابدأ الاختبار' +
+        '</button>' +
+      '</div>';
+
+    const agreeCheckbox = document.getElementById('agreeCheckbox');
+    const startExamBtn = document.getElementById('startExamBtn');
+
+    agreeCheckbox.addEventListener('change', function () {
+      startExamBtn.disabled = !agreeCheckbox.checked;
+    });
+
+    startExamBtn.addEventListener('click', function () {
+      if (!agreeCheckbox.checked) return;
+      startExamBtn.disabled = true;
+      startExamBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التحضير...';
+      document.getElementById('examTimer').style.display = '';
+      startNewExam();
+    });
   }
 
   function startNewExam() {
