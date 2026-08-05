@@ -441,7 +441,7 @@ function renderAppHeader(user, userData, opts) {
 
   header.innerHTML =
     '<div class="header-inner" id="headerInnerNormal">' +
-      '<div class="brand-block">' +
+      '<div class="brand-block" id="brandHomeLink" role="link" tabindex="0" aria-label="الذهاب للرئيسية">' +
         '<img src="logo.png" alt="شعار المنصة" onerror="this.style.display=\'none\'">' +
         '<div class="brand-text"><h2>أواب <span class="brand-en">| Awab</span></h2></div>' +
       '</div>' +
@@ -488,6 +488,23 @@ function renderAppHeader(user, userData, opts) {
   const notifDropdown = document.getElementById('notifDropdown');
   const notifCloseBtn = document.getElementById('notifCloseBtn');
 
+  /* ===== الضغط على الشعار/اسم المنصة يرجع للرئيسية ===== */
+  const brandHomeLink = document.getElementById('brandHomeLink');
+  if (brandHomeLink) {
+    const goHome = function () {
+      const current = location.pathname.split('/').pop();
+      if (current === 'home.html') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        window.location.href = 'home.html';
+      }
+    };
+    brandHomeLink.addEventListener('click', goHome);
+    brandHomeLink.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHome(); }
+    });
+  }
+
   /* ===== تحويل الهيدر بالكامل لشريط بحث ===== */
   const headerSearchBtn = document.getElementById('headerSearchBtn');
   const headerInnerNormal = document.getElementById('headerInnerNormal');
@@ -496,15 +513,52 @@ function renderAppHeader(user, userData, opts) {
   const headerSearchInput = document.getElementById('headerSearchInput');
   const headerSearchClose = document.getElementById('headerSearchClose');
 
+  let searchAnimating = false;
+
   function openHeaderSearch() {
-    headerInnerNormal.style.display = 'none';
-    headerInnerSearch.style.display = 'flex';
-    headerSearchInput.value = '';
-    setTimeout(function () { headerSearchInput.focus(); }, 10);
+    if (searchAnimating || headerInnerSearch.style.display === 'flex') return;
+    searchAnimating = true;
+    headerSearchBtn.classList.add('is-active');
+
+    // تلاشي الهيدر العادي بأنيميشن قبل إخفائه
+    headerInnerNormal.classList.remove('opening');
+    headerInnerNormal.classList.add('closing');
+
+    setTimeout(function () {
+      headerInnerNormal.style.display = 'none';
+      headerInnerNormal.classList.remove('closing');
+
+      headerInnerSearch.style.display = 'flex';
+      const form = headerSearchForm;
+      form.classList.remove('closing');
+      // إعادة تشغيل أنيميشن الدخول من جديد في كل مرة
+      form.style.animation = 'none';
+      void form.offsetWidth;
+      form.style.animation = '';
+
+      headerSearchInput.value = '';
+      setTimeout(function () { headerSearchInput.focus(); }, 80);
+      searchAnimating = false;
+    }, 160);
   }
+
   function closeHeaderSearch() {
-    headerInnerSearch.style.display = 'none';
-    headerInnerNormal.style.display = 'flex';
+    if (searchAnimating || headerInnerSearch.style.display !== 'flex') return;
+    searchAnimating = true;
+    headerSearchBtn.classList.remove('is-active');
+
+    // أنيميشن خروج شريط البحث قبل إخفائه
+    headerSearchForm.classList.add('closing');
+
+    setTimeout(function () {
+      headerInnerSearch.style.display = 'none';
+      headerSearchForm.classList.remove('closing');
+
+      headerInnerNormal.style.display = 'flex';
+      headerInnerNormal.classList.add('opening');
+      setTimeout(function () { headerInnerNormal.classList.remove('opening'); }, 260);
+      searchAnimating = false;
+    }, 200);
   }
 
   if (headerSearchBtn) {
@@ -940,3 +994,25 @@ function isExamActive(compId, lessonId, examId, uid) {
   });
 }
 window.isExamActive = isExamActive;
+
+/* ============================================================
+   زر الرجوع الذكي: يتصرف مثل زر الرجوع في المتصفح/الهاتف
+   - لو فيه سجل تصفح داخل نفس الجلسة، يرجع خطوة زي history.back()
+   - لو مفيش سجل (الصفحة اتفتحت مباشرة)، يروح لرابط الاحتياط المحدد في href
+   ============================================================ */
+(function initSmartBackLinks() {
+  function bindBackLink(link) {
+    if (!link || link.dataset.smartBackBound === '1') return;
+    link.dataset.smartBackBound = '1';
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const fallbackHref = link.getAttribute('href') || 'home.html';
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = fallbackHref;
+      }
+    });
+  }
+  document.querySelectorAll('.back-link').forEach(bindBackLink);
+})();

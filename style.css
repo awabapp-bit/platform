@@ -373,7 +373,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   display: flex;
   align-items: center;
   gap: 11px;
+  cursor: pointer;
+  transition: opacity .15s ease, transform .15s ease;
+  border-radius: var(--radius-sm);
 }
+.brand-block:hover { opacity: 0.85; transform: translateY(-1px); }
+.brand-block:active { transform: translateY(0); opacity: 0.7; }
+.brand-block:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 4px; }
 
 .brand-block img {
   width: 40px;
@@ -437,9 +443,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .header-search-btn:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
 .header-search-btn .icon { width: 17px; height: 17px; }
 
+.header-search-btn.is-active {
+  background: rgba(228,205,147,0.28);
+  color: var(--gold-light);
+  transform: rotate(90deg);
+}
+
 .header-inner.header-search-mode {
   display: flex;
   align-items: center;
+}
+
+/* ===== أنيميشن فتح/قفل شريط البحث ===== */
+@keyframes searchBarIn {
+  from { opacity: 0; transform: scaleX(0.85) translateY(-6px); }
+  to   { opacity: 1; transform: scaleX(1) translateY(0); }
+}
+@keyframes searchBarOut {
+  from { opacity: 1; transform: scaleX(1) translateY(0); }
+  to   { opacity: 0; transform: scaleX(0.85) translateY(-6px); }
 }
 .header-search-form {
   width: 100%;
@@ -450,8 +472,23 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border: 1px solid rgba(228,205,147,0.35);
   border-radius: 999px;
   padding: 8px 16px;
+  transform-origin: center;
+  animation: searchBarIn .32s cubic-bezier(.34,1.56,.64,1) both;
 }
-.header-search-icon { color: var(--gold-light); flex-shrink: 0; display: flex; }
+.header-search-form.closing {
+  animation: searchBarOut .22s cubic-bezier(.4,0,1,1) both;
+}
+.header-search-icon {
+  color: var(--gold-light);
+  flex-shrink: 0;
+  display: flex;
+  animation: searchIconPop .4s ease .05s both;
+}
+@keyframes searchIconPop {
+  0% { transform: scale(0.4) rotate(-25deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
 .header-search-form input {
   flex: 1;
   background: none;
@@ -472,10 +509,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background .15s ease, color .15s ease;
+  transition: background .15s ease, color .15s ease, transform .15s ease;
 }
-.header-search-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.header-search-close:hover { background: rgba(255,255,255,0.15); color: #fff; transform: rotate(90deg); }
 .header-search-close .icon { width: 15px; height: 15px; }
+
+/* ظهور/اختفاء الهيدر العادي بتبادل ناعم مع شريط البحث */
+@keyframes headerNormalOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes headerNormalIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.header-inner#headerInnerNormal.closing { animation: headerNormalOut .18s ease both; }
+.header-inner#headerInnerNormal.opening { animation: headerNormalIn .22s ease .08s both; }
 
 .account-menu { position: relative; }
 

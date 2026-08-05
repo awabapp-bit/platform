@@ -9,219 +9,312 @@
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  /* ===== التبويبات ===== */
-  .account-tabs {
+  /* ============================================================
+     صفحة "حسابي" — تصميم جديد بالكامل
+     ============================================================ */
+
+  main.page { max-width: 780px; }
+
+  .info-card {
+    animation: accFadeUp .4s ease both;
+  }
+  .info-row .label { display: flex; align-items: center; gap: 8px; }
+  .info-row .label i { color: var(--gold); width: 18px; }
+  .info-row:hover { background: var(--primary-tint); margin: 0 -12px; padding: 12px; border-radius: var(--radius-sm); }
+
+  @keyframes accFadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes accFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes accFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes accShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes accPulseRing {
+    0% { box-shadow: 0 0 0 0 rgba(200,162,74,0.45); }
+    100% { box-shadow: 0 0 0 14px rgba(200,162,74,0); }
+  }
+
+  /* ===== البطاقة الرئيسية (Hero) ===== */
+  .acc-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+    padding: 34px 30px 28px;
+    color: #fff;
+    box-shadow: var(--shadow-lift);
+    margin-bottom: 20px;
+    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  .acc-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 90% 0%, rgba(200,162,74,0.30), transparent 55%),
+      radial-gradient(circle at 5% 100%, rgba(200,162,74,0.14), transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23e4cd93' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: auto, auto, 84px 84px;
+    pointer-events: none;
+  }
+  .acc-hero-row {
+    position: relative;
+    z-index: 1;
     display: flex;
-    gap: 6px;
-    margin-bottom: 28px;
-    border-bottom: 2px solid var(--border);
+    align-items: center;
+    gap: 20px;
     flex-wrap: wrap;
   }
-  .account-tab {
-    padding: 12px 22px;
-    border: none;
-    background: none;
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--text-muted);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s ease;
-    font-family: inherit;
+  .acc-avatar-wrap { position: relative; flex-shrink: 0; display: block; transition: transform .2s ease; }
+  .acc-avatar-wrap:hover { transform: scale(1.06); }
+  .acc-avatar-wrap:active { transform: scale(0.97); }
+  .acc-name-link { text-decoration: none; display: inline-block; }
+  .acc-name-link:hover h1 { color: var(--gold-light); }
+  .acc-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    color: var(--primary-dark);
+    border: 3px solid rgba(255,255,255,0.35);
+    animation: accFloat 4.5s ease-in-out infinite, accPulseRing 2.6s ease-out infinite;
+  }
+  .acc-hero-info { flex: 1; min-width: 200px; }
+  .acc-hero-info h1 {
+    font-family: 'Amiri', serif;
+    font-size: 25px;
+    margin: 0 0 4px;
+    color: #fff;
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+    transition: color .15s ease;
   }
-  .account-tab:hover { color: var(--primary); }
-  .account-tab.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
+  .acc-hero-info .acc-email {
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.72);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
   }
-  .account-tab i { font-size: 16px; }
+  .acc-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .acc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 5px 13px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(228,205,147,0.4);
+    color: var(--gold-light);
+  }
 
-  .tab-content { display: none; animation: fadeIn 0.3s ease; }
-  .tab-content.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .acc-hero-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+  }
+  .edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(228,205,147,0.5);
+    color: var(--gold-light);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .edit-profile-btn:hover {
+    background: rgba(228,205,147,0.18);
+    transform: translateY(-2px);
+  }
+  .delete-account-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(179,75,60,0.15);
+    border: 1.5px solid rgba(230,120,100,0.55);
+    color: #f0a996;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .delete-account-btn:hover {
+    background: rgba(179,75,60,0.28);
+    transform: translateY(-2px);
+  }
+  .delete-account-btn i { font-size: 13px; }
+
+  /* ===== نموذج تعديل الملف الشخصي ===== */
+  #editProfileWrap { overflow: hidden; }
+  #editProfileWrap.opening { animation: accFadeUp .35s ease both; }
+  #editProfileWrap .field { margin-bottom: 14px; }
+  #editProfileWrap .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+  }
+  #editProfileWrap .field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: #FCFBF8;
+    color: var(--text);
+    transition: border-color 0.15s ease, box-shadow .15s ease;
+  }
+  #editProfileWrap .field input:focus {
+    border-color: var(--gold);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(200,162,74,0.15);
+  }
+  .edit-actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .edit-actions .btn { width: auto; }
 
   /* ===== بطاقة المستوى ===== */
   .tier-card {
+    position: relative;
     background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
     border-radius: var(--radius-lg);
     padding: 24px 28px;
     color: #fff;
-    position: relative;
     overflow: hidden;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(228,205,147,0.25);
+    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .08s both;
   }
   .tier-card::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 85% 15%, rgba(201,154,74,0.25), transparent 55%);
+    background: radial-gradient(circle at 85% 15%, rgba(201,154,74,0.28), transparent 55%);
     pointer-events: none;
   }
-  .tier-card .tier-top {
+  .tier-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -150%;
+    width: 60%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(228,205,147,0.14), transparent);
+    animation: accShimmer 5s linear infinite;
+  }
+  .tier-card .tier-top { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
+  .tier-card .tier-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: var(--rank-color, var(--gold-light));
+    flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .tier-card .tier-name {
+    font-family: 'Amiri', serif; font-size: 20px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .tier-card .tier-rank-pill {
+    font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 800;
+    background: rgba(255,255,255,0.16); color: var(--rank-color, var(--gold-light));
+    padding: 3px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15);
+  }
+  .tier-card .tier-points { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .tier-card .tier-level-big {
+    margin-inline-start: auto; font-family: 'Amiri', serif; font-weight: 700;
+    font-size: 32px; color: var(--rank-color, var(--gold-light)); line-height: 1;
+    position: relative; z-index: 1; flex-shrink: 0; text-align: center;
+  }
+  .tier-card .tier-level-big span { display: block; font-family: 'Cairo', sans-serif; font-size: 10px; font-weight: 700; opacity: 0.6; margin-top: 2px; }
+  .tier-card .tier-progress-wrap { margin-top: 16px; position: relative; z-index: 1; }
+  .tier-card .tier-progress-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.18); overflow: hidden; }
+  .tier-card .tier-progress-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--gold-light), var(--gold));
+    transition: width 0.8s cubic-bezier(.22,1,.36,1);
+  }
+  .tier-card .tier-next-note { font-size: 12px; opacity: 0.75; margin-top: 8px; position: relative; z-index: 1; }
+
+  /* ===== التبويبات (شريط منزلق) ===== */
+  .account-tabs {
+    position: relative;
     display: flex;
-    align-items: center;
-    gap: 16px;
+    gap: 2px;
+    margin-bottom: 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px;
+    box-shadow: var(--shadow);
+    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .12s both;
+  }
+  .acc-tab-indicator {
+    position: absolute;
+    top: 5px; bottom: 5px;
+    left: 5px;
+    border-radius: 999px;
+    background: var(--gradient-primary);
+    box-shadow: 0 6px 16px rgba(15,32,56,0.25);
+    transition: left .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1);
+    z-index: 0;
+  }
+  .account-tab {
     position: relative;
     z-index: 1;
-    flex-wrap: wrap;
-  }
-  .tier-card .tier-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.15);
+    flex: 1;
+    padding: 11px 16px;
+    border: none;
+    background: none;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.25s ease;
+    font-family: inherit;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    color: var(--rank-color, var(--gold-light));
-    flex-shrink: 0;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .tier-card .tier-name {
-    font-family: 'Amiri', serif;
-    font-size: 20px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .tier-card .tier-rank-pill {
-    font-family: 'Cairo', sans-serif;
-    font-size: 11px;
-    font-weight: 800;
-    background: rgba(255,255,255,0.16);
-    color: var(--rank-color, var(--gold-light));
-    padding: 3px 12px;
+    gap: 7px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.15);
+    white-space: nowrap;
   }
-  .tier-card .tier-points {
-    font-size: 13px;
-    opacity: 0.85;
-    margin-top: 4px;
-  }
-  .tier-card .tier-level-big {
-    margin-inline-start: auto;
-    font-family: 'Amiri', serif;
-    font-weight: 700;
-    font-size: 32px;
-    color: var(--rank-color, var(--gold-light));
-    line-height: 1;
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
-    text-align: center;
-  }
-  .tier-card .tier-level-big span {
-    display: block;
-    font-family: 'Cairo', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    opacity: 0.6;
-    margin-top: 2px;
-  }
-  .tier-card .tier-progress-wrap {
-    margin-top: 16px;
-    position: relative;
-    z-index: 1;
-  }
-  .tier-card .tier-progress-bar {
-    height: 8px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.18);
-    overflow: hidden;
-  }
-  .tier-card .tier-progress-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--gold-light), var(--gold));
-    transition: width 0.5s ease;
-  }
-  .tier-card .tier-next-note {
-    font-size: 12px;
-    opacity: 0.75;
-    margin-top: 8px;
-  }
+  .account-tab:hover { color: var(--primary); }
+  .account-tab.active { color: #fff; }
+  .account-tab i { font-size: 14px; }
 
-  /* ===== معلومات الحساب ===== */
-  .info-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px 26px;
-    box-shadow: var(--shadow);
-    margin-bottom: 18px;
-  }
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    gap: 12px;
-  }
-  .info-row:last-child { border-bottom: none; }
-  .info-row .label {
-    font-size: 13px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .info-row .label i { color: var(--gold); width: 18px; }
-  .info-row .value {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .edit-profile-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: 1.5px solid var(--primary);
-    color: var(--primary);
-    padding: 10px 22px;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: inherit;
-  }
-  .edit-profile-btn:hover {
-    background: rgba(27,77,53,0.06);
-    transform: translateY(-1px);
-  }
-
-  /* ===== زر حذف الحساب ===== */
-  .delete-account-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: 1.5px solid var(--danger);
-    color: var(--danger);
-    padding: 10px 22px;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: inherit;
-    margin-top: 12px;
-  }
-  .delete-account-btn:hover {
-    background: rgba(179,67,43,0.08);
-    transform: translateY(-1px);
-  }
-  .delete-account-btn i { font-size: 14px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: accFadeUp 0.4s cubic-bezier(.22,1,.36,1) both; }
 
   /* ===== الاشتراكات والاختبارات ===== */
   .enrolled-card {
@@ -235,36 +328,25 @@
     margin-bottom: 12px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    animation: accFadeUp .4s ease both;
   }
   .enrolled-card:hover {
-    box-shadow: var(--shadow);
-    transform: translateY(-2px);
-    border-color: var(--primary-light);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-3px);
+    border-color: var(--gold);
   }
   .enrolled-card .ec-cover {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    flex-shrink: 0;
-    overflow: hidden;
+    width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold-pale);
-    font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold-pale); font-size: 20px;
   }
   .enrolled-card .ec-body { flex: 1; min-width: 0; }
-  .enrolled-card .ec-title {
-    font-size: 14.5px;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .enrolled-card .ec-sub {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
+  .enrolled-card .ec-title { font-size: 14.5px; font-weight: 700; color: var(--text); }
+  .enrolled-card .ec-sub { font-size: 12px; color: var(--text-muted); }
+  .enrolled-card .ec-arrow { color: var(--gold); font-size: 13px; transition: transform .2s ease; }
+  .enrolled-card:hover .ec-arrow { transform: translateX(-4px); }
 
   .exam-history-card {
     display: flex;
@@ -277,34 +359,17 @@
     border-radius: var(--radius);
     padding: 16px 20px;
     margin-bottom: 12px;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    animation: accFadeUp .4s ease both;
   }
-  .exam-history-card:hover {
-    box-shadow: var(--shadow);
-    border-color: var(--primary-light);
-  }
-  .exam-history-card .exam-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .exam-history-card .exam-info .exam-title {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text);
-  }
-  .exam-history-card .exam-info .exam-title i {
-    color: var(--gold);
-    margin-left: 6px;
-  }
-  .exam-history-card .exam-score {
-    font-weight: 800;
-    color: var(--gold);
-    font-size: 14px;
-  }
+  .exam-history-card:hover { box-shadow: var(--shadow-lift); border-color: var(--gold); transform: translateY(-2px); }
+  .exam-history-card .exam-info { display: flex; flex-direction: column; gap: 4px; }
+  .exam-history-card .exam-info .exam-title { font-weight: 700; font-size: 14px; color: var(--text); }
+  .exam-history-card .exam-info .exam-title i { color: var(--gold); margin-left: 6px; }
+  .exam-history-card .exam-score { font-weight: 800; color: var(--gold-dark); font-size: 14px; }
   .exam-history-card .exam-score i { margin-left: 4px; }
   .exam-detail-btn {
-    background: none;
+    background: var(--primary-tint);
     border: none;
     color: var(--primary);
     font-weight: 700;
@@ -313,334 +378,139 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     font-family: inherit;
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    border-radius: 999px;
   }
-  .exam-detail-btn:hover {
-    background: rgba(27,77,53,0.06);
-  }
+  .exam-detail-btn:hover { background: var(--primary); color: #fff; }
 
   .exam-answers-popup {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
+    position: fixed; inset: 0; z-index: 200;
     background: rgba(18,52,36,0.65);
     backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    display: none; align-items: center; justify-content: center; padding: 20px;
   }
-  .exam-answers-popup.open { display: flex; }
+  .exam-answers-popup.open { display: flex; animation: accFadeIn .2s ease; }
   .exam-answers-content {
     background: var(--card-bg);
     border-radius: var(--radius-lg);
-    max-width: 620px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
+    max-width: 620px; width: 100%; max-height: 80vh; overflow-y: auto;
     padding: 28px 30px;
     box-shadow: var(--shadow-lift);
     position: relative;
+    animation: accFadeUp .3s cubic-bezier(.22,1,.36,1) both;
   }
   .exam-answers-content .popup-close {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    background: var(--bg);
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; top: 16px; left: 16px;
+    background: var(--bg); border: none; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 16px; cursor: pointer; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
     transition: all 0.15s ease;
   }
-  .exam-answers-content .popup-close:hover {
-    background: var(--border);
-  }
+  .exam-answers-content .popup-close:hover { background: var(--border); transform: rotate(90deg); }
   .exam-answers-content h3 {
-    font-family: 'Amiri', serif;
-    color: var(--primary-dark);
-    margin: 0 0 18px;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-family: 'Amiri', serif; color: var(--primary-dark); margin: 0 0 18px; font-size: 20px;
+    display: flex; align-items: center; gap: 10px;
   }
   .exam-answers-content h3 i { color: var(--gold); }
 
-  .exam-answer-item {
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-  }
+  .exam-answer-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
   .exam-answer-item:last-child { border-bottom: none; }
-  .exam-answer-item .q-text {
-    font-weight: 700;
-    margin-bottom: 6px;
-    font-size: 14.5px;
-    color: var(--text);
-  }
+  .exam-answer-item .q-text { font-weight: 700; margin-bottom: 6px; font-size: 14.5px; color: var(--text); }
   .exam-answer-item .q-text i { color: var(--gold); margin-left: 6px; }
-  .exam-answer-item .a-detail {
-    font-size: 13.5px;
-    color: var(--text);
-    margin: 2px 0;
-  }
+  .exam-answer-item .a-detail { font-size: 13.5px; color: var(--text); margin: 2px 0; }
   .exam-answer-item .a-detail strong { color: var(--primary-dark); }
-  .exam-answer-item .a-status {
-    font-weight: 700;
-    font-size: 13px;
-    margin-top: 4px;
-  }
+  .exam-answer-item .a-status { font-weight: 700; font-size: 13px; margin-top: 4px; }
   .exam-answer-item .a-status.correct { color: var(--success); }
   .exam-answer-item .a-status.wrong { color: var(--danger); }
   .exam-answer-item .a-status.unanswered { color: var(--text-muted); }
 
-  #editProfileWrap .field { margin-bottom: 14px; }
-  #editProfileWrap .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary-dark);
-    margin-bottom: 6px;
-  }
-  #editProfileWrap .field input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-family: inherit;
-    background: #FCFBF8;
-    color: var(--text);
-    transition: border-color 0.15s ease;
-  }
-  #editProfileWrap .field input:focus {
-    border-color: var(--primary);
-    outline: none;
-  }
-  .edit-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-  }
-  .edit-actions .btn { width: auto; }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted);
-  }
-  .empty-state i {
-    font-size: 40px;
-    display: block;
-    margin-bottom: 12px;
-    color: var(--text-muted);
-    opacity: 0.5;
-  }
+  .empty-state { text-align: center; padding: 46px 20px; color: var(--text-muted); animation: accFadeIn .4s ease; }
+  .empty-state i { font-size: 42px; display: block; margin-bottom: 14px; color: var(--gold); opacity: 0.55; }
   .empty-state p { font-size: 14px; }
 
   /* ============================================================
      نافذة حذف الحساب المتكاملة (Modal)
      ============================================================ */
   .delete-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 300;
-    background: rgba(18,52,36,0.7);
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(10,23,40,0.72);
     backdrop-filter: blur(6px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    display: none; align-items: center; justify-content: center; padding: 20px;
     animation: fadeInOverlay 0.3s ease;
   }
   .delete-modal-overlay.open { display: flex; }
-  @keyframes fadeInOverlay {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+  @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
 
   .delete-modal {
     background: var(--card-bg);
     border-radius: var(--radius-lg);
-    max-width: 480px;
-    width: 100%;
+    max-width: 480px; width: 100%;
     padding: 32px 30px;
     box-shadow: var(--shadow-lift);
     position: relative;
     animation: slideUp 0.3s ease;
     direction: rtl;
+    border-top: 4px solid var(--danger);
   }
-  @keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
   .delete-modal .modal-close {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    background: var(--bg);
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; top: 14px; left: 14px;
+    background: var(--bg); border: none; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 16px; cursor: pointer; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
     transition: all 0.15s ease;
   }
-  .delete-modal .modal-close:hover {
-    background: var(--border);
-  }
+  .delete-modal .modal-close:hover { background: var(--border); transform: rotate(90deg); }
 
-  .delete-modal .modal-icon {
-    text-align: center;
-    font-size: 48px;
-    color: var(--danger);
-    margin-bottom: 12px;
-  }
+  .delete-modal .modal-icon { text-align: center; font-size: 48px; color: var(--danger); margin-bottom: 12px; animation: accFloat 2.5s ease-in-out infinite; }
   .delete-modal .modal-icon i { font-size: 48px; }
 
-  .delete-modal h3 {
-    font-family: 'Amiri', serif;
-    color: var(--primary-dark);
-    font-size: 20px;
-    text-align: center;
-    margin: 0 0 8px;
-  }
-  .delete-modal p {
-    font-size: 14px;
-    color: var(--text-muted);
-    text-align: center;
-    line-height: 1.8;
-    margin: 0 0 18px;
-  }
-  .delete-modal .field {
-    margin-bottom: 14px;
-  }
-  .delete-modal .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary-dark);
-    margin-bottom: 6px;
-  }
+  .delete-modal h3 { font-family: 'Amiri', serif; color: var(--primary-dark); font-size: 20px; text-align: center; margin: 0 0 8px; }
+  .delete-modal p { font-size: 14px; color: var(--text-muted); text-align: center; line-height: 1.8; margin: 0 0 18px; }
+  .delete-modal .field { margin-bottom: 14px; }
+  .delete-modal .field label { display: block; font-size: 13px; font-weight: 600; color: var(--primary-dark); margin-bottom: 6px; }
   .delete-modal .field input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-family: inherit;
-    background: #FCFBF8;
-    color: var(--text);
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; font-family: inherit; background: #FCFBF8; color: var(--text);
     transition: border-color 0.15s ease;
   }
-  .delete-modal .field input:focus {
-    border-color: var(--primary);
-    outline: none;
-  }
+  .delete-modal .field input:focus { border-color: var(--primary); outline: none; }
 
-  .delete-modal .modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-  }
-  .delete-modal .modal-actions .btn {
-    width: auto;
-    flex: 1;
-    min-width: 100px;
-  }
+  .delete-modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .delete-modal .modal-actions .btn { width: auto; flex: 1; min-width: 100px; }
   .delete-modal .modal-actions .btn-danger {
     background: linear-gradient(135deg, var(--danger), #8a3120);
-    color: #fff;
-    border: none;
-    box-shadow: 0 6px 20px rgba(179,67,43,0.25);
+    color: #fff; border: none; box-shadow: 0 6px 20px rgba(179,67,43,0.25);
   }
-  .delete-modal .modal-actions .btn-danger:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(179,67,43,0.32);
-  }
-  .delete-modal .modal-actions .btn-danger:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+  .delete-modal .modal-actions .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(179,67,43,0.32); }
+  .delete-modal .modal-actions .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-  .delete-modal .error-msg {
-    font-size: 13px;
-    color: var(--danger);
-    background: #FBEAE6;
-    padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    margin-top: 10px;
-    display: none;
-  }
-  .delete-modal .error-msg.show { display: block; }
-
-  .delete-modal .success-msg {
-    font-size: 13px;
-    color: var(--success);
-    background: #E6F2EA;
-    padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    margin-top: 10px;
-    display: none;
-  }
-  .delete-modal .success-msg.show { display: block; }
+  .delete-modal .error-msg { font-size: 13px; color: var(--danger); background: #FBEAE6; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; display: none; }
+  .delete-modal .error-msg.show { display: block; animation: accFadeIn .2s ease; }
+  .delete-modal .success-msg { font-size: 13px; color: var(--success); background: #E6F2EA; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; display: none; }
+  .delete-modal .success-msg.show { display: block; animation: accFadeIn .2s ease; }
 
   .delete-modal .loading-spinner {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 0.8s linear infinite;
-    margin-left: 8px;
-    vertical-align: middle;
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff;
+    animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle;
   }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  .delete-modal .step-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .delete-modal .step-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    transition: background 0.3s ease;
-  }
-  .delete-modal .step-dot.active {
-    background: var(--gold);
-  }
-  .delete-modal .step-dot.done {
-    background: var(--success);
-  }
+  .delete-modal .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+  .delete-modal .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.3s ease, transform .3s ease; }
+  .delete-modal .step-dot.active { background: var(--gold); transform: scale(1.3); }
+  .delete-modal .step-dot.done { background: var(--success); }
 
   @media (max-width: 600px) {
-    .account-tabs { gap: 4px; }
-    .account-tab { padding: 10px 14px; font-size: 13px; }
+    .acc-hero { padding: 26px 20px 22px; }
+    .acc-avatar { width: 68px; height: 68px; font-size: 27px; }
+    .acc-hero-info h1 { font-size: 21px; }
+    .account-tabs { gap: 2px; }
+    .account-tab { padding: 10px 10px; font-size: 12.5px; }
     .tier-card { padding: 18px 20px; }
     .tier-card .tier-top { gap: 12px; }
     .tier-card .tier-level-big { font-size: 26px; }
@@ -654,17 +524,67 @@
 </style>
 </head>
 <body>
-
 <header class="app-header" id="appHeader"></header>
 
-<main class="page" style="max-width:740px;">
+<main class="page">
   <a class="back-link" href="home.html">
     <i class="fas fa-arrow-right"></i> الرئيسية
   </a>
-  <h1 class="page-title"><i class="fas fa-user-circle" style="color:var(--gold);"></i> حسابي</h1>
+
+  <!-- ===== بطاقة الحساب الرئيسية (Hero) ===== -->
+  <div class="acc-hero">
+    <div class="acc-hero-row">
+      <a class="acc-avatar-wrap" href="home.html" title="الذهاب للرئيسية" aria-label="الذهاب للرئيسية">
+        <div class="acc-avatar"><i class="fas fa-user"></i></div>
+      </a>
+      <div class="acc-hero-info">
+        <a class="acc-name-link" href="home.html" title="الذهاب للرئيسية">
+          <h1 id="heroName">—</h1>
+        </a>
+        <div class="acc-email"><i class="fas fa-envelope"></i> <span id="heroEmail">—</span></div>
+        <div class="acc-badges">
+          <span class="acc-badge" id="heroLevelBadge"><i class="fas fa-trophy"></i> —</span>
+        </div>
+      </div>
+    </div>
+    <div class="acc-hero-actions">
+      <button class="edit-profile-btn" id="editProfileBtn">
+        <i class="fas fa-pen"></i> تعديل الملف الشخصي
+      </button>
+      <button class="delete-account-btn" id="deleteAccountBtn">
+        <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
+      </button>
+    </div>
+  </div>
+
+  <div id="editProfileWrap" style="display:none; margin-bottom:20px;">
+    <div class="info-card">
+      <h3 style="font-family:'Amiri',serif; color:var(--primary-dark); margin:0 0 16px;">
+        <i class="fas fa-user-edit" style="color:var(--gold);"></i> تعديل الملف الشخصي
+      </h3>
+      <div class="form-msg" id="editProfileMsg"></div>
+      <div class="field">
+        <label><i class="fas fa-user"></i> الاسم الجديد</label>
+        <input type="text" id="editNameInput" placeholder="أدخل اسمك الكامل">
+      </div>
+      <div class="field">
+        <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
+        <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها">
+        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">يجب أن تكون 8 أحرف على الأقل لتغيير كلمة المرور</div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-primary" id="saveProfileBtn"><i class="fas fa-save"></i> حفظ التغييرات</button>
+        <button class="btn btn-outline" id="cancelEditBtn"><i class="fas fa-times"></i> إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== بطاقة المستوى ===== -->
+  <div id="tierCardWrap"></div>
 
   <!-- ===== التبويبات ===== -->
   <div class="account-tabs" id="tabsContainer">
+    <div class="acc-tab-indicator" id="tabIndicator"></div>
     <button class="account-tab active" data-tab="info">
       <i class="fas fa-id-card"></i> معلوماتي
     </button>
@@ -678,8 +598,6 @@
 
   <!-- ===== تبويب المعلومات ===== -->
   <div class="tab-content active" id="tab-info">
-    <div id="tierCardWrap"></div>
-
     <div class="info-card">
       <div class="info-row">
         <span class="label"><i class="fas fa-user"></i> الاسم</span>
@@ -692,37 +610,6 @@
       <div class="info-row">
         <span class="label"><i class="fas fa-trophy"></i> المستوى</span>
         <span class="value" id="userLevel">—</span>
-      </div>
-    </div>
-
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-      <button class="edit-profile-btn" id="editProfileBtn">
-        <i class="fas fa-pen"></i> تعديل الملف الشخصي
-      </button>
-      <button class="delete-account-btn" id="deleteAccountBtn">
-        <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
-      </button>
-    </div>
-
-    <div id="editProfileWrap" style="display:none; margin-top:20px;">
-      <div class="info-card">
-        <h3 style="font-family:'Amiri',serif; color:var(--primary-dark); margin:0 0 16px;">
-          <i class="fas fa-user-edit" style="color:var(--gold);"></i> تعديل الملف الشخصي
-        </h3>
-        <div class="form-msg" id="editProfileMsg"></div>
-        <div class="field">
-          <label><i class="fas fa-user"></i> الاسم الجديد</label>
-          <input type="text" id="editNameInput" placeholder="أدخل اسمك الكامل">
-        </div>
-        <div class="field">
-          <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
-          <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها">
-          <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">يجب أن تكون 8 أحرف على الأقل لتغيير كلمة المرور</div>
-        </div>
-        <div class="edit-actions">
-          <button class="btn btn-primary" id="saveProfileBtn"><i class="fas fa-save"></i> حفظ التغييرات</button>
-          <button class="btn btn-outline" id="cancelEditBtn"><i class="fas fa-times"></i> إلغاء</button>
-        </div>
       </div>
     </div>
   </div>
@@ -810,6 +697,26 @@
   let currentUser = null;
   let currentUserData = null;
 
+  // ===== اسم المستخدم في بطاقة الهيدر: كامل في الموبايل العادي، وكلمة واحدة بس في الشاشات الصغيرة جدًا =====
+  let currentFullName = '';
+  const HERO_NAME_BREAKPOINT = 380; // px
+
+  function applyResponsiveHeroName(fullName) {
+    currentFullName = fullName;
+    const heroNameEl = document.getElementById('heroName');
+    if (!heroNameEl) return;
+    const isTiny = window.innerWidth <= HERO_NAME_BREAKPOINT;
+    heroNameEl.textContent = isTiny ? (fullName.trim().split(/\s+/)[0] || fullName) : fullName;
+  }
+
+  let heroNameResizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(heroNameResizeTimer);
+    heroNameResizeTimer = setTimeout(function () {
+      if (currentFullName) applyResponsiveHeroName(currentFullName);
+    }, 150);
+  });
+
   requireAuth(function (user, userData) {
     currentUser = user;
     currentUserData = userData;
@@ -830,6 +737,15 @@
     document.getElementById('userName').textContent = currentUserData.name || '—';
     document.getElementById('userEmail').textContent = currentUserData.email || currentUser.email || '—';
     document.getElementById('userLevel').textContent = 'المستوى ' + tier.level + ' (' + tier.rank.name + ')';
+
+    // نفس البيانات في بطاقة الهيدر (Hero)
+    const heroName = document.getElementById('heroName');
+    const heroEmail = document.getElementById('heroEmail');
+    const heroLevelBadge = document.getElementById('heroLevelBadge');
+    const fullName = currentUserData.name || 'مستخدم';
+    applyResponsiveHeroName(fullName);
+    if (heroEmail) heroEmail.textContent = currentUserData.email || currentUser.email || '—';
+    if (heroLevelBadge) heroLevelBadge.innerHTML = '<i class="fas fa-' + tier.rank.icon + '"></i> ' + tier.rank.name + ' · المستوى ' + tier.level;
 
     document.getElementById('tierCardWrap').innerHTML = `
       <div class="tier-card" style="--rank-color: ${tier.rank.color};">
@@ -997,13 +913,28 @@
     });
   }
 
-  // ===== التبويبات =====
+  // ===== التبويبات (مع مؤشر منزلق) =====
   function setupTabs() {
     const tabs = document.querySelectorAll('.account-tab');
+    const indicator = document.getElementById('tabIndicator');
+
+    function positionIndicator(tab) {
+      if (!indicator || !tab) return;
+      indicator.style.width = tab.offsetWidth + 'px';
+      indicator.style.left = tab.offsetLeft + 'px';
+    }
+
+    const initialActive = document.querySelector('.account-tab.active') || tabs[0];
+    requestAnimationFrame(function () { positionIndicator(initialActive); });
+    window.addEventListener('resize', function () {
+      positionIndicator(document.querySelector('.account-tab.active'));
+    });
+
     tabs.forEach(tab => {
       tab.addEventListener('click', function () {
         tabs.forEach(t => t.classList.remove('active'));
         this.classList.add('active');
+        positionIndicator(this);
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.getElementById('tab-' + this.dataset.tab).classList.add('active');
       });
@@ -1021,9 +952,13 @@
 
     editBtn.addEventListener('click', function () {
       wrap.style.display = 'block';
+      wrap.classList.remove('opening');
+      void wrap.offsetWidth;
+      wrap.classList.add('opening');
       nameInput.value = currentUserData.name || '';
       passInput.value = '';
       msg.classList.remove('show');
+      wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 
     cancelBtn.addEventListener('click', function () {
