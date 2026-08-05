@@ -9,63 +9,98 @@
 </head>
 <body>
 
-<div class="auth-shell">
-  <div class="auth-card">
-    <div class="pattern-strip"></div>
-    <div class="auth-brand">
+<div class="auth-screen">
+
+  <aside class="identity-panel">
+    <svg class="lattice" viewBox="0 0 600 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="star8" width="120" height="120" patternUnits="userSpaceOnUse">
+          <g fill="none" stroke="#c8a24a" stroke-width="1">
+            <path d="M60 6 L78 42 L114 24 L96 60 L114 96 L78 78 L60 114 L42 78 L6 96 L24 60 L6 24 L42 42 Z"/>
+            <circle cx="60" cy="60" r="3" fill="#c8a24a" stroke="none"/>
+          </g>
+        </pattern>
+      </defs>
+      <rect width="600" height="900" fill="url(#star8)"/>
+    </svg>
+
+    <div class="identity-top">
       <img src="logo.png" alt="شعار منصة أواب" onerror="this.style.display='none'">
-      <h1>إنشاء حساب جديد</h1>
-      <p>انضم إلى منصة أواب الإلكترونية</p>
+      <div class="identity-brandname">
+        منصة أواب الإلكترونية
+        <span>مسابقات وكورسات دينية</span>
+      </div>
     </div>
 
-    <p class="basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <div class="identity-mid">
+      <h1>ابدأ رحلتك، <em>وانضم</em><br>إلى المتسابقين</h1>
+      <p>أنشئ حسابك للاشتراك في الكورسات الدينية والمشاركة في المسابقات، ومتابعة نقاطك ومستواك أولاً بأول.</p>
+    </div>
 
-    <div class="form-msg" id="formMsg"></div>
+    <div class="identity-bottom">
+      <div class="identity-stat"><b>+120</b><span>كورساً دينياً</span></div>
+      <div class="identity-stat"><b>+300</b><span>مسابقة منعقدة</span></div>
+      <div class="identity-stat"><b>+40 ألف</b><span>مشارك ومتعلم</span></div>
+    </div>
+  </aside>
 
-    <form id="registerForm" novalidate>
-      <div class="field" id="nameField">
-        <label for="fullName">الاسم رباعي</label>
-        <input type="text" id="fullName" placeholder="الاسم الأول والثاني والثالث والرابع" required>
-        <div class="field-hint">أدخل الاسم كاملًا من أربع كلمات على الأقل</div>
+  <div class="auth-shell">
+    <div class="auth-panel">
+      <div class="auth-brand">
+        <h1>إنشاء حساب جديد</h1>
+        <p>انضم إلى منصة أواب الإلكترونية</p>
       </div>
 
-      <div class="field" id="emailField">
-        <label for="email">البريد الإلكتروني</label>
-        <input type="email" id="email" autocomplete="username" placeholder="example@email.com" required>
-      </div>
+      <p class="basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
 
-      <div class="field">
-        <label for="password">كلمة المرور</label>
-        <div class="password-toggle-wrap">
-          <input type="password" id="password" autocomplete="new-password" placeholder="••••••••" required>
-          <button type="button" class="password-toggle" data-target="password" aria-label="إظهار كلمة المرور"></button>
+      <div class="form-msg" id="formMsg"></div>
+
+      <form id="registerForm" novalidate>
+        <div class="field" id="nameField">
+          <label for="fullName">الاسم رباعي</label>
+          <input type="text" id="fullName" placeholder="الاسم الأول والثاني والثالث والرابع" required>
+          <div class="field-hint">أدخل الاسم كاملًا من أربع كلمات على الأقل</div>
         </div>
-      </div>
 
-      <div class="field">
-        <label for="confirmPassword">تأكيد كلمة المرور</label>
-        <div class="password-toggle-wrap">
-          <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
-          <button type="button" class="password-toggle" data-target="confirmPassword" aria-label="إظهار كلمة المرور"></button>
+        <div class="field" id="emailField">
+          <label for="email">البريد الإلكتروني</label>
+          <input type="email" id="email" autocomplete="username" placeholder="example@email.com" required>
         </div>
+
+        <div class="field">
+          <label for="password">كلمة المرور</label>
+          <div class="password-toggle-wrap">
+            <input type="password" id="password" autocomplete="new-password" placeholder="••••••••" required>
+            <button type="button" class="password-toggle" data-target="password" aria-label="إظهار كلمة المرور"></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">تأكيد كلمة المرور</label>
+          <div class="password-toggle-wrap">
+            <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
+            <button type="button" class="password-toggle" data-target="confirmPassword" aria-label="إظهار كلمة المرور"></button>
+          </div>
+        </div>
+
+        <ul class="rules-list" id="rulesList">
+          <li data-rule="length"><span class="tick"></span> 8 أحرف على الأقل</li>
+          <li data-rule="upper"><span class="tick"></span> حرف كبير (A-Z)</li>
+          <li data-rule="lower"><span class="tick"></span> حرف صغير (a-z)</li>
+          <li data-rule="number"><span class="tick"></span> رقم واحد على الأقل</li>
+          <li data-rule="symbol"><span class="tick"></span> رمز واحد على الأقل (!@#$...)</li>
+          <li data-rule="match"><span class="tick"></span> تطابق كلمتَي المرور</li>
+        </ul>
+
+        <button type="submit" class="btn btn-primary" id="registerBtn"><span>إنشاء الحساب</span></button>
+      </form>
+
+      <div class="auth-switch">
+        لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a>
       </div>
-
-      <ul class="rules-list" id="rulesList">
-        <li data-rule="length"><span class="tick"></span> 8 أحرف على الأقل</li>
-        <li data-rule="upper"><span class="tick"></span> حرف كبير (A-Z)</li>
-        <li data-rule="lower"><span class="tick"></span> حرف صغير (a-z)</li>
-        <li data-rule="number"><span class="tick"></span> رقم واحد على الأقل</li>
-        <li data-rule="symbol"><span class="tick"></span> رمز واحد على الأقل (!@#$...)</li>
-        <li data-rule="match"><span class="tick"></span> تطابق كلمتَي المرور</li>
-      </ul>
-
-      <button type="submit" class="btn btn-primary" id="registerBtn"><span>إنشاء الحساب</span></button>
-    </form>
-
-    <div class="auth-switch">
-      لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a>
     </div>
   </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>

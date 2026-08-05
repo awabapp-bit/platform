@@ -440,10 +440,10 @@ function renderAppHeader(user, userData, opts) {
   const name = (userData.name || 'مستخدم').trim();
 
   header.innerHTML =
-    '<div class="header-inner">' +
+    '<div class="header-inner" id="headerInnerNormal">' +
       '<div class="brand-block">' +
         '<img src="logo.png" alt="شعار المنصة" onerror="this.style.display=\'none\'">' +
-        '<div class="brand-text"><h2>منصة أواب الإلكترونية</h2></div>' +
+        '<div class="brand-text"><h2>أواب <span class="brand-en">| Awab</span></h2></div>' +
       '</div>' +
       '<div class="header-right">' +
         (showPoints ?
@@ -452,6 +452,7 @@ function renderAppHeader(user, userData, opts) {
             '<span id="pointsValue">' + (userData.points || 0) + '</span>' +
           '</div>' : ''
         ) +
+        '<button class="header-search-btn" id="headerSearchBtn" aria-label="بحث">' + icon('search', 'icon-md') + '</button>' +
         '<div class="notif-menu">' +
           '<button class="notif-btn" id="notifBtn" aria-label="الإشعارات">' + icon('bell', 'icon-md') + '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
           '<div class="notif-dropdown" id="notifDropdown">' +
@@ -472,6 +473,13 @@ function renderAppHeader(user, userData, opts) {
           '</div>' +
         '</div>' +
       '</div>' +
+    '</div>' +
+    '<div class="header-inner header-search-mode" id="headerInnerSearch" style="display:none;">' +
+      '<form id="headerSearchForm" class="header-search-form">' +
+        '<span class="header-search-icon">' + icon('search', 'icon-sm') + '</span>' +
+        '<input type="text" id="headerSearchInput" placeholder="ابحث عن كورس أو مسابقة..." autocomplete="off">' +
+        '<button type="button" class="header-search-close" id="headerSearchClose" aria-label="إغلاق البحث">' + icon('xmark') + '</button>' +
+      '</form>' +
     '</div>';
 
   const accountBtn = document.getElementById('accountBtn');
@@ -479,6 +487,51 @@ function renderAppHeader(user, userData, opts) {
   const notifBtn = document.getElementById('notifBtn');
   const notifDropdown = document.getElementById('notifDropdown');
   const notifCloseBtn = document.getElementById('notifCloseBtn');
+
+  /* ===== تحويل الهيدر بالكامل لشريط بحث ===== */
+  const headerSearchBtn = document.getElementById('headerSearchBtn');
+  const headerInnerNormal = document.getElementById('headerInnerNormal');
+  const headerInnerSearch = document.getElementById('headerInnerSearch');
+  const headerSearchForm = document.getElementById('headerSearchForm');
+  const headerSearchInput = document.getElementById('headerSearchInput');
+  const headerSearchClose = document.getElementById('headerSearchClose');
+
+  function openHeaderSearch() {
+    headerInnerNormal.style.display = 'none';
+    headerInnerSearch.style.display = 'flex';
+    headerSearchInput.value = '';
+    setTimeout(function () { headerSearchInput.focus(); }, 10);
+  }
+  function closeHeaderSearch() {
+    headerInnerSearch.style.display = 'none';
+    headerInnerNormal.style.display = 'flex';
+  }
+
+  if (headerSearchBtn) {
+    headerSearchBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openHeaderSearch();
+    });
+    headerSearchClose.addEventListener('click', function (e) {
+      e.stopPropagation();
+      closeHeaderSearch();
+    });
+    headerSearchForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const q = headerSearchInput.value.trim();
+      const pageSearchInput = document.getElementById('searchInput');
+      if (pageSearchInput) {
+        // بالفعل في الصفحة الرئيسية: فعّل البحث مباشرة على نفس المحتوى
+        pageSearchInput.value = q;
+        pageSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        closeHeaderSearch();
+        pageSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        // صفحة تانية: روح للرئيسية بالبحث كـ query param
+        window.location.href = 'home.html' + (q ? '?q=' + encodeURIComponent(q) : '');
+      }
+    });
+  }
 
   document.body.appendChild(notifDropdown);
 
@@ -525,6 +578,9 @@ function renderAppHeader(user, userData, opts) {
   document.addEventListener('click', function (e) {
     if (!dropdown.contains(e.target) && e.target !== accountBtn) dropdown.classList.remove('open');
     if (!notifDropdown.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)) closeNotifDropdown();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && headerInnerSearch && headerInnerSearch.style.display !== 'none') closeHeaderSearch();
   });
   document.getElementById('logoutBtn').addEventListener('click', function () {
     auth.signOut().then(function () { window.location.href = 'index.html'; });
