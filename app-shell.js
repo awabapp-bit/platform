@@ -393,6 +393,44 @@ window.computeCourseProgress = computeCourseProgress;
 
 /* ================= دوال المصادقة والهيدر ================= */
 
+/* اسم مكتوب بحروف إنجليزية؟ */
+function hasEnglishName(name) {
+  return !!name && /[A-Za-z]/.test(name);
+}
+window.hasEnglishName = hasEnglishName;
+
+/* رسالة إجبارية تطلب من المستخدم اللي اسمه بالإنجليزي تغييره للعربية - إجبارية ومفيش تجاهل
+   (بتظهر في كل صفحات المنصة ما عدا صفحة الحساب نفسها، لأنه هناك بيتفتحله نموذج التعديل مباشرة) */
+function showArabicNameNotice() {
+  if (document.getElementById('arabicNameModal')) return;
+
+  document.body.style.overflow = 'hidden';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'arabicNameModal';
+  overlay.style.zIndex = '99999';
+  overlay.innerHTML =
+    '<div class="modal" style="max-width:420px; text-align:center;">' +
+      '<div style="width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--gold-pale); color:var(--gold); display:flex; align-items:center; justify-content:center;">' + icon('pen', 'icon-md') + '</div>' +
+      '<h3>من فضلك، غيّر اسمك إلى العربية</h3>' +
+      '<p style="color:var(--text-muted); line-height:1.8; font-size:14.5px; margin:0 0 20px;">' +
+        'لاحظنا أن اسمك المسجَّل مكتوب بحروف إنجليزية. اسم المنصة إجباري أن يكون باللغة العربية، ولازم تعدّله الآن قبل ما تقدر تكمل استخدام المنصة.' +
+      '</p>' +
+      '<div class="modal-actions" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">' +
+        '<a href="account.html" class="btn btn-primary" style="width:auto; padding:11px 28px;">تعديل الاسم الآن</a>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  /* منع الإغلاق بالضغط خارج النافذة أو بمفتاح Esc */
+  overlay.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('keydown', function blockEsc(e) {
+    if (document.getElementById('arabicNameModal') && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+}
+window.showArabicNameNotice = showArabicNameNotice;
+
 function requireAuth(onReady) {
   auth.onAuthStateChanged(function (user) {
     if (!user) {
@@ -412,6 +450,9 @@ function requireAuth(onReady) {
           }
           watchSessionKick(user);
           onReady(user, data);
+          if (hasEnglishName(data.name) && location.pathname.split('/').pop() !== 'account.html') {
+            setTimeout(showArabicNameNotice, 400);
+          }
           return;
         }
         const fallback = {

@@ -36,3 +36,16 @@ function isQuadName(name) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   return parts.length >= 4 && parts.every(function (p) { return p.length >= 2; });
 }
+
+/* التحقق من أن الاسم مكتوب بالعربية فقط (بدون أي حروف إنجليزية أو أرقام) */
+function isArabicName(name) {
+  if (!name) return false;
+  const hasLatin = /[A-Za-z]/.test(name);
+  const hasArabicLetters = /[\u0621-\u064A]/.test(name);
+  return hasArabicLetters && !hasLatin;
+}
+
+/* يمنع كتابة حروف إنجليزية أو أرقام لاتينية داخل حقل الاسم أثناء الكتابة */
+function stripNonArabicChars(value) {
+  return value.replace(/[A-Za-z0-9]/g, '');
+}

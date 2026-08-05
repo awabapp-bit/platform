@@ -564,8 +564,9 @@
       </h3>
       <div class="form-msg" id="editProfileMsg"></div>
       <div class="field">
-        <label><i class="fas fa-user"></i> الاسم الجديد</label>
-        <input type="text" id="editNameInput" placeholder="أدخل اسمك الكامل">
+        <label><i class="fas fa-user"></i> الاسم الجديد (باللغة العربية)</label>
+        <input type="text" id="editNameInput" placeholder="أدخل اسمك الكامل بالعربي" dir="rtl">
+        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">الاسم يجب أن يكتب باللغة العربية فقط</div>
       </div>
       <div class="field">
         <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
@@ -728,7 +729,25 @@
     setupTabs();
     setupEditProfile();
     setupDeleteAccountModal();
+
+    /* لو اسم المستخدم مكتوب بالإنجليزية، افتح نموذج تعديل الاسم إجباريًا ومتخليهوش يقفله غير بعد التغيير */
+    if (window.hasEnglishName && hasEnglishName(userData.name)) {
+      forceArabicNameEdit();
+    }
   });
+
+  /* يفتح نموذج تعديل الملف الشخصي إجباريًا ويمنع إغلاقه لحد ما الاسم يتغير للعربي */
+  function forceArabicNameEdit() {
+    const editBtn = document.getElementById('editProfileBtn');
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    const msg = document.getElementById('editProfileMsg');
+    if (editBtn) editBtn.click();
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (msg) {
+      msg.textContent = 'اسمك مسجّل بحروف إنجليزية، اسم المنصة إجباري أن يكون باللغة العربية. من فضلك اكتب اسمك بالعربي واحفظ التغيير للمتابعة.';
+      msg.className = 'form-msg show error';
+    }
+  }
 
   // ===== تبويب المعلومات =====
   function renderInfoTab() {
@@ -966,6 +985,16 @@
       msg.classList.remove('show');
     });
 
+    /* يمنع كتابة حروف إنجليزية أو أرقام لاتينية أثناء الكتابة في حقل الاسم */
+    nameInput.addEventListener('input', function () {
+      const cleaned = nameInput.value.replace(/[A-Za-z0-9]/g, '');
+      if (cleaned !== nameInput.value) {
+        const caret = nameInput.selectionStart - (nameInput.value.length - cleaned.length);
+        nameInput.value = cleaned;
+        nameInput.setSelectionRange(caret, caret);
+      }
+    });
+
     document.getElementById('saveProfileBtn').addEventListener('click', function () {
       msg.classList.remove('show');
       const newName = nameInput.value.trim();
@@ -974,6 +1003,15 @@
       if (!newName) {
         msg.textContent = 'الاسم مطلوب';
         msg.className = 'form-msg show error';
+        return;
+      }
+
+      const hasLatin = /[A-Za-z]/.test(newName);
+      const hasArabic = /[\u0621-\u064A]/.test(newName);
+      if (hasLatin || !hasArabic) {
+        msg.textContent = 'الاسم يجب أن يكتب باللغة العربية فقط (بدون حروف إنجليزية)';
+        msg.className = 'form-msg show error';
+        nameInput.focus();
         return;
       }
 

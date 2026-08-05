@@ -89,10 +89,17 @@
 
   <div class="content-head">
     <h2 class="section-title">كل المحتوى التعليمي</h2>
-    <div class="filter-tabs" id="filterTabs">
-      <button class="filter-tab active" data-filter="all">الكل</button>
-      <button class="filter-tab" data-filter="course">كورسات</button>
-      <button class="filter-tab" data-filter="competition">مسابقات</button>
+    <div class="content-head-tools">
+      <div class="content-search-wrap">
+        <span class="content-search-icon" id="contentSearchIcon"></span>
+        <input type="text" id="searchInput" class="content-search-input" placeholder="ابحث عن كورس أو مسابقة..." autocomplete="off">
+        <button type="button" class="content-search-clear" id="searchClearBtn" aria-label="مسح البحث" style="display:none;"></button>
+      </div>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all">الكل</button>
+        <button class="filter-tab" data-filter="course">كورسات</button>
+        <button class="filter-tab" data-filter="competition">مسابقات</button>
+      </div>
     </div>
   </div>
 
@@ -122,6 +129,7 @@
   (function() {
     const content = document.getElementById('content');
     let currentFilter = 'all';
+    let searchQuery = '';
     let cachedFiltered = {};
     let cachedEnrolls = {};
     let cachedProgress = {};
@@ -129,6 +137,8 @@
     document.getElementById('iconCompleted').innerHTML = icon('circleCheck', 'icon-md');
     document.getElementById('iconCurrent').innerHTML = icon('fire', 'icon-md');
     document.getElementById('iconVideos').innerHTML = icon('video', 'icon-md');
+    document.getElementById('contentSearchIcon').innerHTML = icon('search', 'icon-sm');
+    document.getElementById('searchClearBtn').innerHTML = icon('xmark', 'icon-sm');
 
     /* ===== لوحة الإحصائيات: كورسات مكتملة/حالية، فيديوهات، نسبة التقدم، النشاط الأسبوعي ===== */
     function renderDashboardStats(filtered, enrolls, progress) {
@@ -277,11 +287,16 @@
 
     function renderCompetitions(competitionsData, enrollments, progressByComp) {
       const allIds = Object.keys(competitionsData);
+      const q = searchQuery.trim().toLowerCase();
       const ids = allIds.filter(function (id) {
         const c = competitionsData[id];
         if (currentFilter !== 'all') {
           const isCourse = c.type !== 'competition';
           if (currentFilter === 'course' ? !isCourse : isCourse) return false;
+        }
+        if (q) {
+          const haystack = ((c.title || '') + ' ' + (c.description || '')).toLowerCase();
+          if (haystack.indexOf(q) === -1) return false;
         }
         return true;
       });
@@ -293,9 +308,15 @@
         return;
       }
       if (ids.length === 0) {
-        content.innerHTML =
-          '<div class="empty-state"><div class="empty-state-icon">' + icon('circleInfo', 'icon-xl') + '</div>' +
-          '<p>لا يوجد محتوى من هذا النوع حاليًا</p></div>';
+        content.innerHTML = q
+          ? '<div class="empty-state"><div class="empty-state-icon">' + icon('search', 'icon-xl') + '</div>' +
+              '<p>لا يوجد نتائج بحث تطابق "' + escapeHtml(searchQuery.trim()) + '"</p>' +
+              '<button type="button" class="btn btn-outline btn-sm" id="clearSearchFromEmpty" style="width:auto; margin-top:10px;">مسح البحث</button>' +
+            '</div>'
+          : '<div class="empty-state"><div class="empty-state-icon">' + icon('circleInfo', 'icon-xl') + '</div>' +
+              '<p>لا يوجد محتوى من هذا النوع حاليًا</p></div>';
+        const clearBtn = document.getElementById('clearSearchFromEmpty');
+        if (clearBtn) clearBtn.addEventListener('click', function () { resetSearch(); });
         return;
       }
 
@@ -350,6 +371,40 @@
       setActiveFilter(btn.dataset.filter);
     });
 
+    /* ===== البحث داخل الصفحة الرئيسية ===== */
+    const searchInputEl = document.getElementById('searchInput');
+    const searchClearBtn = document.getElementById('searchClearBtn');
+
+    function updateClearBtn() {
+      searchClearBtn.style.display = searchInputEl.value ? 'flex' : 'none';
+    }
+
+    function resetSearch() {
+      searchQuery = '';
+      searchInputEl.value = '';
+      updateClearBtn();
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    }
+
+    searchInputEl.addEventListener('input', function () {
+      searchQuery = searchInputEl.value;
+      updateClearBtn();
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    });
+
+    searchClearBtn.addEventListener('click', function () {
+      resetSearch();
+      searchInputEl.focus();
+    });
+
+    /* لو جاي من صفحة تانية ببحث (?q=...) هات القيمة واعرضها فورًا */
+    const initialQuery = new URLSearchParams(location.search).get('q');
+    if (initialQuery) {
+      searchQuery = initialQuery;
+      searchInputEl.value = initialQuery;
+      updateClearBtn();
+    }
+
     function truncateText(text, max) {
       if (!text || text.length <= max) return text;
       return text.slice(0, max).trim() + '…';
@@ -385,6 +440,11 @@
           renderHero(userData);
           renderAyah();
 
+          // لو الاسم مسجّل بالإنجليزية، اعرض رسالة إجبارية لتغييره للعربية
+          if (window.hasEnglishName && hasEnglishName(userData.name)) {
+            setTimeout(showArabicNameNotice, 400);
+          }
+
           // 2. تحميل المحتوى
           return Promise.all([
             db.ref('competitions').once('value'),
@@ -417,6 +477,12 @@
 
           renderCompetitions(filtered, enrolls, progress);
           renderDashboardStats(filtered, enrolls, progress);
+
+          if (initialQuery) {
+            setTimeout(function () {
+              searchInputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 200);
+          }
         })
         .catch(function(err) {
           console.error('خطأ في تحميل المحتوى:', err);

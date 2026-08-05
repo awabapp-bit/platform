@@ -57,9 +57,9 @@
 
       <form id="registerForm" novalidate>
         <div class="field" id="nameField">
-          <label for="fullName">الاسم رباعي</label>
-          <input type="text" id="fullName" placeholder="الاسم الأول والثاني والثالث والرابع" required>
-          <div class="field-hint">أدخل الاسم كاملًا من أربع كلمات على الأقل</div>
+          <label for="fullName">الاسم رباعي (باللغة العربية)</label>
+          <input type="text" id="fullName" placeholder="الاسم الأول والثاني والثالث والرابع بالعربي" dir="rtl" required>
+          <div class="field-hint">أدخل الاسم كاملًا من أربع كلمات على الأقل، باللغة العربية فقط</div>
         </div>
 
         <div class="field" id="emailField">
@@ -139,7 +139,15 @@
   passwordInput.addEventListener('input', updateRules);
   confirmInput.addEventListener('input', updateRules);
 
-  fullNameInput.addEventListener('input', function () { nameField.classList.remove('has-error'); });
+  fullNameInput.addEventListener('input', function () {
+    nameField.classList.remove('has-error');
+    const cleaned = stripNonArabicChars(fullNameInput.value);
+    if (cleaned !== fullNameInput.value) {
+      const caret = fullNameInput.selectionStart - (fullNameInput.value.length - cleaned.length);
+      fullNameInput.value = cleaned;
+      fullNameInput.setSelectionRange(caret, caret);
+    }
+  });
 
   const emailField = document.getElementById('emailField');
   document.getElementById('email').addEventListener('input', function () { emailField.classList.remove('has-error'); });
@@ -180,6 +188,12 @@
     const password = passwordInput.value;
     const rules = updateRules();
 
+    if (!isArabicName(fullName)) {
+      nameField.classList.add('has-error');
+      showMsg('الاسم يجب أن يكتب باللغة العربية فقط (بدون حروف إنجليزية)', 'error');
+      fullNameInput.focus();
+      return;
+    }
     if (!isQuadName(fullName)) {
       nameField.classList.add('has-error');
       showMsg('الاسم يجب أن يكون رباعيًا (أربع كلمات على الأقل)', 'error');

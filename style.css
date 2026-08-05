@@ -398,6 +398,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   color: #fff;
   line-height: 1.2;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .brand-block .brand-text h2 .brand-en {
   font-weight: 500;
@@ -405,6 +406,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   color: var(--gold-light);
   margin-inline-start: 2px;
 }
+.header-inner { min-width: 0; }
+.brand-block { min-width: 0; flex-shrink: 0; }
 
 .header-right {
   display: flex;
@@ -1038,6 +1041,61 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   flex-wrap: wrap;
   margin-bottom: 16px;
 }
+
+.content-head-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.content-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.content-search-icon {
+  position: absolute;
+  inset-inline-start: 14px;
+  display: flex;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.content-search-icon .icon { width: 15px; height: 15px; }
+.content-search-input {
+  width: 240px;
+  max-width: 100%;
+  padding: 10px 40px 10px 36px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13.5px;
+  transition: border-color .15s ease, box-shadow .15s ease, width .2s ease;
+}
+.content-search-input::placeholder { color: var(--text-muted); }
+.content-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+  width: 280px;
+}
+.content-search-clear {
+  position: absolute;
+  inset-inline-end: 10px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.content-search-clear:hover { background: var(--border); color: var(--text); }
+.content-search-clear .icon { width: 10px; height: 10px; }
 
 .filter-tabs {
   display: flex;
@@ -2822,8 +2880,8 @@ body.support-body .app-header { flex-shrink: 0; }
   .header-inner { padding: 11px 14px; gap: 10px; }
   .brand-block { gap: 8px; }
   .brand-block img { width: 34px; height: 34px; }
-  .brand-block .brand-text h2 { font-size: 14px; }
-  .brand-block .brand-text h2 .brand-en { display: none; }
+  .brand-block .brand-text h2 { font-size: 13px; }
+  .brand-block .brand-text h2 .brand-en { font-size: 10.5px; }
   .header-right { gap: 6px; }
   .points-badge { padding: 6px 10px; font-size: 12px; gap: 4px; }
   .header-search-btn { width: 34px; height: 34px; }
@@ -2856,6 +2914,10 @@ body.support-body .app-header { flex-shrink: 0; }
   /* رأس المحتوى والفلاتر */
   .content-head { margin-bottom: 12px; gap: 10px; }
   .section-title { font-size: 17px; }
+  .content-head-tools { width: 100%; flex-direction: column; align-items: stretch; }
+  .content-search-wrap { width: 100%; }
+  .content-search-input { width: 100%; }
+  .content-search-input:focus { width: 100%; }
   .filter-tabs { width: 100%; justify-content: space-between; }
   .filter-tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 12.5px; }
 
@@ -2875,4 +2937,15 @@ body.support-body .app-header { flex-shrink: 0; }
   .home-hero .hero-greet-text h1 { font-size: 18.5px; }
   .points-badge { padding: 6px 9px; font-size: 11.5px; }
   .filter-tab { padding: 7px 6px; font-size: 12px; }
+
+  /* الهيدر: خلي اسم المنصة كامل ظاهر حتى على أضيق الشاشات */
+  .header-inner { padding: 10px 10px; gap: 6px; }
+  .brand-block { gap: 6px; }
+  .brand-block img { width: 30px; height: 30px; }
+  .brand-block .brand-text h2 { font-size: 11.5px; }
+  .brand-block .brand-text h2 .brand-en { font-size: 9.5px; margin-inline-start: 1px; }
+  .header-right { gap: 4px; }
+  .points-badge { padding: 5px 8px; font-size: 11px; }
+  .header-search-btn { width: 32px; height: 32px; }
+  .avatar { width: 34px; height: 34px; }
 }
