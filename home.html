@@ -87,21 +87,16 @@
     </div>
   </section>
 
-  <div class="content-head">
+  <div class="content-head" id="coursesSection">
     <h2 class="section-title">كل المحتوى التعليمي</h2>
-    <div class="content-head-tools">
-      <div class="content-search-wrap">
-        <span class="content-search-icon" id="contentSearchIcon"></span>
-        <input type="text" id="searchInput" class="content-search-input" placeholder="ابحث عن كورس أو مسابقة..." autocomplete="off">
-        <button type="button" class="content-search-clear" id="searchClearBtn" aria-label="مسح البحث" style="display:none;"></button>
-      </div>
-      <div class="filter-tabs" id="filterTabs">
-        <button class="filter-tab active" data-filter="all">الكل</button>
-        <button class="filter-tab" data-filter="course">كورسات</button>
-        <button class="filter-tab" data-filter="competition">مسابقات</button>
-      </div>
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" data-filter="all">الكل</button>
+      <button class="filter-tab" data-filter="course">كورسات</button>
+      <button class="filter-tab" data-filter="competition">مسابقات</button>
     </div>
   </div>
+  <!-- شريط البحث المعتمد هو اللي في الهيدر فقط؛ الحقل ده مخفي وبيُستخدم داخليًا لتوصيل كلمة البحث لمنطق الفلترة هنا -->
+  <input type="hidden" id="searchInput">
 
   <div id="content">
     <div class="skeleton-grid">
@@ -137,8 +132,6 @@
     document.getElementById('iconCompleted').innerHTML = icon('circleCheck', 'icon-md');
     document.getElementById('iconCurrent').innerHTML = icon('fire', 'icon-md');
     document.getElementById('iconVideos').innerHTML = icon('video', 'icon-md');
-    document.getElementById('contentSearchIcon').innerHTML = icon('search', 'icon-sm');
-    document.getElementById('searchClearBtn').innerHTML = icon('xmark', 'icon-sm');
 
     /* ===== لوحة الإحصائيات: كورسات مكتملة/حالية، فيديوهات، نسبة التقدم، النشاط الأسبوعي ===== */
     function renderDashboardStats(filtered, enrolls, progress) {
@@ -371,30 +364,19 @@
       setActiveFilter(btn.dataset.filter);
     });
 
-    /* ===== البحث داخل الصفحة الرئيسية ===== */
+    /* ===== البحث: شريط الهيدر هو المعتمد فقط، وهنا بس منطق الفلترة ===== */
     const searchInputEl = document.getElementById('searchInput');
-    const searchClearBtn = document.getElementById('searchClearBtn');
-
-    function updateClearBtn() {
-      searchClearBtn.style.display = searchInputEl.value ? 'flex' : 'none';
-    }
+    const coursesSection = document.getElementById('coursesSection');
 
     function resetSearch() {
       searchQuery = '';
       searchInputEl.value = '';
-      updateClearBtn();
       renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
     }
 
     searchInputEl.addEventListener('input', function () {
       searchQuery = searchInputEl.value;
-      updateClearBtn();
       renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
-    });
-
-    searchClearBtn.addEventListener('click', function () {
-      resetSearch();
-      searchInputEl.focus();
     });
 
     /* لو جاي من صفحة تانية ببحث (?q=...) هات القيمة واعرضها فورًا */
@@ -402,7 +384,6 @@
     if (initialQuery) {
       searchQuery = initialQuery;
       searchInputEl.value = initialQuery;
-      updateClearBtn();
     }
 
     function truncateText(text, max) {
@@ -480,7 +461,7 @@
 
           if (initialQuery) {
             setTimeout(function () {
-              searchInputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              coursesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 200);
           }
         })

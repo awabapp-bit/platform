@@ -616,11 +616,14 @@ function renderAppHeader(user, userData, opts) {
       const q = headerSearchInput.value.trim();
       const pageSearchInput = document.getElementById('searchInput');
       if (pageSearchInput) {
-        // بالفعل في الصفحة الرئيسية: فعّل البحث مباشرة على نفس المحتوى
+        // بالفعل في الصفحة الرئيسية: فعّل البحث مباشرة على نفس المحتوى وانزل لحد قسم الكورسات
         pageSearchInput.value = q;
         pageSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
         closeHeaderSearch();
-        pageSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const scrollTarget = document.getElementById('coursesSection') || pageSearchInput;
+        setTimeout(function () {
+          scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
       } else {
         // صفحة تانية: روح للرئيسية بالبحث كـ query param
         window.location.href = 'home.html' + (q ? '?q=' + encodeURIComponent(q) : '');
