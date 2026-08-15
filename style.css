@@ -1672,16 +1672,48 @@ a.lesson-row.locked { cursor: not-allowed; }
 .site-footer .footer-links a:hover { background: rgba(255,255,255,0.18); }
 
 @media (max-width: 680px) {
+  .footer-top-block { flex-direction: column; text-align: center; margin-bottom: 26px; }
+  .footer-brand-text { text-align: center; }
+
   .site-footer .footer-inner.footer-cols {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 36px;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    gap: 24px;
   }
-  .footer-col { min-width: 0; }
-  .footer-list { align-items: center; }
-  .footer-top-block { margin-bottom: 26px; }
+  .footer-col { width: 100%; min-width: 0; }
+  .footer-col-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: rgba(255,255,255,.5);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .footer-col-pages .footer-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 22px;
+  }
+  .footer-col-pages .footer-list a { font-size: 13.5px; }
+
+  .footer-col-social .footer-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  .footer-col-social .footer-social-link { flex-direction: column; }
+  .footer-col-social .footer-link-text { display: none; }
+  .footer-col-social .footer-icon-btn.sm { width: 36px; height: 36px; }
+  .footer-col-social .footer-icon-btn.sm .icon { width: 15px; height: 15px; }
+
+  .footer-col-pages { order: 1; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .footer-col-social { order: 2; }
+
+  .footer-bottom { margin-top: 26px; padding-top: 16px; }
 }
 
 @media (max-width: 400px) {

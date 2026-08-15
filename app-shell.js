@@ -771,8 +771,9 @@ function renderFooter() {
   if (!footer) return;
 
   const socialLink = function (cls, iconName, title, href) {
-    return '<a href="' + href + '" target="_blank" rel="noopener">' +
-      '<span class="footer-icon-btn sm ' + cls + '">' + icon(iconName) + '</span>' + title +
+    return '<a href="' + href + '" target="_blank" rel="noopener" class="footer-social-link">' +
+      '<span class="footer-icon-btn sm ' + cls + '">' + icon(iconName) + '</span>' +
+      '<span class="footer-link-text">' + title + '</span>' +
     '</a>';
   };
   const pageLink = function (title, href) {
@@ -788,7 +789,7 @@ function renderFooter() {
       '</div>' +
     '</div>' +
     '<div class="footer-inner footer-cols">' +
-      '<div class="footer-col">' +
+      '<div class="footer-col footer-col-pages">' +
         '<h4 class="footer-col-title">الصفحات</h4>' +
         '<div class="footer-list">' +
           pageLink('الرئيسية', 'home.html') +
@@ -796,7 +797,7 @@ function renderFooter() {
           pageLink('الدعم الفني', 'support.html') +
         '</div>' +
       '</div>' +
-      '<div class="footer-col">' +
+      '<div class="footer-col footer-col-social">' +
         '<h4 class="footer-col-title">السوشيال ميديا</h4>' +
         '<div class="footer-list">' +
           socialLink('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
