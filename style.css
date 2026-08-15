@@ -1150,6 +1150,21 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   max-width: 420px;
 }
 
+.identity-illustration {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+
+.identity-illustration svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+}
+
 .identity-mid h1 {
   font-family: 'Cairo', sans-serif;
   font-weight: 800;
@@ -1223,6 +1238,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .identity-panel { padding: 34px 26px 42px; min-height: 220px; }
   .identity-mid h1 { font-size: 26px; }
   .identity-bottom { display: none; }
+  .identity-illustration { display: none; }
 }
 
 
@@ -1586,9 +1602,28 @@ a.lesson-row.locked { cursor: not-allowed; }
   text-align: center;
 }
 .site-footer .footer-inner { max-width: 900px; margin: 0 auto; }
+.footer-top-block {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-bottom: 30px; text-align: right;
+}
+.footer-top-block img.logo-solo { height: 66px; }
+.footer-top-block img.logo-solo + .footer-brand-text { display: none; }
+.footer-brand-text h4 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  color: #fff;
+  margin: 0;
+}
+.footer-brand-text h4 .brand-en {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--gold-light);
+  margin-inline-start: 2px;
+}
 .site-footer .footer-inner.footer-cols {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  flex-wrap: wrap; gap: 32px; text-align: right;
+  display: flex; justify-content: center; align-items: flex-start;
+  flex-wrap: wrap; gap: 60px; text-align: right;
 }
 .footer-col { min-width: 140px; }
 .footer-col-title { color: #fff; font-size: 14px; font-weight: 800; margin: 0 0 14px; }
@@ -1599,13 +1634,17 @@ a.lesson-row.locked { cursor: not-allowed; }
   transition: color .15s ease;
 }
 .footer-list a:hover { color: #fff; }
-.footer-col-brand { text-align: right; }
-.footer-logo-img { height: 50px; width: auto; margin-bottom: 10px; }
+.footer-logo-img { height: 50px; width: auto; }
 .site-footer .footer-tagline {
   font-family: 'Amiri', serif;
   color: var(--gold-light);
-  font-size: 14px;
-  margin: 0 0 4px;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.footer-bottom {
+  margin-top: 34px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.12);
 }
 .site-footer .footer-copyright {
   color: rgba(255,255,255,.55);
@@ -1633,9 +1672,22 @@ a.lesson-row.locked { cursor: not-allowed; }
 .site-footer .footer-links a:hover { background: rgba(255,255,255,0.18); }
 
 @media (max-width: 680px) {
-  .site-footer .footer-inner.footer-cols { flex-direction: column; align-items: center; text-align: center; gap: 28px; }
-  .footer-col-brand { text-align: center; order: -1; }
+  .site-footer .footer-inner.footer-cols {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 36px;
+    text-align: center;
+  }
+  .footer-col { min-width: 0; }
   .footer-list { align-items: center; }
+  .footer-top-block { margin-bottom: 26px; }
+}
+
+@media (max-width: 400px) {
+  .site-footer .footer-inner.footer-cols { gap: 22px; }
+  .footer-col-title { font-size: 13px; }
+  .footer-list a { font-size: 12px; }
 }
 
 /* ================= بطاقة الكورس (محسّنة: صورة + اسم تحتها) ================= */
@@ -2779,32 +2831,15 @@ body.support-body .app-header { flex-shrink: 0; }
 .stat-icon.videos { background: rgba(15,32,56,0.08); color: var(--primary); }
 
 .dash-row2 {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 16px;
-}
-@media (max-width: 720px) { .dash-row2 { grid-template-columns: 1fr; } }
-
-.progress-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 26px 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  box-shadow: var(--shadow);
+  gap: 16px;
 }
-.progress-ring-wrap { position: relative; width: 130px; height: 130px; margin-bottom: 14px; }
-.progress-ring-value {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 22px;
-  color: var(--primary-dark);
+@media (min-width: 721px) {
+  .dash-row2 { flex-direction: row; align-items: stretch; }
+  .dash-row2 .activity-card { flex: 1 1 60%; min-width: 0; }
+  .dash-row2 .progress-card { flex: 0 0 300px; }
 }
-.progress-card h4 { margin: 0 0 6px; color: var(--gold-dark); font-weight: 800; font-size: 14.5px; }
-.progress-card p { margin: 0 0 18px; font-size: 12px; color: var(--text-muted); line-height: 1.8; }
 
 .activity-card {
   background: var(--card-bg);
@@ -2840,6 +2875,43 @@ body.support-body .app-header { flex-shrink: 0; }
 @media (max-width: 480px) {
   .activity-days span:nth-child(odd) { display: none; }
 }
+
+.progress-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 32px 20px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.progress-pill-wrap { margin-bottom: 18px; }
+.progress-pill {
+  position: relative;
+  width: 74px;
+  height: 140px;
+  border-radius: 999px;
+  background: var(--primary-tint);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.progress-pill-value {
+  position: absolute;
+  top: 16px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 17px;
+  color: var(--primary-dark);
+  z-index: 2;
+}
+.progress-pill-fill {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 0%;
+  background: var(--gradient-gold);
+  border-radius: 999px;
+}
+.progress-card h4 { margin: 0 0 6px; color: var(--gold-dark); font-weight: 800; font-size: 14.5px; }
+.progress-card p { margin: 0 0 20px; font-size: 12px; color: var(--text-muted); line-height: 1.8; max-width: 300px; }
 
 
 /* ============================================================
@@ -2934,8 +3006,9 @@ body.support-body .app-header { flex-shrink: 0; }
   .stat-icon { width: 38px; height: 38px; border-radius: 11px; }
 
   .dash-row2 { gap: 12px; }
-  .progress-card { padding: 20px 16px; }
-  .progress-ring-wrap { width: 108px; height: 108px; }
+  .progress-card { padding: 24px 16px 20px; }
+  .progress-pill { width: 62px; height: 116px; }
+  .progress-pill-value { font-size: 15px; top: 12px; }
   .activity-card { padding: 16px 14px 14px; }
 
   /* رأس المحتوى والفلاتر */

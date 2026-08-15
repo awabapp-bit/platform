@@ -53,25 +53,6 @@
     </div>
 
     <div class="dash-row2">
-      <div class="progress-card">
-        <div class="progress-ring-wrap">
-          <svg viewBox="0 0 120 120" width="130" height="130">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="10"></circle>
-            <circle id="progressRingFill" cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"></circle>
-            <defs>
-              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="var(--gold-light)"></stop>
-                <stop offset="100%" stop-color="var(--gold)"></stop>
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="progress-ring-value" id="progressRingValue">0%</div>
-        </div>
-        <h4>تقدّمك</h4>
-        <p>مقياس لكمية الدروس السابقة والمتبقية في كورساتك الحالية.</p>
-        <button type="button" class="btn btn-primary btn-sm" id="startStudyBtn">ابدأ مذاكرة</button>
-      </div>
-
       <div class="activity-card">
         <div class="activity-head">
           <h4>نشاطي التعليمي</h4>
@@ -83,6 +64,18 @@
         <svg class="activity-chart-svg" id="activityChartSvg" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
         <div class="activity-days" id="activityDays"></div>
         <div class="activity-foot">ابدأ أول كورس عشان نقدر نعرض بيانات نشاطك التعليمي بشكل دقيق</div>
+      </div>
+
+      <div class="progress-card">
+        <div class="progress-pill-wrap">
+          <div class="progress-pill">
+            <span class="progress-pill-value" id="progressRingValue">0%</span>
+            <div class="progress-pill-fill" id="progressPillFill"></div>
+          </div>
+        </div>
+        <h4>تقدّمك</h4>
+        <p>مقياس لكمية الدروس السابقة والمتبقية في كورساتك الحالية.</p>
+        <button type="button" class="btn btn-primary btn-sm" id="startStudyBtn">ابدأ مذاكرة</button>
       </div>
     </div>
   </section>
@@ -176,12 +169,10 @@
       document.getElementById('statCurrent').textContent = currentCount;
       document.getElementById('statVideos').textContent = videosWatched;
 
-      // ===== حلقة التقدم الدائرية =====
-      const ring = document.getElementById('progressRingFill');
-      const circumference = 2 * Math.PI * 52; // r=52
-      const offset = circumference - (overallPct / 100) * circumference;
-      ring.style.transition = 'stroke-dashoffset .6s ease';
-      requestAnimationFrame(function () { ring.setAttribute('stroke-dashoffset', offset); });
+      // ===== نسبة التقدم (شكل كبسولة) =====
+      const pillFill = document.getElementById('progressPillFill');
+      pillFill.style.transition = 'height .6s ease';
+      requestAnimationFrame(function () { pillFill.style.height = overallPct + '%'; });
       document.getElementById('progressRingValue').textContent = overallPct + '%';
 
       // ===== رسم بياني للنشاط الأسبوعي (بناءً على مواعيد حل الاختبارات الفعلية) =====

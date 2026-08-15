@@ -780,7 +780,22 @@ function renderFooter() {
   };
 
   footer.innerHTML =
+    '<div class="footer-inner footer-top-block">' +
+      '<img class="footer-logo-img" src="logo.png" alt="شعار منصة أواب" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
+      '<div class="footer-brand-text">' +
+        '<h4>أواب <span class="brand-en">| Awab</span></h4>' +
+        '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
+      '</div>' +
+    '</div>' +
     '<div class="footer-inner footer-cols">' +
+      '<div class="footer-col">' +
+        '<h4 class="footer-col-title">الصفحات</h4>' +
+        '<div class="footer-list">' +
+          pageLink('الرئيسية', 'home.html') +
+          pageLink('حسابي', 'account.html') +
+          pageLink('الدعم الفني', 'support.html') +
+        '</div>' +
+      '</div>' +
       '<div class="footer-col">' +
         '<h4 class="footer-col-title">السوشيال ميديا</h4>' +
         '<div class="footer-list">' +
@@ -793,19 +808,9 @@ function renderFooter() {
           socialLink('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
         '</div>' +
       '</div>' +
-      '<div class="footer-col">' +
-        '<h4 class="footer-col-title">الصفحات</h4>' +
-        '<div class="footer-list">' +
-          pageLink('الرئيسية', 'home.html') +
-          pageLink('حسابي', 'account.html') +
-          pageLink('الدعم الفني', 'support.html') +
-        '</div>' +
-      '</div>' +
-      '<div class="footer-col footer-col-brand">' +
-        '<img class="footer-logo-img" src="logo.png" alt="شعار منصة أواب" onerror="this.style.display=\'none\'">' +
-        '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
-        '<p class="footer-copyright">جميع الحقوق محفوظة لأواب © 2026</p>' +
-      '</div>' +
+    '</div>' +
+    '<div class="footer-bottom">' +
+      '<p class="footer-copyright">جميع الحقوق محفوظة لأواب © 2026</p>' +
     '</div>';
 
   renderSupportFab();
