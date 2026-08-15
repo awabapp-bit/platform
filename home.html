@@ -328,23 +328,31 @@
 
         html +=
           '<a class="comp-card ' + (isEnrolled ? 'is-enrolled' : '') + '" href="competition.html?id=' + encodeURIComponent(id) + '">' +
-            '<div class="cover">' +
-              (isNew ? '<span class="badge-new">جديد</span>' : '') +
-              '<span class="content-type-badge ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
-              (isEnrolled ? '<span class="enrolled-ribbon">' + icon('check', 'icon-sm') + ' أنت مشترك بالفعل</span>' : '') +
-              (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
+            '<div class="cc-media">' +
+              '<div class="cc-cover">' +
+                (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
+              '</div>' +
+              '<span class="cc-ribbon ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
+              (isNew ? '<span class="cc-new-badge">' + icon('star', 'icon-sm') + ' جديد</span>' : '') +
             '</div>' +
-            '<div class="body">' +
+            '<div class="cc-body">' +
+              '<span class="cc-pill ' + (isEnrolled ? 'is-enrolled' : '') + '">' +
+                (isEnrolled ? icon('circleCheck', 'icon-sm') + ' أنت مشترك بالفعل' : icon('gem', 'icon-sm') + ' ' + (isCourse ? 'كورس مجاني' : 'مسابقة مجانية')) +
+              '</span>' +
               '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
-              (c.description ? '<p>' + escapeHtml(truncateText(c.description, 90)) + '</p>' : '') +
-              '<div class="meta">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</div>' +
+              (c.description ? '<p>' + escapeHtml(truncateText(c.description, 80)) + '</p>' : '') +
+              '<div class="cc-meta-row">' +
+                '<span class="cc-meta-item">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</span>' +
+                '<span class="cc-meta-item">' + icon('calendar', 'icon-sm') + ' ' + (isNew ? 'أُضيف حديثًا' : 'متاح الآن') + '</span>' +
+              '</div>' +
               (isEnrolled ?
                 '<div class="card-progress-wrap">' +
                   '<div class="card-progress-bar"><div class="card-progress-fill" style="width:' + pct + '%;"></div></div>' +
                   '<span class="card-progress-pct">' + pct + '%</span>' +
                 '</div>' : ''
               ) +
-              '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' btn-sm" style="margin-top:6px;">' + ctaLabel + '</span>' +
+              '<span class="cc-details">التفاصيل ' + icon('chevronLeft', 'icon-sm') + '</span>' +
+              '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' cc-cta">' + ctaLabel + '</span>' +
             '</div>' +
           '</a>';
       });

@@ -483,7 +483,7 @@ function renderAppHeader(user, userData, opts) {
   header.innerHTML =
     '<div class="header-inner" id="headerInnerNormal">' +
       '<div class="brand-block" id="brandHomeLink" role="link" tabindex="0" aria-label="الذهاب للرئيسية">' +
-        '<img src="logo.png" alt="شعار المنصة" onerror="this.style.display=\'none\'">' +
+        '<img src="logo.png" alt="شعار المنصة" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
         '<div class="brand-text"><h2>أواب <span class="brand-en">| Awab</span></h2></div>' +
       '</div>' +
       '<div class="header-right">' +
@@ -770,31 +770,42 @@ function renderFooter() {
   const footer = document.getElementById('siteFooter');
   if (!footer) return;
 
-  const iconBtn = function (cls, iconName, title, href) {
-    return '<a class="footer-icon-btn ' + cls + '" href="' + href + '" target="_blank" rel="noopener" title="' + title + '">' + icon(iconName) + '</a>';
+  const socialLink = function (cls, iconName, title, href) {
+    return '<a href="' + href + '" target="_blank" rel="noopener">' +
+      '<span class="footer-icon-btn sm ' + cls + '">' + icon(iconName) + '</span>' + title +
+    '</a>';
+  };
+  const pageLink = function (title, href) {
+    return '<a href="' + href + '">' + title + '</a>';
   };
 
   footer.innerHTML =
-    '<div class="footer-inner">' +
-      '<div class="footer-social-group">' +
-        '<span class="footer-social-label">تابعنا</span>' +
-        '<div class="footer-icon-row">' +
-          iconBtn('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
-          iconBtn('wa', 'whatsapp', 'قناة واتساب', 'https://whatsapp.com/channel/0029Vb4Efn45a240GzodQC1V') +
-          iconBtn('tg', 'telegram', 'قناة تلجرام', 'https://t.me/awabofficial0') +
-          iconBtn('tt', 'tiktok', 'تيك توك', 'https://www.tiktok.com/@awab_1223') +
-          iconBtn('ig', 'instagram', 'انستجرام', 'https://www.instagram.com/awab_1223?igsh=M2FtZ284Z2lkdHh1') +
-          iconBtn('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
+    '<div class="footer-inner footer-cols">' +
+      '<div class="footer-col">' +
+        '<h4 class="footer-col-title">السوشيال ميديا</h4>' +
+        '<div class="footer-list">' +
+          socialLink('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
+          socialLink('ig', 'instagram', 'انستجرام', 'https://www.instagram.com/awab_1223?igsh=M2FtZ284Z2lkdHh1') +
+          socialLink('tt', 'tiktok', 'تيك توك', 'https://www.tiktok.com/@awab_1223') +
+          socialLink('tg', 'telegram', 'تلجرام', 'https://t.me/awabofficial0') +
+          socialLink('wa', 'whatsapp', 'واتساب', 'https://whatsapp.com/channel/0029Vb4Efn45a240GzodQC1V') +
+          socialLink('sr', 'commentDots', 'صارحني', 'https://55391054521568.sarhne.com') +
+          socialLink('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
         '</div>' +
       '</div>' +
-      '<div class="footer-social-group">' +
-        '<span class="footer-social-label">تواصل معنا على</span>' +
-        '<div class="footer-icon-row">' +
-          iconBtn('sr', 'commentDots', 'صارحني', 'https://55391054521568.sarhne.com') +
+      '<div class="footer-col">' +
+        '<h4 class="footer-col-title">الصفحات</h4>' +
+        '<div class="footer-list">' +
+          pageLink('الرئيسية', 'home.html') +
+          pageLink('حسابي', 'account.html') +
+          pageLink('الدعم الفني', 'support.html') +
         '</div>' +
       '</div>' +
-      '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
-      '<p class="footer-copyright">جميع الحقوق محفوظة لأواب © 2026</p>' +
+      '<div class="footer-col footer-col-brand">' +
+        '<img class="footer-logo-img" src="logo.png" alt="شعار منصة أواب" onerror="this.style.display=\'none\'">' +
+        '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
+        '<p class="footer-copyright">جميع الحقوق محفوظة لأواب © 2026</p>' +
+      '</div>' +
     '</div>';
 
   renderSupportFab();
@@ -807,7 +818,9 @@ function renderSupportFab() {
   fab.id = 'supportFab';
   fab.className = 'support-fab';
   fab.href = 'support.html';
-  fab.innerHTML = icon('headset') + ' <span>الدعم الفني</span>';
+  fab.innerHTML = icon('headset');
+  fab.setAttribute('aria-label', 'الدعم الفني');
+  fab.title = 'الدعم الفني';
   document.body.appendChild(fab);
 }
 window.renderSupportFab = renderSupportFab;
