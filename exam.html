@@ -414,6 +414,50 @@
   }
   .already-done-card .big-icon { color: var(--success); margin-bottom: 10px; }
   .already-done-card .big-icon i { font-size: 46px; }
+
+  /* ===== وضع مراجعة الإجابات (بعد التسليم) ===== */
+  .review-summary {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .review-summary .big-icon { color: var(--gold); margin-bottom: 8px; }
+  .review-summary .big-icon i { font-size: 40px; }
+  .review-summary .score { font-size: 24px; font-weight: 800; color: var(--primary-dark); margin: 6px 0; }
+  .review-summary .score i { color: var(--gold); margin-inline-start: 6px; }
+  .review-summary .details { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+  .review-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .review-item .review-item-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .review-item .q-text { font-weight: 700; font-size: 15px; color: var(--primary-dark); margin: 0; }
+  .review-status {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .review-status.correct { color: var(--success); background: #E6F2EA; }
+  .review-status.wrong { color: var(--danger); background: #FBEAE6; }
+  .review-status.unanswered { color: var(--text-muted); background: var(--gold-pale); }
+  .quiz-option.disabled { cursor: default; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -641,11 +685,43 @@
     });
   }
 
-  // دالة عرض رسالة "تم التسليم مسبقاً"
+  // دالة عرض رسالة "تم التسليم مسبقاً" + مراجعة الإجابات بالتفصيل
   function showAlreadySubmitted(message) {
     document.getElementById('examTimer').style.display = 'none';
     document.getElementById('violationWarning').style.display = 'none';
-    document.getElementById('content').innerHTML = `
+    const content = document.getElementById('content');
+    content.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
+
+    // ✅ مهم: نجيب الأسئلة من محاولة الاختبار الفعلية (examAttempts) مش من بنك الأسئلة الكامل،
+    // لأن كل محاولة بتاخد عدد محدد من الأسئلة (questionCount) بترتيب اختيارات عشوائي مختلف.
+    // لو جبنا بنك الأسئلة الكامل هيظهر أسئلة زيادة عن اللي اتعرضت فعلاً، وترتيب الاختيارات
+    // هيبقى مختلف عن اللي كانت عليه وقت الإجابة، فتظهر إجابات صحيحة على أنها غلط.
+    Promise.all([
+      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid + '/questions').once('value'),
+      db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId + '/exams/' + examId).once('value')
+    ]).then(function (results) {
+      const attemptQuestions = results[0].val();
+      const progData = results[1].val();
+
+      if (attemptQuestions && attemptQuestions.length && progData && progData.answers) {
+        const questionsMap = {};
+        const orderedIds = [];
+        attemptQuestions.forEach(function (q) {
+          if (!q || !q.id) return;
+          questionsMap[q.id] = q;
+          orderedIds.push(q.id);
+        });
+        renderExamReview(message, questionsMap, progData, orderedIds);
+      } else {
+        content.innerHTML = alreadySubmittedFallback(message);
+      }
+    }).catch(function () {
+      content.innerHTML = alreadySubmittedFallback(message);
+    });
+  }
+
+  function alreadySubmittedFallback(message) {
+    return `
       <div class="already-done-card" style="border-color:var(--gold-light);">
         <div class="big-icon" style="color:var(--gold);"><i class="fas fa-check-circle"></i></div>
         <h3 style="margin:10px 0 6px; color:var(--primary-dark);">✅ تم التسليم</h3>
@@ -655,6 +731,77 @@
         </a>
       </div>
     `;
+  }
+
+  // ===== عرض مراجعة الإجابات (كل سؤال مع الاختيارات: الصح أخضر، والخطأ المُختار أحمر) =====
+  function renderExamReview(message, questionsMap, progData, orderedIds) {
+    const content = document.getElementById('content');
+    const userAnswers = progData.answers || {};
+    const qIds = orderedIds && orderedIds.length ? orderedIds : Object.keys(questionsMap);
+    const total = qIds.length;
+    const score = progData.score || 0;
+    const earnedPoints = progData.earnedPoints || 0;
+    const percentage = total ? Math.round((score / total) * 100) : 0;
+
+    let html = `
+      <div class="review-summary">
+        <div class="big-icon"><i class="fas fa-clipboard-check"></i></div>
+        <h3 style="margin:4px 0 6px; color:var(--primary-dark);">تفاصيل نتيجتك</h3>
+        <div class="score"><i class="fas fa-trophy"></i> ${earnedPoints} نقطة</div>
+        <div class="details">إجابات صحيحة: <strong>${score}</strong> من <strong>${total}</strong> (${percentage}%)</div>
+        <div class="details" style="margin-top:8px;">${escapeHtml(message)}</div>
+      </div>
+      <div class="review-list">
+    `;
+
+    qIds.forEach((qId, idx) => {
+      const q = questionsMap[qId];
+      const selected = userAnswers[qId];
+      const hasAnswer = (selected !== undefined && selected !== null && selected >= 0);
+      const isCorrect = hasAnswer && selected === q.correct;
+
+      let statusClass = 'unanswered';
+      let statusText = 'لم تتم الإجابة';
+      if (hasAnswer) {
+        statusClass = isCorrect ? 'correct' : 'wrong';
+        statusText = isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة';
+      }
+
+      html += `
+        <div class="review-item">
+          <div class="review-item-head">
+            <p class="q-text">${idx + 1}. ${escapeHtml(q.text)}</p>
+            <span class="review-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="quiz-options">
+      `;
+
+      (q.options || []).forEach((opt, oi) => {
+        let cls = 'quiz-option disabled';
+        let iconHtml = '';
+        if (oi === q.correct) {
+          cls += ' correct';
+          iconHtml = icon('check');
+        } else if (hasAnswer && oi === selected) {
+          cls += ' wrong';
+          iconHtml = icon('xmark');
+        }
+        html += `<div class="${cls}"><span class="opt-label">${escapeHtml(opt)}</span>${iconHtml}</div>`;
+      });
+
+      html += `</div></div>`;
+    });
+
+    html += `
+      </div>
+      <div style="margin-top:6px; text-align:center;">
+        <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
+          <i class="fas fa-arrow-left"></i> العودة للمحاضرة
+        </a>
+      </div>
+    `;
+
+    content.innerHTML = html;
   }
 
   // ===== شاشة تأكيد بدء الاختبار (تعليمات + مخالفات) =====

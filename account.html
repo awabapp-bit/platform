@@ -382,49 +382,15 @@
     font-family: inherit;
     padding: 8px 16px;
     border-radius: 999px;
+    text-decoration: none;
   }
   .exam-detail-btn:hover { background: var(--primary); color: #fff; }
 
-  .exam-answers-popup {
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(18,52,36,0.65);
-    backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center; padding: 20px;
-  }
-  .exam-answers-popup.open { display: flex; animation: accFadeIn .2s ease; }
-  .exam-answers-content {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    max-width: 620px; width: 100%; max-height: 80vh; overflow-y: auto;
-    padding: 28px 30px;
-    box-shadow: var(--shadow-lift);
-    position: relative;
-    animation: accFadeUp .3s cubic-bezier(.22,1,.36,1) both;
-  }
-  .exam-answers-content .popup-close {
-    position: absolute; top: 16px; left: 16px;
-    background: var(--bg); border: none; width: 32px; height: 32px; border-radius: 50%;
-    font-size: 16px; cursor: pointer; color: var(--text-muted);
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s ease;
-  }
-  .exam-answers-content .popup-close:hover { background: var(--border); transform: rotate(90deg); }
-  .exam-answers-content h3 {
-    font-family: 'Amiri', serif; color: var(--primary-dark); margin: 0 0 18px; font-size: 20px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .exam-answers-content h3 i { color: var(--gold); }
-
-  .exam-answer-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
-  .exam-answer-item:last-child { border-bottom: none; }
-  .exam-answer-item .q-text { font-weight: 700; margin-bottom: 6px; font-size: 14.5px; color: var(--text); }
-  .exam-answer-item .q-text i { color: var(--gold); margin-left: 6px; }
-  .exam-answer-item .a-detail { font-size: 13.5px; color: var(--text); margin: 2px 0; }
-  .exam-answer-item .a-detail strong { color: var(--primary-dark); }
-  .exam-answer-item .a-status { font-weight: 700; font-size: 13px; margin-top: 4px; }
-  .exam-answer-item .a-status.correct { color: var(--success); }
-  .exam-answer-item .a-status.wrong { color: var(--danger); }
-  .exam-answer-item .a-status.unanswered { color: var(--text-muted); }
+  /* ===== فلترة الاختبارات (الكل + الكورسات/المسابقات) ===== */
+  .exam-filter-tabs { flex-wrap: wrap; margin-bottom: 16px; }
+  .exam-filter-tabs .filter-tab { white-space: nowrap; }
+  .exam-history-card .exam-sub { font-size: 12px; color: var(--text-muted); }
+  .exam-history-card .exam-sub i { color: var(--gold); margin-left: 5px; }
 
   .empty-state { text-align: center; padding: 46px 20px; color: var(--text-muted); animation: accFadeIn .4s ease; }
   .empty-state i { font-size: 42px; display: block; margin-bottom: 14px; color: var(--gold); opacity: 0.55; }
@@ -517,7 +483,6 @@
     .exam-history-card { flex-direction: column; align-items: stretch; }
     .exam-history-card .exam-info { gap: 2px; }
     .exam-detail-btn { align-self: flex-start; }
-    .exam-answers-content { padding: 20px; }
     .delete-modal { padding: 24px 18px; }
     .delete-modal .modal-actions .btn { min-width: 80px; font-size: 13px; }
   }
@@ -624,22 +589,12 @@
 
   <!-- ===== تبويب الاختبارات ===== -->
   <div class="tab-content" id="tab-exams">
+    <div class="filter-tabs exam-filter-tabs" id="examsFilterBar" style="display:none;"></div>
     <div id="examsHistoryWrap">
       <div class="center-loading"><div class="loader"></div></div>
     </div>
   </div>
 </main>
-
-<!-- ===== نافذة عرض الإجابات ===== -->
-<div class="exam-answers-popup" id="answersPopup">
-  <div class="exam-answers-content">
-    <button class="popup-close" onclick="document.getElementById('answersPopup').classList.remove('open')">
-      <i class="fas fa-times"></i>
-    </button>
-    <h3><i class="fas fa-eye"></i> تفاصيل الإجابات</h3>
-    <div id="answersList"></div>
-  </div>
-</div>
 
 <!-- ==============================================================
      نافذة حذف الحساب المتكاملة (Modal)
@@ -697,6 +652,8 @@
 
   let currentUser = null;
   let currentUserData = null;
+  let allExamsList = [];
+  let currentExamFilter = 'all';
 
   // ===== اسم المستخدم في بطاقة الهيدر: كامل في الموبايل العادي، وكلمة واحدة بس في الشاشات الصغيرة جدًا =====
   let currentFullName = '';
@@ -820,11 +777,14 @@
   // ===== تبويب الاختبارات =====
   function loadExamsHistory() {
     const wrap = document.getElementById('examsHistoryWrap');
+    const filterBar = document.getElementById('examsFilterBar');
     wrap.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
+    filterBar.style.display = 'none';
+    filterBar.innerHTML = '';
 
     db.ref('userProgress/' + currentUser.uid).once('value').then(function (snap) {
       const progress = snap.val() || {};
-      const examsList = [];
+      const rawList = [];
 
       Object.keys(progress).forEach(compId => {
         const compProgress = progress[compId] || {};
@@ -834,13 +794,12 @@
           Object.keys(exams).forEach(examId => {
             const e = exams[examId];
             if (e.completed === true) {
-              examsList.push({
+              rawList.push({
                 compId,
                 lessonId,
                 examId,
                 score: e.score || 0,
                 earnedPoints: e.earnedPoints || 0,
-                answers: e.answers || {},
                 answeredAt: e.answeredAt || Date.now()
               });
             }
@@ -848,10 +807,74 @@
         });
       });
 
-      examsList.sort((a, b) => b.answeredAt - a.answeredAt);
-      renderExamsHistory(examsList);
+      if (rawList.length === 0) {
+        allExamsList = [];
+        renderExamsHistory([]);
+        return;
+      }
+
+      // جلب أسماء الكورسات/المسابقات وأسماء الاختبارات نفسها لعرضها وللفلترة
+      const compIds = Array.from(new Set(rawList.map(x => x.compId)));
+      return Promise.all(compIds.map(id => db.ref('competitions/' + id).once('value').then(s => ({ id, data: s.val() }))))
+        .then(function (compResults) {
+          const compMap = {};
+          compResults.forEach(r => { compMap[r.id] = r.data || {}; });
+
+          allExamsList = rawList.map(function (exam) {
+            const compData = compMap[exam.compId] || {};
+            const lessons = compData.lessons || {};
+            const lessonData = lessons[exam.lessonId] || {};
+            const examData = (lessonData.exams || {})[exam.examId] || {};
+            return Object.assign({}, exam, {
+              compTitle: compData.title || 'بدون عنوان',
+              compType: compData.type !== 'competition' ? 'كورس' : 'مسابقة',
+              examTitle: examData.title || 'اختبار'
+            });
+          });
+
+          allExamsList.sort((a, b) => b.answeredAt - a.answeredAt);
+
+          const uniqueComps = [];
+          const seen = {};
+          allExamsList.forEach(function (e) {
+            if (!seen[e.compId]) {
+              seen[e.compId] = true;
+              uniqueComps.push({ compId: e.compId, title: e.compTitle });
+            }
+          });
+
+          currentExamFilter = 'all';
+          renderExamsFilterBar(uniqueComps);
+          renderExamsHistory(allExamsList);
+        });
     }).catch(err => {
       wrap.innerHTML = '<p style="color:var(--danger);"><i class="fas fa-exclamation-circle"></i> حدث خطأ: ' + err.message + '</p>';
+    });
+  }
+
+  // ===== شريط فلترة الاختبارات (الكل + اسم كل كورس/مسابقة) =====
+  function renderExamsFilterBar(uniqueComps) {
+    const filterBar = document.getElementById('examsFilterBar');
+    if (!filterBar) return;
+    if (uniqueComps.length <= 1) { filterBar.style.display = 'none'; filterBar.innerHTML = ''; return; }
+
+    let html = '<button class="filter-tab active" data-comp="all">الكل</button>';
+    uniqueComps.forEach(function (c) {
+      html += `<button class="filter-tab" data-comp="${c.compId}">${escapeHtml(c.title)}</button>`;
+    });
+    filterBar.innerHTML = html;
+    filterBar.style.display = 'flex';
+
+    filterBar.querySelectorAll('.filter-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filterBar.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentExamFilter = this.dataset.comp;
+        const filtered = (currentExamFilter === 'all')
+          ? allExamsList
+          : allExamsList.filter(e => e.compId === currentExamFilter);
+        renderExamsHistory(filtered);
+      });
     });
   }
 
@@ -863,73 +886,21 @@
     }
 
     let html = '';
-    list.forEach((exam, idx) => {
+    list.forEach((exam) => {
       html += `
         <div class="exam-history-card">
           <div class="exam-info">
-            <div class="exam-title"><i class="fas fa-pencil-alt"></i> اختبار #${idx+1}</div>
+            <div class="exam-title"><i class="fas fa-pencil-alt"></i> ${escapeHtml(exam.examTitle || 'اختبار')}</div>
+            <div class="exam-sub"><i class="fas fa-${exam.compType === 'كورس' ? 'book' : 'trophy'}"></i> ${escapeHtml(exam.compTitle || '')}</div>
             <div class="exam-score"><i class="fas fa-star"></i> ${exam.earnedPoints} نقطة · ${exam.score} إجابة صحيحة</div>
           </div>
-          <button class="exam-detail-btn" data-comp="${exam.compId}" data-lesson="${exam.lessonId}" data-exam="${exam.examId}">
+          <a class="exam-detail-btn" href="exam.html?comp=${encodeURIComponent(exam.compId)}&lesson=${encodeURIComponent(exam.lessonId)}&exam=${encodeURIComponent(exam.examId)}">
             <i class="fas fa-eye"></i> عرض الإجابات
-          </button>
+          </a>
         </div>
       `;
     });
     wrap.innerHTML = html;
-
-    wrap.querySelectorAll('.exam-detail-btn').forEach(btn => {
-      btn.addEventListener('click', function () {
-        showExamDetails(btn.dataset.comp, btn.dataset.lesson, btn.dataset.exam);
-      });
-    });
-  }
-
-  function showExamDetails(compId, lessonId, examId) {
-    const popup = document.getElementById('answersPopup');
-    const list = document.getElementById('answersList');
-    list.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
-    popup.classList.add('open');
-
-    db.ref('competitions/' + compId + '/lessons/' + lessonId + '/exams/' + examId).once('value').then(function (snap) {
-      const exam = snap.val();
-      if (!exam) { list.innerHTML = '<p>لا توجد بيانات للاختبار</p>'; return; }
-      const questions = exam.questions || {};
-      const qIds = Object.keys(questions);
-
-      db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId + '/exams/' + examId + '/answers').once('value').then(function (aSnap) {
-        const userAnswers = aSnap.val() || {};
-        let html = '';
-
-        qIds.forEach(qId => {
-          const q = questions[qId];
-          const selected = userAnswers[qId];
-          const isCorrect = (selected !== undefined && selected === q.correct);
-          const correctAnswer = q.options[q.correct] || '';
-          const userAnswer = (selected !== undefined && selected >= 0 && selected < q.options.length) ? q.options[selected] : '—';
-
-          let statusClass = 'unanswered';
-          let statusText = '❓ لم يجب';
-          if (selected !== undefined && selected >= 0) {
-            statusClass = isCorrect ? 'correct' : 'wrong';
-            statusText = isCorrect ? '✅ صحيح' : '❌ خاطئ';
-          }
-
-          html += `
-            <div class="exam-answer-item">
-              <div class="q-text"><i class="fas fa-question-circle"></i> ${escapeHtml(q.text)}</div>
-              <div class="a-detail"><strong>إجابتك:</strong> ${escapeHtml(userAnswer)}</div>
-              <div class="a-detail"><strong>الإجابة الصحيحة:</strong> ${escapeHtml(correctAnswer)}</div>
-              <div class="a-status ${statusClass}">${statusText}</div>
-            </div>
-          `;
-        });
-
-        list.innerHTML = html || '<p>لا توجد إجابات مسجلة</p>';
-      });
-    }).catch(err => {
-      list.innerHTML = '<p style="color:var(--danger);"><i class="fas fa-exclamation-circle"></i> حدث خطأ: ' + err.message + '</p>';
-    });
   }
 
   // ===== التبويبات (مع مؤشر منزلق) =====
@@ -1411,11 +1382,6 @@
     // ربط الزر بحذف الحساب
     deleteBtn.addEventListener('click', openModal);
   }
-
-  // ===== إغلاق نافذة عرض الإجابات =====
-  document.getElementById('answersPopup').addEventListener('click', function (e) {
-    if (e.target === this) this.classList.remove('open');
-  });
 </script>
 </body>
 </html>
