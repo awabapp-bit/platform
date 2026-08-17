@@ -980,7 +980,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .auth-brand h1 { font-size: 21px; }
   .field { margin-bottom: 14px; }
   .field input { padding: 12px 14px; }
-  .header-right { gap: 8px; }
+  .header-right { gap: 12px; }
   .points-badge { padding: 6px 10px; font-size: 12.5px; }
   .brand-block .brand-text h2 { font-size: 14.5px; }
 }
@@ -3210,10 +3210,12 @@ body.support-body .app-header { flex-shrink: 0; }
   /* الهيدر */
   .header-inner { padding: 11px 14px; gap: 10px; }
   .brand-block { gap: 8px; }
-  .brand-block img { width: 34px; height: 34px; }
+  .brand-block img { height: 46px; max-width: 150px; }
+  .brand-block img.logo-solo { height: 58px; max-width: 190px; }
   .brand-block .brand-text h2 { font-size: 13px; }
   .brand-block .brand-text h2 .brand-en { font-size: 10.5px; }
-  .header-right { gap: 6px; }
+  .header-right { gap: 12px; }
+  .header-right::before { margin: 2px 0; }
   .points-badge { padding: 6px 10px; font-size: 12px; gap: 4px; }
   .header-search-btn { width: 34px; height: 34px; }
   .avatar { width: 36px; height: 36px; }
@@ -3269,10 +3271,11 @@ body.support-body .app-header { flex-shrink: 0; }
   /* الهيدر: خلي اسم المنصة كامل ظاهر حتى على أضيق الشاشات */
   .header-inner { padding: 10px 10px; gap: 6px; }
   .brand-block { gap: 6px; }
-  .brand-block img { width: 30px; height: 30px; }
+  .brand-block img { height: 40px; max-width: 130px; }
+  .brand-block img.logo-solo { height: 50px; max-width: 168px; }
   .brand-block .brand-text h2 { font-size: 11.5px; }
   .brand-block .brand-text h2 .brand-en { font-size: 9.5px; margin-inline-start: 1px; }
-  .header-right { gap: 4px; }
+  .header-right { gap: 9px; }
   .points-badge { padding: 5px 8px; font-size: 11px; }
   .header-search-btn { width: 32px; height: 32px; }
   .avatar { width: 34px; height: 34px; }
