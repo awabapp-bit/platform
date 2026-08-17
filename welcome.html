@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>أواب | منصة التعليم الإسلامي</title>
+<meta name="description" content="أواب منصة تعليمية إسلامية تجمع الدروس، الاختبارات، ونظام الإنجازات في مكان واحد.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0c3d3a;
+    --primary-dark:#06211f;
+    --primary-deep:#06211f;
+    --primary-deep-2:#0f4d47;
+    --gold:#db8a3c;
+    --gold-soft:#f3b979;
+    --ink:#142524;
+    --slate:#667a78;
+    --slate-light:#93897a;
+    --line:#E2EAE8;
+    --surface:#FFFFFF;
+    --surface-soft:#F4F7F6;
+    --surface-tint:#FCEEDD;
+    --radius-lg:30px;
+    --radius-md:20px;
+    --radius-sm:12px;
+    --shadow-soft:0 1px 2px rgba(6,33,31,.04), 0 8px 24px rgba(6,33,31,.06);
+    --shadow-lift:0 4px 12px rgba(6,33,31,.22);
+    --ease:cubic-bezier(.4,0,.2,1);
+    --container:1180px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Cairo',sans-serif;
+    background:var(--surface);
+  background-image:
+    radial-gradient(circle at 8% 4%, rgba(219,138,60,0.07) 0, transparent 42%),
+    radial-gradient(circle at 96% 96%, rgba(6,33,31,0.08) 0, transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%230c3d3a' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: auto, auto, 84px 84px;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Amiri',serif;}
+  .quranic{font-family:'Amiri',serif;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit;}
+  img{max-width:100%; display:block;}
+  ul{list-style:none;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+  }
+
+  .container{width:100%; max-width:var(--container); margin:0 auto; padding:0 32px;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--primary); outline-offset:3px;}
+
+  /* ============================================================
+     الأزرار
+  ============================================================ */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 26px; border-radius:var(--radius-sm); border:none; cursor:pointer;
+    font-size:15px; font-weight:700; white-space:nowrap;
+    transition:transform .18s var(--ease), box-shadow .18s var(--ease), filter .18s var(--ease), background .18s var(--ease), color .18s var(--ease), border-color .18s var(--ease);
+  }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color:#fff; box-shadow:var(--shadow-lift);
+  }
+  .btn-primary:hover{transform:translateY(-1px); filter:brightness(1.05); box-shadow:0 8px 22px rgba(6,33,31,.3);}
+  .btn-ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--primary); color:var(--primary-dark);}
+  .btn-ghost-dark{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.28);}
+  .btn-ghost-dark:hover{border-color:var(--gold); color:var(--gold-soft);}
+  .btn-lg{padding:16px 32px; font-size:16px;}
+  .btn svg{width:17px; height:17px; flex-shrink:0;}
+
+  /* ============================================================
+     الهيدر
+  ============================================================ */
+  .site-header{
+    position:sticky; top:0; z-index:100;
+    background:rgba(255,255,255,.82);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{display:flex; align-items:center; justify-content:space-between; height:76px; gap:20px;}
+  .header-brand{display:flex; align-items:center; gap:12px; flex-shrink:0;}
+  .header-logo{
+    width:42px; height:42px; border-radius:12px; background:var(--primary-deep);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;
+  }
+  .header-logo img{width:68%; height:68%; object-fit:contain;}
+  .header-name{font-size:19px; font-weight:800; color:var(--ink);}
+
+  .header-nav{display:flex; align-items:center; gap:34px;}
+  .header-nav a{font-size:14.5px; font-weight:700; color:var(--slate); transition:color .2s var(--ease); position:relative;}
+  .header-nav a::after{
+    content:''; position:absolute; right:0; left:0; bottom:-6px; height:2px;
+    background:var(--primary); transform:scaleX(0); transition:transform .25s var(--ease);
+  }
+  .header-nav a:hover{color:var(--ink);}
+  .header-nav a:hover::after{transform:scaleX(1);}
+
+  .header-actions{display:flex; align-items:center; gap:12px; flex-shrink:0;}
+  .hamburger{
+    display:none; width:42px; height:42px; border-radius:10px; border:1.5px solid var(--line);
+    background:transparent; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .hamburger svg{width:20px; height:20px; color:var(--ink);}
+
+  .mobile-panel{
+    display:none; position:fixed; inset:76px 0 0 0; background:var(--surface);
+    z-index:99; padding:28px 24px; overflow-y:auto;
+  }
+  .mobile-panel.open{display:block;}
+  .mobile-panel a{display:block; padding:14px 4px; font-size:16px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--line);}
+  .mobile-panel .mobile-actions{display:flex; flex-direction:column; gap:12px; margin-top:22px;}
+
+  /* ============================================================
+     أدوات مشتركة للأقسام
+  ============================================================ */
+  section{position:relative;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:800; letter-spacing:.4px;
+    color:var(--primary-dark); background:var(--surface-tint);
+    padding:7px 14px; border-radius:99px; margin-bottom:18px;
+  }
+  .eyebrow-dark{color:var(--gold-soft); background:rgba(219,138,60,.12);}
+  .section-head{max-width:640px; margin-bottom:52px;}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center;}
+  .section-head h2{font-size:clamp(26px,3.6vw,38px); font-weight:800; line-height:1.35; color:var(--ink); margin-bottom:14px;}
+  .section-head p{font-size:16px; color:var(--slate); line-height:1.8;}
+  .section-head.on-dark h2{color:#fff;}
+  .section-head.on-dark p{color:rgba(255,255,255,.62);}
+
+  /* زخرفة الفاصل بين الأقسام: نجمة هندسية صغيرة */
+  .ornament-divider{display:flex; align-items:center; justify-content:center; gap:14px; padding:0 0 8px;}
+  .ornament-divider .line{height:1px; width:70px; background:linear-gradient(90deg, transparent, var(--line));}
+  .ornament-divider .line.rev{background:linear-gradient(90deg, var(--line), transparent);}
+  .ornament-divider svg{width:22px; height:22px; color:var(--gold); opacity:.8;}
+
+  /* ============================================================
+     الهيرو
+  ============================================================ */
+  .hero{
+    position:relative;
+    background:radial-gradient(ellipse 900px 500px at 75% -10%, rgba(219,138,60,.14), transparent 60%),
+               linear-gradient(165deg, var(--primary-deep) 0%, var(--primary-deep-2) 55%, var(--primary-dark) 140%);
+    color:#fff;
+    padding:76px 0 0;
+    overflow:hidden;
+  }
+  .hero-star-field{position:absolute; inset:0; pointer-events:none; z-index:0;}
+  .hero-star-field svg{position:absolute;}
+  .hero-star-breathe{animation:starBreathe 7s ease-in-out infinite;}
+  @keyframes starBreathe{
+    0%,100%{opacity:.4; transform:scale(1);}
+    50%{opacity:.7; transform:scale(1.04);}
+  }
+
+  .hero-inner{position:relative; z-index:2; text-align:center; padding:64px 0 0;}
+  .hero-quote{
+    font-family:'Amiri',serif; font-size:clamp(18px,2.3vw,23px); font-style:italic;
+    color:var(--gold-soft); max-width:560px; margin:0 auto 22px; line-height:2;
+  }
+  .hero-quote span{display:block; font-family:'Cairo',sans-serif; font-style:normal; font-size:12.5px; font-weight:500; color:rgba(255,255,255,.4); margin-top:8px; letter-spacing:.3px;}
+
+  .hero h1{
+    font-size:clamp(32px,5.2vw,58px); font-weight:800; line-height:1.28;
+    max-width:800px; margin:0 auto 22px;
+  }
+  .hero h1 em{font-style:normal; color:var(--gold-soft);}
+  .hero-sub{
+    font-size:clamp(15px,1.6vw,18px); color:rgba(255,255,255,.68);
+    max-width:520px; margin:0 auto 38px; line-height:1.9;
+  }
+  .hero-ctas{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:64px;}
+
+  .hero-stats{
+    position:relative; z-index:2;
+    display:grid; grid-template-columns:repeat(4,1fr);
+    border-top:1px solid rgba(255,255,255,.12);
+    max-width:920px; margin:0 auto;
+  }
+  .hero-stat{padding:26px 12px; text-align:center; border-left:1px solid rgba(255,255,255,.12);}
+  .hero-stat:last-child{border-left:none;}
+  .hero-stat b{display:block; font-family:'Amiri',serif; font-size:clamp(22px,3vw,30px); font-weight:800; color:#fff;}
+  .hero-stat span{display:block; font-size:12.5px; color:rgba(255,255,255,.5); margin-top:6px;}
+
+  .hero-shade{
+    position:relative; z-index:2; height:64px;
+    background:linear-gradient(to bottom, transparent, var(--surface));
+    margin-top:-64px;
+  }
+
+  /* ============================================================
+     المميزات
+  ============================================================ */
+  .features{padding:96px 0 88px; background:var(--surface);}
+  .feature-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .feature-card{
+    background:var(--surface); border:1.5px solid var(--line); border-radius:var(--radius-lg);
+    padding:30px 26px; transition:border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  .feature-card:hover{border-color:var(--primary); transform:translateY(-4px); box-shadow:var(--shadow-soft);}
+  .feature-icon{
+    width:50px; height:50px; border-radius:14px;
+    background:linear-gradient(135deg, var(--surface-tint), #F1E6C8);
+    display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+  }
+  .feature-icon svg{width:24px; height:24px; color:var(--primary-dark);}
+  .feature-card h3{font-size:17.5px; font-weight:800; color:var(--ink); margin-bottom:10px;}
+  .feature-card p{font-size:14px; color:var(--slate); line-height:1.85;}
+
+  /* ============================================================
+     كيف تبدأ
+  ============================================================ */
+  .how{padding:88px 0; background:var(--surface-soft);}
+  .how-steps{display:grid; grid-template-columns:repeat(3,1fr); gap:0; position:relative;}
+  .how-steps::before{
+    content:''; position:absolute; top:27px; right:16.5%; left:16.5%; height:1.5px;
+    background:repeating-linear-gradient(to left, var(--line) 0 8px, transparent 8px 16px);
+    z-index:0;
+  }
+  .how-step{position:relative; z-index:1; text-align:center; padding:0 20px;}
+  .how-step-num{
+    width:54px; height:54px; border-radius:50%; margin:0 auto 22px;
+    background:var(--surface); border:2px solid var(--primary);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Amiri',serif; font-size:19px; font-weight:800; color:var(--primary-dark);
+  }
+  .how-step h3{font-size:17px; font-weight:800; color:var(--ink); margin-bottom:10px;}
+  .how-step p{font-size:14px; color:var(--slate); line-height:1.85; max-width:230px; margin:0 auto;}
+
+  /* ============================================================
+     الإنجازات / التحفيز
+  ============================================================ */
+  .achievements{
+    padding:96px 0;
+    background:linear-gradient(165deg, var(--primary-deep) 0%, var(--primary-deep-2) 100%);
+    color:#fff; position:relative; overflow:hidden;
+  }
+  .ach-star-field{position:absolute; inset:0; pointer-events:none;}
+  .ach-star-field svg{position:absolute;}
+  .achievements-inner{position:relative; z-index:2; display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center;}
+  .streak-note{
+    display:inline-flex; align-items:center; gap:10px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    padding:12px 18px; border-radius:var(--radius-sm); margin-top:26px; font-size:13.5px; color:rgba(255,255,255,.75);
+  }
+  .streak-note b{color:var(--gold-soft); font-family:'Amiri',serif;}
+
+  .badge-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  .badge-card{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+    border-radius:var(--radius-md); padding:22px 18px; text-align:center;
+    transition:background .25s var(--ease), border-color .25s var(--ease);
+  }
+  .badge-card:hover{background:rgba(255,255,255,.08); border-color:var(--gold);}
+  .badge-icon{
+    width:46px; height:46px; border-radius:50%; margin:0 auto 14px;
+    background:linear-gradient(135deg, var(--gold), #b0641c);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(219,138,60,.28);
+  }
+  .badge-icon svg{width:22px; height:22px; color:var(--primary-deep);}
+  .badge-card b{display:block; font-size:13.5px; font-weight:700; color:#fff; margin-bottom:4px;}
+  .badge-card span{font-size:11.5px; color:rgba(255,255,255,.45);}
+
+  /* ============================================================
+     آراء الطلاب
+  ============================================================ */
+  .testimonials{padding:96px 0; background:var(--surface);}
+  .testi-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .testi-card{
+    background:var(--surface-soft); border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:28px 24px; display:flex; flex-direction:column; gap:18px;
+  }
+  .testi-stars{display:flex; gap:3px;}
+  .testi-stars svg{width:15px; height:15px; color:var(--gold);}
+  .testi-quote{font-size:14.5px; color:var(--ink); line-height:1.95;}
+  .testi-person{display:flex; align-items:center; gap:12px; margin-top:auto;}
+  .testi-avatar{
+    width:42px; height:42px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-family:'Amiri',serif; font-weight:800; font-size:14.5px;
+  }
+  .testi-person b{display:block; font-size:14px; font-weight:800; color:var(--ink);}
+  .testi-person span{font-size:12.5px; color:var(--slate-light);}
+
+  /* ============================================================
+     دعوة أخيرة
+  ============================================================ */
+  .final-cta{padding:90px 0; background:var(--surface-soft);}
+  .final-cta-box{
+    position:relative; overflow:hidden;
+    background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius:32px; padding:64px 40px; text-align:center; color:#fff;
+  }
+  .final-cta-box::before{
+    content:''; position:absolute; width:380px; height:380px; border-radius:50%;
+    background:radial-gradient(circle, rgba(219,138,60,.22), transparent 70%);
+    top:-140px; left:-100px;
+  }
+  .final-cta-box h2{position:relative; z-index:1; font-size:clamp(24px,3.4vw,34px); font-weight:800; margin-bottom:14px;}
+  .final-cta-box p{position:relative; z-index:1; font-size:15.5px; color:rgba(255,255,255,.78); max-width:440px; margin:0 auto 30px;}
+  .final-cta-box .btn-row{position:relative; z-index:1; display:flex; justify-content:center; gap:14px; flex-wrap:wrap;}
+  .final-cta-note{position:relative; z-index:1; font-size:12.5px; color:rgba(255,255,255,.55); margin-top:20px;}
+
+  /* ============================================================
+     الفوتر
+  ============================================================ */
+  .site-footer{background:var(--primary-deep); color:rgba(255,255,255,.6); padding:64px 0 28px;}
+  .footer-top{display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:40px; padding-bottom:44px; border-bottom:1px solid rgba(255,255,255,.1);}
+  .footer-brand{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+  .footer-brand .header-logo{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);}
+  .footer-brand span{font-size:18px; font-weight:800; color:#fff;}
+  .footer-col p{font-size:13.5px; line-height:1.9; max-width:260px;}
+  .footer-col h4{font-size:13.5px; font-weight:800; color:#fff; margin-bottom:16px;}
+  .footer-col ul li{margin-bottom:11px;}
+  .footer-col ul a{font-size:13.5px; transition:color .2s var(--ease);}
+  .footer-col ul a:hover{color:#fff;}
+  .footer-social{display:flex; gap:10px; margin-top:18px;}
+  .footer-social a{
+    width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.06);
+    display:flex; align-items:center; justify-content:center; transition:background .2s var(--ease);
+  }
+  .footer-social a:hover{background:rgba(255,255,255,.14);}
+  .footer-social svg{width:16px; height:16px;}
+  .footer-bottom{display:flex; align-items:center; justify-content:center; padding-top:26px; font-size:12.5px; flex-wrap:wrap; gap:12px;}
+  .footer-bottom .legal-links{display:flex; gap:20px;}
+
+  /* ============================================================
+     ظهور تدريجي عند التمرير
+  ============================================================ */
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s var(--ease), transform .6s var(--ease);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ============================================================
+     الاستجابة
+  ============================================================ */
+  @media (max-width: 1020px){
+    .feature-grid{grid-template-columns:repeat(2,1fr);}
+    .achievements-inner{grid-template-columns:1fr; gap:40px;}
+    .badge-grid{max-width:460px; margin:0 auto;}
+  }
+  @media (max-width: 880px){
+    .header-nav{display:none;}
+    .hamburger{display:flex;}
+    .hero-stats{grid-template-columns:repeat(2,1fr);}
+    .hero-stat:nth-child(2){border-left:none;}
+    .hero-stat:nth-child(3),.hero-stat:nth-child(4){border-top:1px solid rgba(255,255,255,.12);}
+    .how-steps{grid-template-columns:1fr; gap:36px;}
+    .how-steps::before{display:none;}
+    .testi-grid{grid-template-columns:1fr;}
+    .footer-top{grid-template-columns:1fr 1fr; gap:32px;}
+  }
+  @media (max-width: 640px){
+    .container{padding:0 20px;}
+    .feature-grid{grid-template-columns:1fr;}
+    .header-actions .btn-ghost{display:none;}
+    .hero{padding-top:0;}
+    .hero-inner{padding-top:48px;}
+    .hero-ctas{flex-direction:column; width:100%;}
+    .hero-ctas .btn{width:100%;}
+    .footer-top{grid-template-columns:1fr; gap:30px;}
+    .final-cta-box{padding:44px 24px; border-radius:24px;}
+    .footer-bottom{flex-direction:column; align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ الهيدر ============ -->
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="header-brand">
+      <div class="header-logo"><img src="logo.png" alt="شعار أواب" onerror="this.style.display='none'"></div>
+      <span class="header-name">أواب</span>
+    </div>
+
+    <nav class="header-nav">
+      <a href="#features">المميزات</a>
+      <a href="#how">كيف تبدأ</a>
+      <a href="#achievements">الإنجازات</a>
+      <a href="#testimonials">آراء الطلاب</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="index.html" class="btn btn-ghost">تسجيل الدخول</a>
+      <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="فتح القائمة" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-panel" id="mobilePanel">
+    <a href="#features">المميزات</a>
+    <a href="#how">كيف تبدأ</a>
+    <a href="#achievements">الإنجازات</a>
+    <a href="#testimonials">آراء الطلاب</a>
+    <div class="mobile-actions">
+      <a href="index.html" class="btn btn-ghost btn-lg">تسجيل الدخول</a>
+      <a href="register.html" class="btn btn-primary btn-lg">إنشاء حساب</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ الهيرو ============ -->
+<section class="hero">
+  <div class="hero-star-field" aria-hidden="true">
+    <svg class="hero-star-breathe" width="640" height="640" viewBox="0 0 640 640" style="top:-160px; right:-160px;">
+      <polygon points="320,60 385,225 555,225 420,325 470,495 320,395 170,495 220,325 85,225 255,225" fill="none" stroke="#db8a3c" stroke-width="1" opacity=".5"/>
+      <circle cx="320" cy="320" r="240" fill="none" stroke="#ffffff" stroke-width="0.6" opacity=".14"/>
+    </svg>
+    <svg width="420" height="420" viewBox="0 0 420 420" style="bottom:-120px; left:-120px; opacity:.22;">
+      <polygon points="210,36 253,140 364,140 275,206 308,312 210,246 112,312 145,206 56,140 167,140" fill="none" stroke="#ffffff" stroke-width="0.7"/>
+    </svg>
+  </div>
+
+  <div class="container hero-inner">
+    <p class="hero-quote">"نِّعْمَ الْعَبْدُ ۖ إِنَّهُ أَوَّابٌ"<span>سورة ص، الآية 30</span></p>
+    <h1>تعلّم دينك بانتظام، <em>وارجع له كل يوم من جديد</em></h1>
+    <p class="hero-sub">أواب منصة تعليم إسلامي تجمع دروس القرآن والتجويد والفقه والحديث والسيرة، مع اختبارات وتقدّمك في مكان واحد.</p>
+    <div class="hero-ctas">
+      <a href="register.html" class="btn btn-primary btn-lg">
+        ابدأ رحلتك مجانًا
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M11 19l-7-7 7-7M4 12h16" transform="scale(-1,1) translate(-24,0)"/></svg>
+      </a>
+      <a href="index.html" class="btn btn-ghost-dark btn-lg">عندي حساب بالفعل</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat"><b>+120</b><span>درس في العلوم الشرعية</span></div>
+      <div class="hero-stat"><b>+40</b><span>اختبار ومسابقة</span></div>
+      <div class="hero-stat"><b>10</b><span>إنجاز للتحصيل</span></div>
+      <div class="hero-stat"><b>24/7</b><span>وصول متاح دائمًا</span></div>
+    </div>
+  </div>
+  <div class="hero-shade"></div>
+</section>
+
+<!-- ============ المميزات ============ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">لماذا أواب</span>
+      <h2>كل علوم دينك، من غير تشتت</h2>
+      <p style="margin:0 auto;">مصمم عشان تركّز في حفظك وفهمك مش في البحث عن المحتوى — كل مادة شرعية محتاجها في مكان واحد.</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <h3>القرآن والتجويد</h3>
+        <p>دروس تلاوة وتجويد مرتبة بمراحل واضحة، وتفتح تباعًا كل ما تُتقن اللي قبلها.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <h3>الفقه والحديث</h3>
+        <p>اختبر فهمك في الفقه ومصطلح الحديث، ونتيجتك تظهر لحظة التسليم مع توضيح إجاباتك.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.9 6.3 6.9.9-5 4.9 1.2 6.8L12 17.6l-6 3.3 1.2-6.8-5-4.9 6.9-.9z"/></svg></div>
+        <h3>نقاط وإنجازات يومية</h3>
+        <p>اجمع نقاطك مع كل درس وحفظ، وافتح إنجازات جديدة كل ما تحافظ على استمراريتك.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <h3>جلسة دخول واحدة آمنة</h3>
+        <p>حسابك محمي بنظام يمنع الدخول من أكتر من جهاز في نفس الوقت.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div>
+        <h3>متابعة تقدمك بدقة</h3>
+        <p>صفحة حساب واضحة تعرض مستواك في كل مادة شرعية، وتاريخ اختباراتك ونسبة تقدّمك.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>محتوى يظهر في وقته</h3>
+        <p>دروس القرآن والفقه والسيرة تُفتح تلقائيًا حسب الخطة اللي يحددها معلمك، من غير ما تدور عليها.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ كيف تبدأ ============ -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">ثلاث خطوات بس</span>
+      <h2>ابدأ في أقل من دقيقتين</h2>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step reveal">
+        <div class="how-step-num">١</div>
+        <h3>أنشئ حسابك</h3>
+        <p>بياناتك الأساسية، رقم هاتفك، وكلمة مرور — وخلصت.</p>
+      </div>
+      <div class="how-step reveal">
+        <div class="how-step-num">٢</div>
+        <h3>ابدأ بالمادة المناسبة لك</h3>
+        <p>محتواك بيتوزع على قرآن وتجويد، فقه، حديث، وسيرة حسب المستوى اللي معلمك حدده لك.</p>
+      </div>
+      <div class="how-step reveal">
+        <div class="how-step-num">٣</div>
+        <h3>تعلّم واختبر نفسك</h3>
+        <p>تابع تقدمك، اجمع نقاطك، وارجع كل يوم تكمل من مكانك.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الإنجازات ============ -->
+<section class="achievements" id="achievements">
+  <div class="ach-star-field" aria-hidden="true">
+    <svg width="520" height="520" viewBox="0 0 520 520" style="top:-140px; left:-140px; opacity:.18;">
+      <polygon points="260,50 312,190 460,190 340,278 384,420 260,336 136,420 180,278 60,190 208,190" fill="none" stroke="#db8a3c" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="container achievements-inner">
+    <div class="reveal">
+      <span class="eyebrow eyebrow-dark">التعلّم عادة، مش لحظة</span>
+      <h2 style="font-size:clamp(24px,3.2vw,34px); font-weight:800; line-height:1.4; margin-bottom:16px;">كل يوم تكمل فيه، بيتحول لإنجاز</h2>
+      <p style="color:rgba(255,255,255,.65); font-size:15.5px; line-height:1.9; max-width:440px;">نظام النقاط في أواب مش مجرد رقم — بيتابع مواظبتك اليومية على القرآن والعلم الشرعي، ويكافئك عليها بإنجازات حقيقية تفتحها بنفسك.</p>
+      <div class="streak-note">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <span>حافظ على تتابعك اليومي — <b>10 إنجازات</b> في انتظارك من أول درس لحد استمرار أسبوعي كامل</span>
+      </div>
+    </div>
+
+    <div class="badge-grid reveal">
+      <div class="badge-card">
+        <div class="badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <b>أول درس</b><span>ابدأ رحلتك</span>
+      </div>
+      <div class="badge-card">
+        <div class="badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
+        <b>أسبوع متواصل</b><span>7 أيام مذاكرة</span>
+      </div>
+      <div class="badge-card">
+        <div class="badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <b>أول اختبار</b><span>اختبر مستواك</span>
+      </div>
+      <div class="badge-card">
+        <div class="badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.3 6.9.9-5 4.9 1.2 6.8L12 17.6l-6 3.3 1.2-6.8-5-4.9 6.9-.9z"/></svg></div>
+        <b>100 نقطة</b><span>إنجاز مركّز</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ آراء الطلاب ============ -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">آراء الطلاب</span>
+      <h2>تجارب حقيقية من طلاب زيك</h2>
+    </div>
+
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+        </div>
+        <p class="testi-quote">"من يوم ما بدأت أحفظ في أواب وأنا حاسس بتحسن واضح في تجويدي، والمتابعة اليومية فرق معايا جدًا."</p>
+        <div class="testi-person">
+          <div class="testi-avatar">ع</div>
+          <div><b>عمر خالد</b><span>يحفظ القرآن الكريم</span></div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+        </div>
+        <p class="testi-quote">"اختبارات الفقه بتوضحلي غلطي فورًا مش بعد يومين، ده فرق معايا جدًا في المراجعة."</p>
+        <div class="testi-person">
+          <div class="testi-avatar">س</div>
+          <div><b>سارة محمود</b><span>طالبة في مسار الفقه</span></div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9.3 16.5,14 18,21 12,17.3 6,21 7.5,14 2,9.3 9,9"/></svg>
+        </div>
+        <p class="testi-quote">"نظام النقاط خلاني أذاكر الحديث والسيرة كل يوم من غير ما حد يفكّرني، حسيت إني بنافس نفسي."</p>
+        <div class="testi-person">
+          <div class="testi-avatar">ي</div>
+          <div><b>يوسف أحمد</b><span>طالب في مسار الحديث</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ دعوة أخيرة ============ -->
+<section class="final-cta">
+  <div class="container">
+    <div class="final-cta-box reveal">
+      <h2>جاهز تبدأ رحلتك؟</h2>
+      <p>أنشئ حسابك في أقل من دقيقتين، وابدأ أول درس دلوقتي.</p>
+      <div class="btn-row">
+        <a href="register.html" class="btn btn-lg" style="background:#fff; color:var(--primary-dark); box-shadow:0 8px 22px rgba(0,0,0,.15);">إنشاء حساب مجاني</a>
+        <a href="index.html" class="btn btn-ghost-dark btn-lg">تسجيل الدخول</a>
+      </div>
+      <p class="final-cta-note">مجاني بالكامل، من غير أي بيانات دفع</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الفوتر ============ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <div class="header-logo"><img src="logo.png" alt="شعار أواب" onerror="this.style.display='none'"></div>
+          <span>أواب</span>
+        </div>
+        <p>منصة تعليم إسلامي تجمع دروس القرآن والفقه والحديث والسيرة، مع اختبارات وتقدّمك في مكان واحد.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="فيسبوك"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="#" aria-label="إنستجرام"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="يوتيوب"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>المنصة</h4>
+        <ul>
+          <li><a href="#features">المميزات</a></li>
+          <li><a href="#how">كيف تبدأ</a></li>
+          <li><a href="#achievements">الإنجازات</a></li>
+          <li><a href="register.html">إنشاء حساب</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>الدعم</h4>
+        <ul>
+          <li><a href="#">الأسئلة الشائعة</a></li>
+          <li><a href="#">تواصل معنا</a></li>
+          <li><a href="index.html">تسجيل الدخول</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 أواب. جميع الحقوق محفوظة.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ============ قائمة الموبايل ============ */
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobilePanel = document.getElementById('mobilePanel');
+  hamburgerBtn.addEventListener('click', () => {
+    const isOpen = mobilePanel.classList.toggle('open');
+    hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    hamburgerBtn.innerHTML = isOpen
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>';
+  });
+  document.querySelectorAll('.mobile-panel a').forEach(a => {
+    a.addEventListener('click', () => {
+      mobilePanel.classList.remove('open');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+      hamburgerBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>';
+    });
+  });
+
+  /* ============ ظهور تدريجي عند التمرير ============ */
+  const revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
+  }
+</script>
+
+</body>
+</html>

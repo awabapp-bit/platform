@@ -431,6 +431,105 @@ function showArabicNameNotice() {
 }
 window.showArabicNameNotice = showArabicNameNotice;
 
+/* رسالة اختيارية تطلب من المستخدم اللي معندوش رقم هاتف مسجّل إنه يضيفه
+   (اختيارية تمامًا: فيها زرار "لاحقًا" ومفيش إجبار، وبتظهر مرة واحدة بس في كل جلسة تصفح) */
+function showAddPhoneNotice(user, userData) {
+  if (document.getElementById('addPhoneModal')) return;
+  if (sessionStorage.getItem('phonePromptDismissed_' + user.uid)) return;
+  if (localStorage.getItem('phonePromptDismissedForever_' + user.uid)) return;
+  if (userData && userData.phonePromptDismissed) return;
+
+  document.body.style.overflow = 'hidden';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'addPhoneModal';
+  overlay.style.zIndex = '99999';
+  overlay.innerHTML =
+    '<div class="modal" style="max-width:420px; text-align:center;">' +
+      '<div style="width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--gold-pale); color:var(--gold); display:flex; align-items:center; justify-content:center;">' +
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
+      '</div>' +
+      '<h3>هل تحب تضيف رقم هاتفك؟</h3>' +
+      '<p style="color:var(--text-muted); line-height:1.8; font-size:14.5px; margin:0 0 18px;">' +
+        'ده اختياري تمامًا، بس هيسهّل عليك تسجيل الدخول لاحقًا برقم هاتفك بدل البريد الإلكتروني. وتقدر تضيفه في أي وقت من صفحة "حسابي".' +
+      '</p>' +
+      '<div class="field" id="addPhoneField" style="text-align:right; margin-bottom:6px;">' +
+        '<label for="addPhoneInput">رقم الهاتف</label>' +
+        '<input type="tel" id="addPhoneInput" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="مثال: 01012345678">' +
+        '<span class="field-error">رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015 (سيُحفظ بالصيغة الدولية +201XXXXXXXXX)</span>' +
+      '</div>' +
+      '<div class="modal-actions" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:14px;">' +
+        '<button type="button" class="btn btn-primary" id="addPhoneSaveBtn" style="width:auto; padding:11px 28px;">حفظ</button>' +
+        '<button type="button" class="btn" id="addPhoneLaterBtn" style="width:auto; padding:11px 28px;">لاحقًا</button>' +
+      '</div>' +
+      '<button type="button" id="addPhoneNeverBtn" style="margin-top:14px; background:none; border:none; color:var(--text-muted); font-size:13px; text-decoration:underline; cursor:pointer; padding:4px;">عدم الظهور مرة أخرى</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', function (e) { e.stopPropagation(); });
+
+  function closeModal() {
+    document.body.style.overflow = '';
+    overlay.remove();
+  }
+
+  document.getElementById('addPhoneLaterBtn').addEventListener('click', function () {
+    sessionStorage.setItem('phonePromptDismissed_' + user.uid, '1');
+    closeModal();
+  });
+
+  /* "عدم الظهور مرة أخرى": تجاهل دائم، مش مربوط بالجلسة بس - يتخزن محليًا وفي قاعدة البيانات
+     عشان يفضل متجاهل حتى لو المستخدم دخل من جهاز/متصفح تاني */
+  document.getElementById('addPhoneNeverBtn').addEventListener('click', function () {
+    localStorage.setItem('phonePromptDismissedForever_' + user.uid, '1');
+    sessionStorage.setItem('phonePromptDismissed_' + user.uid, '1');
+    db.ref('users/' + user.uid + '/phonePromptDismissed').set(true).catch(function () {});
+    closeModal();
+  });
+
+  document.getElementById('addPhoneSaveBtn').addEventListener('click', function () {
+    const input = document.getElementById('addPhoneInput');
+    const localPhone = input.value.trim();
+    const field = document.getElementById('addPhoneField');
+    const phoneOk = /^01[0125][0-9]{8}$/.test(localPhone);
+    field.classList.toggle('has-error', !phoneOk);
+    if (!phoneOk) return;
+
+    /* يُخزَّن رقم الهاتف دائمًا بالصيغة الدولية +201XXXXXXXXX فقط */
+    const phone = '+20' + localPhone.slice(1);
+
+    const btn = this;
+    btn.disabled = true;
+
+    db.ref('phoneIndex/' + phone).once('value')
+      .then(function (snap) {
+        if (snap.exists() && snap.val() !== user.email) {
+          throw { code: 'phone-taken' };
+        }
+        const updates = {};
+        updates['users/' + user.uid + '/phone'] = phone;
+        updates['phoneIndex/' + phone] = user.email;
+        return db.ref().update(updates);
+      })
+      .then(function () {
+        sessionStorage.setItem('phonePromptDismissed_' + user.uid, '1');
+        closeModal();
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        if (err && err.code === 'phone-taken') {
+          field.classList.add('has-error');
+        }
+      });
+  });
+
+  const addPhoneInputEl = document.getElementById('addPhoneInput');
+  addPhoneInputEl.addEventListener('input', function () { addPhoneInputEl.value = addPhoneInputEl.value.replace(/\D/g, '').slice(0, 11); });
+  setTimeout(function () { addPhoneInputEl.focus(); }, 100);
+}
+window.showAddPhoneNotice = showAddPhoneNotice;
+
 function requireAuth(onReady) {
   auth.onAuthStateChanged(function (user) {
     if (!user) {
@@ -472,6 +571,14 @@ function requireAuth(onReady) {
 }
 window.requireAuth = requireAuth;
 
+/* يرجّع أول 3 كلمات فقط من الاسم (اسم ثلاثي) بدل الاسم الكامل، لعرضه في قائمة الحساب المختصرة */
+function getShortName(fullName, wordsCount) {
+  const n = wordsCount || 3;
+  const parts = (fullName || 'مستخدم').trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, n).join(' ') || 'مستخدم';
+}
+window.getShortName = getShortName;
+
 function renderAppHeader(user, userData, opts) {
   opts = opts || {};
   const showPoints = opts.showPoints !== false;
@@ -479,6 +586,7 @@ function renderAppHeader(user, userData, opts) {
   if (!header) return;
 
   const name = (userData.name || 'مستخدم').trim();
+  const shortName = getShortName(name, 3);
 
   header.innerHTML =
     '<div class="header-inner" id="headerInnerNormal">' +
@@ -497,8 +605,12 @@ function renderAppHeader(user, userData, opts) {
         '<div class="notif-menu">' +
           '<button class="notif-btn" id="notifBtn" aria-label="الإشعارات">' + icon('bell', 'icon-md') + '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
           '<div class="notif-dropdown" id="notifDropdown">' +
-            '<div class="notif-head"><span>الإشعارات</span><button type="button" class="notif-close-btn" id="notifCloseBtn" aria-label="إغلاق الإشعارات">' + icon('xmark', 'icon-sm') + '</button></div>' +
-            '<div id="notifList"><div class="notif-empty">جارٍ التحميل...</div></div>' +
+            '<div class="notif-head">' +
+              '<div class="notif-head-text"><span>الإشعارات</span><small id="notifHeadCount">جارٍ التحميل...</small></div>' +
+              '<button type="button" class="notif-mark-all-btn" id="notifMarkAllBtn" style="display:none;">' + icon('check', 'icon-sm') + ' تحديد الكل كمقروء</button>' +
+              '<button type="button" class="notif-close-btn" id="notifCloseBtn" aria-label="إغلاق الإشعارات">' + icon('xmark', 'icon-sm') + '</button>' +
+            '</div>' +
+            '<div id="notifList"><div class="notif-empty"><div class="notif-empty-icon">' + icon('bell', 'icon-md') + '</div><div class="notif-empty-title">جارٍ التحميل...</div></div></div>' +
           '</div>' +
         '</div>' +
         '<div class="account-menu">' +
@@ -506,8 +618,9 @@ function renderAppHeader(user, userData, opts) {
             '<div class="avatar">' + icon('user', 'icon-md') + '</div>' +
           '</button>' +
           '<div class="account-dropdown" id="accountDropdown">' +
-            '<div style="padding: 8px 12px; font-weight: 700; color: var(--primary-dark); border-bottom: 1px solid var(--border); margin-bottom: 4px; display:flex; align-items:center; gap:8px;">' +
-              icon('user', 'icon-sm') + ' ' + escapeHtml(name) +
+            '<div class="account-dropdown-head">' +
+              '<div class="account-dropdown-avatar">' + icon('user', 'icon-sm') + '</div>' +
+              '<div class="account-dropdown-name" title="' + escapeHtml(name) + '">' + escapeHtml(shortName) + '</div>' +
             '</div>' +
             '<a href="account.html">' + icon('user') + ' حسابي</a>' +
             '<button class="danger" id="logoutBtn">' + icon('logout') + ' تسجيل الخروج</button>' +
@@ -690,9 +803,28 @@ window.renderAppHeader = renderAppHeader;
 
 /* ================= دوال الإشعارات ================= */
 
+/* يرجّع وقت نسبي مختصر بالعربي ("الآن"، "منذ 5 دقائق"، "أمس"...) لعرضه في قائمة الإشعارات،
+   ويرجع التاريخ الكامل كـ tooltip منفصل عبر formatArabicDate */
+function formatRelativeArabicTime(ts) {
+  if (!ts) return '—';
+  const diffSec = Math.floor((Date.now() - ts) / 1000);
+  if (diffSec < 30) return 'الآن';
+  if (diffSec < 60) return 'منذ لحظات';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return 'منذ ' + diffMin + (diffMin === 1 ? ' دقيقة' : diffMin === 2 ? ' دقيقتين' : diffMin <= 10 ? ' دقائق' : ' دقيقة');
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return 'منذ ' + diffHour + (diffHour === 1 ? ' ساعة' : diffHour === 2 ? ' ساعتين' : diffHour <= 10 ? ' ساعات' : ' ساعة');
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay === 1) return 'أمس';
+  if (diffDay < 7) return 'منذ ' + diffDay + ' أيام';
+  return formatArabicDate(ts);
+}
+window.formatRelativeArabicTime = formatRelativeArabicTime;
+
 function initNotifications(uid) {
   const notifRef = db.ref('notifications/' + uid);
-  notifRef.limitToLast(30).on('value', function (snap) {
+  /* بدون أي حد أقصى: يجيب كل الإشعارات المسجّلة للمستخدم مهما كان عددها */
+  notifRef.on('value', function (snap) {
     const data = snap.val() || {};
     const ids = Object.keys(data).sort(function (a, b) { return (data[b].createdAt || 0) - (data[a].createdAt || 0); });
     const unreadCount = ids.filter(function (id) { return !data[id].read; }).length;
@@ -703,23 +835,42 @@ function initNotifications(uid) {
       else { badge.style.display = 'none'; }
     }
 
+    const countEl = document.getElementById('notifHeadCount');
+    if (countEl) countEl.textContent = unreadCount > 0 ? (unreadCount + ' غير مقروءة') : 'كل الإشعارات مقروءة';
+
+    const markAllBtn = document.getElementById('notifMarkAllBtn');
+    if (markAllBtn) markAllBtn.style.display = unreadCount > 0 ? 'flex' : 'none';
+
     const list = document.getElementById('notifList');
     if (!list) return;
     if (ids.length === 0) {
-      list.innerHTML = '<div class="notif-empty">لا توجد إشعارات بعد</div>';
+      list.innerHTML =
+        '<div class="notif-empty">' +
+          '<div class="notif-empty-icon">' + icon('bell', 'icon-md') + '</div>' +
+          '<div class="notif-empty-title">لا توجد إشعارات بعد</div>' +
+          '<div class="notif-empty-sub">هنعرض هنا أي رد على تعليقك أو محاضرة جديدة تتضاف لكورس مشترك فيه</div>' +
+        '</div>';
       return;
     }
 
+    const typeMeta = {
+      reply: { icon: 'reply', cls: 'type-reply' },
+      lesson: { icon: 'video', cls: 'type-lesson' },
+      exam: { icon: 'listCheck', cls: 'type-exam' },
+      announcement: { icon: 'bell', cls: 'type-announcement' }
+    };
+
     list.innerHTML = ids.map(function (id) {
       const n = data[id];
-      const iconName = n.type === 'reply' ? 'reply' : (n.type === 'lesson' ? 'video' : (n.type === 'exam' ? 'listCheck' : (n.type === 'announcement' ? 'bell' : 'circleInfo')));
+      const meta = typeMeta[n.type] || { icon: 'circleInfo', cls: 'type-default' };
       return '<a class="notif-item ' + (n.read ? '' : 'unread') + '" href="' + (n.link || '#') + '" data-id="' + id + '">' +
-        '<span class="notif-icon">' + icon(iconName, 'icon-sm') + '</span>' +
+        '<span class="notif-icon ' + meta.cls + '">' + icon(meta.icon, 'icon-sm') + '</span>' +
         '<span class="notif-body">' +
           '<span class="notif-title">' + escapeHtml(n.title || '') + '</span>' +
           (n.body ? '<span class="notif-sub">' + escapeHtml(n.body) + '</span>' : '') +
-          '<span class="notif-time">' + formatArabicDate(n.createdAt) + '</span>' +
+          '<span class="notif-time" title="' + formatArabicDate(n.createdAt) + '">' + formatRelativeArabicTime(n.createdAt) + '</span>' +
         '</span>' +
+        (n.read ? '' : '<span class="notif-dot" aria-hidden="true"></span>') +
       '</a>';
     }).join('');
 
@@ -729,6 +880,20 @@ function initNotifications(uid) {
       });
     });
   });
+
+  const markAllBtn = document.getElementById('notifMarkAllBtn');
+  if (markAllBtn) {
+    markAllBtn.addEventListener('click', function () {
+      notifRef.once('value').then(function (snap) {
+        const data = snap.val() || {};
+        const updates = {};
+        Object.keys(data).forEach(function (id) {
+          if (!data[id].read) updates[id + '/read'] = true;
+        });
+        if (Object.keys(updates).length > 0) notifRef.update(updates);
+      });
+    });
+  }
 }
 window.initNotifications = initNotifications;
 
@@ -824,7 +989,7 @@ function renderSupportFab() {
   fab.id = 'supportFab';
   fab.className = 'support-fab';
   fab.href = 'support.html';
-  fab.innerHTML = icon('headset');
+  fab.innerHTML = '<span class="support-fab-ring"></span><span class="support-fab-icon">' + icon('headset') + '</span><span class="support-fab-text">الدعم الفني</span>';
   fab.setAttribute('aria-label', 'الدعم الفني');
   fab.title = 'الدعم الفني';
   document.body.appendChild(fab);

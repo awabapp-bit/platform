@@ -17,10 +17,51 @@
 
   .info-card {
     animation: accFadeUp .4s ease both;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
   }
-  .info-row .label { display: flex; align-items: center; gap: 8px; }
-  .info-row .label i { color: var(--gold); width: 18px; }
+  .info-card .info-row { grid-column: span 1; }
+  .info-card .info-row.full-row { grid-column: 1 / -1; }
+  @media (max-width: 600px) {
+    .info-card { grid-template-columns: 1fr; }
+  }
+  .info-row .label { display: flex; align-items: center; gap: 10px; }
+  .info-row .label i {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 10px;
+    background: var(--primary-tint); color: var(--gold-dark); font-size: 13px;
+  }
   .info-row:hover { background: var(--primary-tint); margin: 0 -12px; padding: 12px; border-radius: var(--radius-sm); }
+  .info-row .value.is-empty { color: var(--text-muted); font-weight: 500; font-style: normal; }
+  .info-row .phone-edit-link {
+    font-size: 12px; font-weight: 700; color: var(--gold-dark);
+    background: var(--gold-pale); padding: 5px 12px; border-radius: 999px;
+    border: none; cursor: pointer; font-family: inherit; margin-inline-start: 8px;
+  }
+  .info-row .phone-edit-link:hover { background: var(--gradient-gold); color: #fff; }
+
+  /* ===== حقل رقم الهاتف بمقدمة دولية ثابتة (+20) ===== */
+  .phone-field-group {
+    display: flex; align-items: stretch; gap: 0;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    overflow: hidden; background: #FCFBF8;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .phone-field-group:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(219,138,60,0.15); }
+  .field.has-error .phone-field-group { border-color: var(--danger); }
+  .phone-field-group .phone-prefix {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 14px; font-weight: 800; color: var(--primary);
+    background: var(--primary-tint); border-inline-end: 1.5px solid var(--border);
+    letter-spacing: 0.5px; white-space: nowrap; font-size: 14px;
+  }
+  .phone-field-group input {
+    flex: 1; min-width: 0; border: none !important; background: transparent !important;
+    padding: 11px 14px; font-size: 14px; font-family: inherit; color: var(--text);
+    direction: ltr; text-align: right;
+  }
+  .phone-field-group input:focus { outline: none; box-shadow: none !important; }
 
   @keyframes accFadeUp {
     from { opacity: 0; transform: translateY(16px); }
@@ -39,8 +80,8 @@
     100% { background-position: 200% 0; }
   }
   @keyframes accPulseRing {
-    0% { box-shadow: 0 0 0 0 rgba(200,162,74,0.45); }
-    100% { box-shadow: 0 0 0 14px rgba(200,162,74,0); }
+    0% { box-shadow: 0 0 0 0 rgba(219,138,60,0.45); }
+    100% { box-shadow: 0 0 0 14px rgba(219,138,60,0); }
   }
 
   /* ===== البطاقة الرئيسية (Hero) ===== */
@@ -60,9 +101,9 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 90% 0%, rgba(200,162,74,0.30), transparent 55%),
-      radial-gradient(circle at 5% 100%, rgba(200,162,74,0.14), transparent 50%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23e4cd93' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+      radial-gradient(circle at 90% 0%, rgba(219,138,60,0.30), transparent 55%),
+      radial-gradient(circle at 5% 100%, rgba(219,138,60,0.14), transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23f3b979' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
     background-size: auto, auto, 84px 84px;
     pointer-events: none;
   }
@@ -82,7 +123,7 @@
   .acc-avatar {
     width: 84px;
     height: 84px;
-    border-radius: 50%;
+    border-radius: 26px;
     background: linear-gradient(135deg, var(--gold-light), var(--gold));
     display: flex;
     align-items: center;
@@ -122,7 +163,7 @@
     padding: 5px 13px;
     border-radius: 999px;
     background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(228,205,147,0.4);
+    border: 1px solid rgba(243,185,121,0.4);
     color: var(--gold-light);
   }
 
@@ -141,7 +182,7 @@
     align-items: center;
     gap: 8px;
     background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(228,205,147,0.5);
+    border: 1.5px solid rgba(243,185,121,0.5);
     color: var(--gold-light);
     padding: 10px 20px;
     border-radius: 999px;
@@ -152,14 +193,14 @@
     font-family: inherit;
   }
   .edit-profile-btn:hover {
-    background: rgba(228,205,147,0.18);
+    background: rgba(243,185,121,0.18);
     transform: translateY(-2px);
   }
   .delete-account-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(179,75,60,0.15);
+    background: rgba(194,72,58,0.15);
     border: 1.5px solid rgba(230,120,100,0.55);
     color: #f0a996;
     padding: 10px 20px;
@@ -171,7 +212,7 @@
     font-family: inherit;
   }
   .delete-account-btn:hover {
-    background: rgba(179,75,60,0.28);
+    background: rgba(194,72,58,0.28);
     transform: translateY(-2px);
   }
   .delete-account-btn i { font-size: 13px; }
@@ -201,7 +242,7 @@
   #editProfileWrap .field input:focus {
     border-color: var(--gold);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(200,162,74,0.15);
+    box-shadow: 0 0 0 3px rgba(219,138,60,0.15);
   }
   .edit-actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
   .edit-actions .btn { width: auto; }
@@ -215,7 +256,7 @@
     color: #fff;
     overflow: hidden;
     margin-bottom: 20px;
-    border: 1px solid rgba(228,205,147,0.25);
+    border: 1px solid rgba(243,185,121,0.25);
     animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .08s both;
   }
   .tier-card::after {
@@ -230,7 +271,7 @@
     position: absolute;
     top: 0; left: -150%;
     width: 60%; height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(228,205,147,0.14), transparent);
+    background: linear-gradient(100deg, transparent, rgba(243,185,121,0.14), transparent);
     animation: accShimmer 5s linear infinite;
   }
   .tier-card .tier-top { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
@@ -285,7 +326,7 @@
     left: 5px;
     border-radius: 999px;
     background: var(--gradient-primary);
-    box-shadow: 0 6px 16px rgba(15,32,56,0.25);
+    box-shadow: 0 6px 16px rgba(12,61,58,0.25);
     transition: left .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1);
     z-index: 0;
   }
@@ -401,7 +442,7 @@
      ============================================================ */
   .delete-modal-overlay {
     position: fixed; inset: 0; z-index: 300;
-    background: rgba(10,23,40,0.72);
+    background: rgba(6,33,31,0.72);
     backdrop-filter: blur(6px);
     display: none; align-items: center; justify-content: center; padding: 20px;
     animation: fadeInOverlay 0.3s ease;
@@ -530,14 +571,33 @@
       <div class="form-msg" id="editProfileMsg"></div>
       <div class="field">
         <label><i class="fas fa-user"></i> الاسم الجديد (باللغة العربية)</label>
-        <input type="text" id="editNameInput" placeholder="أدخل اسمك الكامل بالعربي" dir="rtl">
-        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">الاسم يجب أن يكتب باللغة العربية فقط</div>
+        <input type="text" id="editNameInput" placeholder="مثال: أحمد محمد علي حسن" dir="rtl">
+        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">الاسم يجب أن يكتب باللغة العربية فقط، ويكون رباعيًا (4 كلمات على الأقل)، وكل كلمة حرفان فأكثر</div>
+      </div>
+      <div class="field" id="editPhoneField">
+        <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+        <div class="phone-field-group">
+          <span class="phone-prefix">+20</span>
+          <input type="tel" id="editPhoneInput" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="1XXXXXXXXX" dir="ltr">
+        </div>
+        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">اكتب رقمك بدون الصفر الأول، بالصيغة الدولية النهائية: +201XXXXXXXXX. اتركه فارغًا لو لا تريد تغييره</div>
       </div>
       <div class="field">
         <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
-        <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها">
-        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">يجب أن تكون 8 أحرف على الأقل لتغيير كلمة المرور</div>
+        <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها" autocomplete="new-password">
       </div>
+      <div class="field" id="editConfirmPassField" style="display:none;">
+        <label><i class="fas fa-lock"></i> تأكيد كلمة المرور الجديدة</label>
+        <input type="password" id="editConfirmPassInput" placeholder="أعد كتابة كلمة المرور الجديدة" autocomplete="new-password">
+      </div>
+      <ul class="rules-list" id="editPwRules" style="display:none;">
+        <li data-rule="length"><span class="tick"></span> 8 أحرف على الأقل</li>
+        <li data-rule="upper"><span class="tick"></span> حرف إنجليزي كبير (A-Z)</li>
+        <li data-rule="lower"><span class="tick"></span> حرف إنجليزي صغير (a-z)</li>
+        <li data-rule="number"><span class="tick"></span> رقم واحد على الأقل</li>
+        <li data-rule="symbol"><span class="tick"></span> رمز خاص (!@#...)</li>
+        <li data-rule="match"><span class="tick"></span> تطابق كلمة المرور مع التأكيد</li>
+      </ul>
       <div class="edit-actions">
         <button class="btn btn-primary" id="saveProfileBtn"><i class="fas fa-save"></i> حفظ التغييرات</button>
         <button class="btn btn-outline" id="cancelEditBtn"><i class="fas fa-times"></i> إلغاء</button>
@@ -572,6 +632,10 @@
       <div class="info-row">
         <span class="label"><i class="fas fa-envelope"></i> البريد الإلكتروني</span>
         <span class="value" id="userEmail">—</span>
+      </div>
+      <div class="info-row">
+        <span class="label"><i class="fas fa-phone"></i> رقم الهاتف</span>
+        <span class="value" id="userPhone">—</span>
       </div>
       <div class="info-row">
         <span class="label"><i class="fas fa-trophy"></i> المستوى</span>
@@ -644,6 +708,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="icons.js"></script>
+<script src="password-rules.js"></script>
 <script src="app-shell.js"></script>
 <script>
   // ============================================================
@@ -712,6 +777,14 @@
 
     document.getElementById('userName').textContent = currentUserData.name || '—';
     document.getElementById('userEmail').textContent = currentUserData.email || currentUser.email || '—';
+    const userPhoneEl = document.getElementById('userPhone');
+    if (currentUserData.phone) {
+      userPhoneEl.textContent = currentUserData.phone;
+      userPhoneEl.classList.remove('is-empty');
+    } else {
+      userPhoneEl.textContent = 'لم يتم إضافة رقم هاتف';
+      userPhoneEl.classList.add('is-empty');
+    }
     document.getElementById('userLevel').textContent = 'المستوى ' + tier.level + ' (' + tier.rank.name + ')';
 
     // نفس البيانات في بطاقة الهيدر (Hero)
@@ -937,8 +1010,30 @@
     const wrap = document.getElementById('editProfileWrap');
     const cancelBtn = document.getElementById('cancelEditBtn');
     const nameInput = document.getElementById('editNameInput');
+    const phoneInput = document.getElementById('editPhoneInput');
+    const phoneField = document.getElementById('editPhoneField');
     const passInput = document.getElementById('editPassInput');
+    const confirmPassField = document.getElementById('editConfirmPassField');
+    const confirmPassInput = document.getElementById('editConfirmPassInput');
+    const pwRulesBox = document.getElementById('editPwRules');
     const msg = document.getElementById('editProfileMsg');
+
+    /* إظهار حقل تأكيد كلمة المرور وقائمة المعايير فقط لو المستخدم بدأ يكتب كلمة مرور جديدة */
+    function updatePasswordRulesUI() {
+      const hasInput = passInput.value.length > 0 || confirmPassInput.value.length > 0;
+      confirmPassField.style.display = hasInput ? 'block' : 'none';
+      pwRulesBox.style.display = hasInput ? 'grid' : 'none';
+      if (hasInput && window.checkPasswordRules && window.renderPasswordRules) {
+        renderPasswordRules(pwRulesBox, checkPasswordRules(passInput.value, confirmPassInput.value));
+      }
+    }
+    passInput.addEventListener('input', updatePasswordRulesUI);
+    confirmPassInput.addEventListener('input', updatePasswordRulesUI);
+
+    /* رقم الهاتف يُخزَّن دائمًا بالصيغة الدولية الكاملة +201XXXXXXXXX فقط */
+    const EG_PHONE_LOCAL_RE = /^1[0125][0-9]{8}$/; // بدون الصفر الأول وبدون +20
+    function toIntlPhone(localDigits) { return '+20' + localDigits; }
+    function toLocalDigits(intlPhone) { return (intlPhone || '').replace(/^\+?20/, ''); }
 
     editBtn.addEventListener('click', function () {
       wrap.style.display = 'block';
@@ -946,9 +1041,19 @@
       void wrap.offsetWidth;
       wrap.classList.add('opening');
       nameInput.value = currentUserData.name || '';
+      phoneInput.value = toLocalDigits(currentUserData.phone);
       passInput.value = '';
+      confirmPassInput.value = '';
+      updatePasswordRulesUI();
       msg.classList.remove('show');
+      phoneField.classList.remove('has-error');
       wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    /* أرقام فقط، بحد أقصى 10 أرقام (بدون الصفر الأول) */
+    phoneInput.addEventListener('input', function () {
+      phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+      phoneField.classList.remove('has-error');
     });
 
     cancelBtn.addEventListener('click', function () {
@@ -970,6 +1075,7 @@
       msg.classList.remove('show');
       const newName = nameInput.value.trim();
       const newPass = passInput.value;
+      const phoneDigits = phoneInput.value.trim();
 
       if (!newName) {
         msg.textContent = 'الاسم مطلوب';
@@ -986,27 +1092,70 @@
         return;
       }
 
+      /* الاسم يجب أن يكون رباعيًا: 4 كلمات على الأقل، كل كلمة حرفان فأكثر */
+      if (window.isQuadName && !isQuadName(newName)) {
+        msg.textContent = 'الاسم يجب أن يكون رباعيًا (4 كلمات على الأقل)، وكل كلمة حرفان على الأقل';
+        msg.className = 'form-msg show error';
+        nameInput.focus();
+        return;
+      }
+
+      /* رقم الهاتف اختياري، لكن لو مكتوب لازم يكون بالصيغة الدولية +201XXXXXXXXX بس */
+      const phoneOk = phoneDigits === '' || EG_PHONE_LOCAL_RE.test(phoneDigits);
+      phoneField.classList.toggle('has-error', !phoneOk);
+      if (!phoneOk) {
+        msg.textContent = 'رقم الهاتف لازم يكون بالصيغة +201XXXXXXXXX فقط';
+        msg.className = 'form-msg show error';
+        phoneInput.focus();
+        return;
+      }
+      const newPhone = phoneDigits ? toIntlPhone(phoneDigits) : '';
+
       const updates = {};
       let nameChanged = false;
       let passChanged = false;
+      let phoneChanged = false;
 
       if (newName !== currentUserData.name) {
         updates['users/' + currentUser.uid + '/name'] = newName;
         nameChanged = true;
       }
 
-      if (newPass.length >= 8) {
+      if (newPhone !== (currentUserData.phone || '')) {
+        phoneChanged = true;
+      }
+
+      if (newPass.length > 0 || confirmPassInput.value.length > 0) {
+        const rules = window.checkPasswordRules ? checkPasswordRules(newPass, confirmPassInput.value) : null;
+        if (!rules || !allRulesPass(rules)) {
+          msg.textContent = 'كلمة المرور الجديدة لازم تطابق كل المعايير المطلوبة، وتتطابق مع خانة التأكيد';
+          msg.className = 'form-msg show error';
+          if (pwRulesBox) pwRulesBox.style.display = 'grid';
+          return;
+        }
         passChanged = true;
-      } else if (newPass.length > 0 && newPass.length < 8) {
-        msg.textContent = 'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل';
-        msg.className = 'form-msg show error';
-        return;
       }
 
       const promises = [];
 
       if (nameChanged) {
         promises.push(currentUser.updateProfile({ displayName: newName }));
+      }
+
+      if (phoneChanged) {
+        promises.push(
+          (newPhone ? db.ref('phoneIndex/' + newPhone).once('value') : Promise.resolve(null))
+            .then(function (snap) {
+              if (snap && snap.exists() && snap.val() !== currentUser.email) {
+                throw { code: 'phone-taken' };
+              }
+              const phoneUpdates = {};
+              if (currentUserData.phone) phoneUpdates['phoneIndex/' + currentUserData.phone] = null;
+              phoneUpdates['users/' + currentUser.uid + '/phone'] = newPhone || null;
+              if (newPhone) phoneUpdates['phoneIndex/' + newPhone] = currentUser.email;
+              return db.ref().update(phoneUpdates);
+            })
+        );
       }
 
       if (passChanged) {
@@ -1042,12 +1191,17 @@
           msg.textContent = '✅ تم تحديث الملف الشخصي بنجاح';
           msg.className = 'form-msg show success';
           if (nameChanged) currentUserData.name = newName;
+          if (phoneChanged) currentUserData.phone = newPhone;
           setTimeout(() => location.reload(), 1200);
         })
         .catch(err => {
           console.error(err);
+          if (err && err.code === 'phone-taken') {
+            phoneField.classList.add('has-error');
+          }
           const errorMsg = err.code === 'auth/wrong-password' ? 'كلمة المرور الحالية غير صحيحة' :
                            err.code === 'auth/too-many-requests' ? 'محاولات كثيرة، حاول مرة أخرى بعد قليل' :
+                           err.code === 'phone-taken' ? 'رقم الهاتف ده مسجّل بحساب آخر' :
                            err.message || 'حدث خطأ غير متوقع';
           msg.textContent = '❌ ' + errorMsg;
           msg.className = 'form-msg show error';

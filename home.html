@@ -421,8 +421,14 @@
           renderAyah();
 
           // لو الاسم مسجّل بالإنجليزية، اعرض رسالة إجبارية لتغييره للعربية
-          if (window.hasEnglishName && hasEnglishName(userData.name)) {
+          const needsArabicName = window.hasEnglishName && hasEnglishName(userData.name);
+          if (needsArabicName) {
             setTimeout(showArabicNameNotice, 400);
+          }
+
+          // لو معندوش رقم هاتف مسجّل، اعرض له دعوة اختيارية لإضافته (إلا لو فيه رسالة الاسم الإجبارية ظاهرة الأول)
+          if (!userData.phone && !needsArabicName) {
+            setTimeout(function () { showAddPhoneNotice(user, userData); }, 600);
           }
 
           // 2. تحميل المحتوى

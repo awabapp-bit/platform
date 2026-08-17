@@ -159,6 +159,13 @@
       "maxViolations": {
         ".validate": "newData.isNumber() && newData.val() >= 1"
       }
+    },
+    "phoneIndex": {
+      "$phone": {
+        ".read": true,
+        ".write": "auth != null && newData.val() === auth.token.email && (!data.exists() || data.val() === auth.token.email)",
+        ".validate": "newData.isString()"
+      }
     }
   }
 }
