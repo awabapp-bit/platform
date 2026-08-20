@@ -48,7 +48,7 @@
     overflow: hidden; background: #FCFBF8;
     transition: border-color .15s ease, box-shadow .15s ease;
   }
-  .phone-field-group:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(219,138,60,0.15); }
+  .phone-field-group:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217, 113, 75,0.15); }
   .field.has-error .phone-field-group { border-color: var(--danger); }
   .phone-field-group .phone-prefix {
     display: flex; align-items: center; justify-content: center;
@@ -80,8 +80,8 @@
     100% { background-position: 200% 0; }
   }
   @keyframes accPulseRing {
-    0% { box-shadow: 0 0 0 0 rgba(219,138,60,0.45); }
-    100% { box-shadow: 0 0 0 14px rgba(219,138,60,0); }
+    0% { box-shadow: 0 0 0 0 rgba(217, 113, 75,0.45); }
+    100% { box-shadow: 0 0 0 14px rgba(217, 113, 75,0); }
   }
 
   /* ===== البطاقة الرئيسية (Hero) ===== */
@@ -101,9 +101,9 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 90% 0%, rgba(219,138,60,0.30), transparent 55%),
-      radial-gradient(circle at 5% 100%, rgba(219,138,60,0.14), transparent 50%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23f3b979' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+      radial-gradient(circle at 90% 0%, rgba(217, 113, 75,0.30), transparent 55%),
+      radial-gradient(circle at 5% 100%, rgba(217, 113, 75,0.14), transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23F0A47F' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
     background-size: auto, auto, 84px 84px;
     pointer-events: none;
   }
@@ -163,7 +163,7 @@
     padding: 5px 13px;
     border-radius: 999px;
     background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(243,185,121,0.4);
+    border: 1px solid rgba(240, 164, 127,0.4);
     color: var(--gold-light);
   }
 
@@ -182,7 +182,7 @@
     align-items: center;
     gap: 8px;
     background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(243,185,121,0.5);
+    border: 1.5px solid rgba(240, 164, 127,0.5);
     color: var(--gold-light);
     padding: 10px 20px;
     border-radius: 999px;
@@ -193,16 +193,16 @@
     font-family: inherit;
   }
   .edit-profile-btn:hover {
-    background: rgba(243,185,121,0.18);
+    background: rgba(240, 164, 127,0.18);
     transform: translateY(-2px);
   }
   .delete-account-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(194,72,58,0.15);
-    border: 1.5px solid rgba(230,120,100,0.55);
-    color: #f0a996;
+    background: rgba(193, 63, 82,0.15);
+    border: 1.5px solid rgba(216, 110, 130,0.55);
+    color: #e9a8b8;
     padding: 10px 20px;
     border-radius: 999px;
     font-weight: 700;
@@ -212,7 +212,7 @@
     font-family: inherit;
   }
   .delete-account-btn:hover {
-    background: rgba(194,72,58,0.28);
+    background: rgba(193, 63, 82,0.28);
     transform: translateY(-2px);
   }
   .delete-account-btn i { font-size: 13px; }
@@ -242,7 +242,7 @@
   #editProfileWrap .field input:focus {
     border-color: var(--gold);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(219,138,60,0.15);
+    box-shadow: 0 0 0 3px rgba(217, 113, 75,0.15);
   }
   .edit-actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
   .edit-actions .btn { width: auto; }
@@ -256,14 +256,14 @@
     color: #fff;
     overflow: hidden;
     margin-bottom: 20px;
-    border: 1px solid rgba(243,185,121,0.25);
+    border: 1px solid rgba(240, 164, 127,0.25);
     animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .08s both;
   }
   .tier-card::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 85% 15%, rgba(201,154,74,0.28), transparent 55%);
+    background: radial-gradient(circle at 85% 15%, rgba(177, 78, 44,0.28), transparent 55%);
     pointer-events: none;
   }
   .tier-card::before {
@@ -271,7 +271,7 @@
     position: absolute;
     top: 0; left: -150%;
     width: 60%; height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(243,185,121,0.14), transparent);
+    background: linear-gradient(100deg, transparent, rgba(240, 164, 127,0.14), transparent);
     animation: accShimmer 5s linear infinite;
   }
   .tier-card .tier-top { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
@@ -326,7 +326,7 @@
     left: 5px;
     border-radius: 999px;
     background: var(--gradient-primary);
-    box-shadow: 0 6px 16px rgba(12,61,58,0.25);
+    box-shadow: 0 6px 16px rgba(43, 37, 96,0.25);
     transition: left .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1);
     z-index: 0;
   }
@@ -442,7 +442,7 @@
      ============================================================ */
   .delete-modal-overlay {
     position: fixed; inset: 0; z-index: 300;
-    background: rgba(6,33,31,0.72);
+    background: rgba(23, 19, 64,0.72);
     backdrop-filter: blur(6px);
     display: none; align-items: center; justify-content: center; padding: 20px;
     animation: fadeInOverlay 0.3s ease;
@@ -489,10 +489,10 @@
   .delete-modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
   .delete-modal .modal-actions .btn { width: auto; flex: 1; min-width: 100px; }
   .delete-modal .modal-actions .btn-danger {
-    background: linear-gradient(135deg, var(--danger), #8a3120);
-    color: #fff; border: none; box-shadow: 0 6px 20px rgba(179,67,43,0.25);
+    background: linear-gradient(135deg, var(--danger), #8f2f45);
+    color: #fff; border: none; box-shadow: 0 6px 20px rgba(193, 63, 82,0.25);
   }
-  .delete-modal .modal-actions .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(179,67,43,0.32); }
+  .delete-modal .modal-actions .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(193, 63, 82,0.32); }
   .delete-modal .modal-actions .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   .delete-modal .error-msg { font-size: 13px; color: var(--danger); background: #FBEAE6; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; display: none; }

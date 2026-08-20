@@ -327,13 +327,13 @@
           '</a>';
       });
 
-      function lessonGroup(label, itemsHtml, count) {
+      function lessonGroup(label, itemsHtml, count, kind, iconClass) {
         if (!count) return '';
         return (
-          '<div class="lesson-group">' +
+          '<div class="lesson-group ' + kind + '-group">' +
             '<button class="lesson-group-header" type="button">' +
-              '<span class="lg-toggle"><i class="fas fa-chevron-down"></i><span class="lg-toggle-text">عرض</span></span>' +
-              '<span class="lg-title">' + label + '</span>' +
+              '<span class="lg-title"><i class="' + iconClass + '"></i>' + label + '<span class="lg-count">' + count + '</span></span>' +
+              '<span class="lg-toggle"><span class="lg-toggle-text">عرض</span><i class="fas fa-chevron-down"></i></span>' +
             '</button>' +
             '<div class="lesson-group-body"><div class="lesson-group-body-inner">' + itemsHtml + '</div></div>' +
           '</div>'
@@ -341,9 +341,9 @@
       }
 
       let groupsHtml =
-        lessonGroup('الشرح', videosHtml, videoIds.length) +
-        lessonGroup('الامتحان', examsHtml, visibleExamCount) +
-        lessonGroup('المرفقات', materialsHtml, materialIds.length);
+        lessonGroup('الشرح', videosHtml, videoIds.length, 'video', 'fas fa-play') +
+        lessonGroup('الامتحان', examsHtml, visibleExamCount, 'exam', 'fas fa-list-check') +
+        lessonGroup('المرفقات', materialsHtml, materialIds.length, 'material', 'fas fa-paperclip');
       if (!groupsHtml) {
         groupsHtml = '<p class="muted" style="font-size:12.5px; padding:8px 4px;">لا يوجد محتوى في هذه المحاضرة بعد.</p>';
       }
@@ -368,24 +368,27 @@
       }
 
       html +=
-        '<div class="accordion-lesson" data-lesson="' + lessonId + '">' +
+        '<div class="accordion-lesson ' + (done ? 'is-done' : (isLocked ? 'is-locked' : 'is-active')) + '" data-lesson="' + lessonId + '">' +
           '<button class="accordion-header" ' + (isLocked ? 'disabled' : '') + '>' +
+            '<span class="lesson-side">' +
+              '<span class="lesson-badge ' + (done ? 'done' : (isLocked ? 'locked' : 'active')) + '">' +
+                (done ? '<i class="fas fa-check"></i>' : (isLocked ? '<i class="fas fa-lock"></i>' : '<span class="lesson-step-num">' + (index + 1) + '</span>')) +
+              '</span>' +
+            '</span>' +
             '<span class="lesson-main">' +
               '<h4 class="lesson-title">' + escapeHtml(lesson.title || 'محاضرة') + '</h4>' +
               '<span class="lesson-sub">' + (isLocked ? lockNote : subHtml) + '</span>' +
             '</span>' +
-            '<span class="lesson-side">' +
-              '<span class="lesson-badge ' + (done ? 'done' : (isLocked ? 'locked' : 'active')) + '">' +
-                (done ? '<i class="fas fa-check"></i>' : (isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-chevron-down chevron"></i>')) +
-              '</span>' +
-              (isLocked ? '' : '<span class="lesson-count">(' + itemsCount + ')</span>') +
+            '<span class="lesson-end">' +
+              (isLocked ? '' : '<span class="lesson-count">' + itemsCount + '</span>') +
+              (isLocked ? '' : '<i class="fas fa-chevron-down chevron"></i>') +
             '</span>' +
           '</button>' +
           (isLocked ? '' : '<div class="accordion-body"><div class="accordion-body-inner">' + groupsHtml + '</div></div>') +
         '</div>';
     });
 
-    wrap.innerHTML = html;
+    wrap.innerHTML = '<div class="lessons-path">' + html + '</div>';
 
     wrap.querySelectorAll('.accordion-header:not([disabled])').forEach(function (btn) {
       btn.addEventListener('click', function () {

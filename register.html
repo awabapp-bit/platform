@@ -9,23 +9,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --primary:#0c3d3a;
-    --primary-dark:#06211f;
-    --primary-deep:#06211f;
-    --gold:#db8a3c;
-    --ink:#142524;
-    --slate:#667a78;
-    --slate-light:#93897a;
-    --line:#E2EAE8;
+    --primary:#2B2560;
+    --primary-dark:#171340;
+    --primary-deep:#171340;
+    --gold:#D9714B;
+    --ink:#201A3D;
+    --slate:#746E96;
+    --slate-light:#8B84A8;
+    --line:#E5E1F5;
     --surface:#FFFFFF;
-    --surface-soft:#F4F7F6;
-    --danger:#C2483A;
-    --success:#2E7D5B;
+    --surface-soft:#F6F5FB;
+    --danger:#C13F52;
+    --success:#1F9C7A;
     --radius-lg:30px;
     --radius-md:20px;
     --radius-sm:12px;
-    --shadow-soft:0 1px 2px rgba(6,33,31,.04), 0 8px 24px rgba(6,33,31,.06);
-    --shadow-lift:0 4px 12px rgba(6,33,31,.22);
+    --shadow-soft:0 1px 2px rgba(23, 19, 64,.04), 0 8px 24px rgba(23, 19, 64,.06);
+    --shadow-lift:0 4px 12px rgba(23, 19, 64,.22);
     --ease:cubic-bezier(.4,0,.2,1);
   }
 
@@ -35,9 +35,9 @@
     font-family:'Cairo',sans-serif;
     background:var(--surface-soft);
   background-image:
-    radial-gradient(circle at 8% 4%, rgba(219,138,60,0.07) 0, transparent 42%),
-    radial-gradient(circle at 96% 96%, rgba(6,33,31,0.08) 0, transparent 46%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%230c3d3a' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+    radial-gradient(circle at 8% 4%, rgba(217, 113, 75,0.07) 0, transparent 42%),
+    radial-gradient(circle at 96% 96%, rgba(23, 19, 64,0.08) 0, transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%232B2560' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
   background-size: auto, auto, 84px 84px;
     color:var(--ink);
@@ -61,7 +61,7 @@
     position:relative;
     flex:0 0 40%;
     max-width:560px;
-    background:linear-gradient(160deg, var(--primary-deep) 0%, #14243d 55%, var(--primary-dark) 130%);
+    background:linear-gradient(160deg, var(--primary-deep) 0%, #171340 55%, var(--primary-dark) 130%);
     color:#fff;
     display:flex;
     flex-direction:column;
@@ -71,7 +71,7 @@
   }
   .brand-glow{
     position:absolute; width:520px;height:520px; border-radius:50%;
-    background:radial-gradient(circle, rgba(219,138,60,.15) 0%, rgba(219,138,60,0) 70%);
+    background:radial-gradient(circle, rgba(217, 113, 75,.15) 0%, rgba(217, 113, 75,0) 70%);
     top:-120px; left:-160px; pointer-events:none;
   }
   .star-field{position:absolute; inset:0; opacity:.5; pointer-events:none;}
@@ -104,7 +104,7 @@
     transition:all .3s var(--ease);
   }
   .brand-step.active .brand-step-num{background:var(--gold); border-color:var(--gold); color:var(--primary-deep);}
-  .brand-step.done .brand-step-num{background:rgba(219,138,60,.25); border-color:var(--gold); color:var(--gold);}
+  .brand-step.done .brand-step-num{background:rgba(217, 113, 75,.25); border-color:var(--gold); color:var(--gold);}
   .brand-step-text b{display:block; font-size:14px; font-weight:700;}
   .brand-step-text span{font-size:12px; color:rgba(255,255,255,.5);}
 
@@ -156,7 +156,7 @@
   }
   .field input.has-icon{padding-right:44px;}
   .field input::placeholder{color:transparent;}
-  .field input:focus{border-color:var(--primary); box-shadow:0 0 0 4px rgba(6,33,31,.12);}
+  .field input:focus{border-color:var(--primary); box-shadow:0 0 0 4px rgba(23, 19, 64,.12);}
 
   /* منع لون التعبئة التلقائية للمتصفح من إخفاء حدود الخانة */
   .field input:-webkit-autofill,
@@ -226,7 +226,7 @@
   .gender-card input{position:absolute; opacity:0; inset:0; cursor:pointer; margin:0;}
   .gender-card svg{width:26px;height:26px; color:var(--slate-light); transition:color .2s var(--ease);}
   .gender-card span{font-size:13.5px; font-weight:700; color:var(--slate);}
-  .gender-card:has(input:checked){border-color:var(--primary); background:rgba(6,33,31,.05);}
+  .gender-card:has(input:checked){border-color:var(--primary); background:rgba(23, 19, 64,.05);}
   .gender-card:has(input:checked) svg{color:var(--primary);}
   .gender-card:has(input:checked) span{color:var(--primary-dark);}
   .gender-card:has(input:focus-visible){outline:2px solid var(--primary); outline-offset:2px;}
@@ -260,7 +260,7 @@
     background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color:#fff; box-shadow:var(--shadow-lift);
   }
-  .btn-primary:hover{transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 8px 20px rgba(6,33,31,.28);}
+  .btn-primary:hover{transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 8px 20px rgba(23, 19, 64,.28);}
   .btn-primary:active{transform:translateY(0);}
   .btn-ghost{
     background:var(--surface); color:var(--slate); border:1.5px solid var(--line);
@@ -335,7 +335,7 @@
     <div class="brand-glow" aria-hidden="true"></div>
     <div class="star-field" aria-hidden="true">
       <svg width="560" height="560" viewBox="0 0 560 560" style="top:-70px; right:-140px; opacity:.35;">
-        <g stroke="#db8a3c" stroke-width="1" fill="none" opacity=".5">
+        <g stroke="#D9714B" stroke-width="1" fill="none" opacity=".5">
           <polygon points="280,50 340,205 500,205 375,300 425,455 280,362 135,455 185,300 60,205 220,205"/>
         </g>
         <circle cx="280" cy="280" r="205" stroke="#ffffff" stroke-width="0.6" fill="none" opacity=".18"/>

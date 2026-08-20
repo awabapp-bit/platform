@@ -98,7 +98,8 @@
     let html = '';
     if (ytId) {
       const thumbUrl = 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg';
-      html += '<div class="video-solo-wrap" id="videoWrap">' +
+      html += '<div class="theater-stage">' +
+        '<div class="video-solo-wrap" id="videoWrap">' +
           '<div class="video-cover" id="videoCover">' +
             '<img class="video-cover-img" id="videoCoverImg" src="' + thumbUrl + '" alt="" loading="eager" ' +
               'onerror="this.onerror=null; this.src=\'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg\';">' +
@@ -109,6 +110,7 @@
           '</div>' +
           '<div id="ytPlayerMount"></div>' +
           '<div class="player-click-catcher" id="playerClickCatcher"></div>' +
+          '<div class="yt-native-veil" id="ytNativeVeil"></div>' +
           '<div class="video-end-overlay" id="videoEndOverlay">' +
             '<button type="button" class="replay-btn" id="replayBtn">' + icon('rotateLeft', 'icon-md') + ' إعادة المشاهدة</button>' +
           '</div>' +
@@ -124,7 +126,8 @@
               '<button type="button" class="ctrl-icon-btn" id="fullscreenBtn" aria-label="تكبير الفيديو">' + FULLSCREEN_ICON.enter + '</button>' +
             '</div>' +
           '</div>' +
-        '</div>';
+        '</div>' +
+      '</div>';
     } else {
       html += '<p class="muted">تعذر تحميل الفيديو</p>';
     }
@@ -490,6 +493,17 @@
     }
     if (e.data === YT.PlayerState.PLAYING) scheduleHideControls();
     else showControlsBar();
+    // ستارة قصيرة جدًا تخفي ومضة أدوات يوتيوب الأصلية (أيقونة التشغيل/الإيقاف
+    // اللي يوتيوب بيظهرها لوحده عند كل تشغيل/إيقاف حتى مع controls:0)، بحيث
+    // إللي بيبان دايمًا هو أدواتنا المخصصة بس
+    if (e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.PAUSED) flashNativeVeil();
+  }
+
+  function flashNativeVeil() {
+    const veil = document.getElementById('ytNativeVeil');
+    if (!veil) return;
+    veil.classList.add('show');
+    setTimeout(function () { veil.classList.remove('show'); }, 260);
   }
 
   function updateProgress() {
@@ -583,7 +597,7 @@
         let replyHtml = '';
         if (reply) {
           replyHtml =
-            '<div class="comment-card" style="margin-inline-start:28px; margin-top:8px; background:var(--gold-pale); border-color:rgba(168,120,42,0.3);">' +
+            '<div class="comment-card" style="margin-inline-start:28px; margin-top:8px; background:var(--gold-pale); border-color:rgba(217, 113, 75,0.3);">' +
               '<div class="c-head"><span class="c-avatar" style="background:linear-gradient(135deg, var(--gold-light), var(--gold));">' + icon('shield', 'icon-sm') + '</span>' +
               '<span class="c-name">إدارة أواب</span>' +
               '<span class="c-time">' + formatArabicDate(reply.createdAt) + '</span></div>' +

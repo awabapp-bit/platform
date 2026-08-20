@@ -10,24 +10,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --primary:#0c3d3a;
-    --primary-dark:#06211f;
-    --primary-deep:#06211f;
-    --primary-deep-2:#0f4d47;
-    --gold:#db8a3c;
-    --gold-soft:#f3b979;
-    --ink:#142524;
-    --slate:#667a78;
-    --slate-light:#93897a;
-    --line:#E2EAE8;
+    --primary:#2B2560;
+    --primary-dark:#171340;
+    --primary-deep:#171340;
+    --primary-deep-2:#4A3F8C;
+    --gold:#D9714B;
+    --gold-soft:#F0A47F;
+    --ink:#201A3D;
+    --slate:#746E96;
+    --slate-light:#8B84A8;
+    --line:#E5E1F5;
     --surface:#FFFFFF;
-    --surface-soft:#F4F7F6;
-    --surface-tint:#FCEEDD;
+    --surface-soft:#F6F5FB;
+    --surface-tint:#FBEAE0;
     --radius-lg:30px;
     --radius-md:20px;
     --radius-sm:12px;
-    --shadow-soft:0 1px 2px rgba(6,33,31,.04), 0 8px 24px rgba(6,33,31,.06);
-    --shadow-lift:0 4px 12px rgba(6,33,31,.22);
+    --shadow-soft:0 1px 2px rgba(23, 19, 64,.04), 0 8px 24px rgba(23, 19, 64,.06);
+    --shadow-lift:0 4px 12px rgba(23, 19, 64,.22);
     --ease:cubic-bezier(.4,0,.2,1);
     --container:1180px;
   }
@@ -38,9 +38,9 @@
     font-family:'Cairo',sans-serif;
     background:var(--surface);
   background-image:
-    radial-gradient(circle at 8% 4%, rgba(219,138,60,0.07) 0, transparent 42%),
-    radial-gradient(circle at 96% 96%, rgba(6,33,31,0.08) 0, transparent 46%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%230c3d3a' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+    radial-gradient(circle at 8% 4%, rgba(217, 113, 75,0.07) 0, transparent 42%),
+    radial-gradient(circle at 96% 96%, rgba(23, 19, 64,0.08) 0, transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%232B2560' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
   background-size: auto, auto, 84px 84px;
     color:var(--ink);
@@ -76,7 +76,7 @@
     background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color:#fff; box-shadow:var(--shadow-lift);
   }
-  .btn-primary:hover{transform:translateY(-1px); filter:brightness(1.05); box-shadow:0 8px 22px rgba(6,33,31,.3);}
+  .btn-primary:hover{transform:translateY(-1px); filter:brightness(1.05); box-shadow:0 8px 22px rgba(23, 19, 64,.3);}
   .btn-ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line);}
   .btn-ghost:hover{border-color:var(--primary); color:var(--primary-dark);}
   .btn-ghost-dark{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.28);}
@@ -136,7 +136,7 @@
     color:var(--primary-dark); background:var(--surface-tint);
     padding:7px 14px; border-radius:99px; margin-bottom:18px;
   }
-  .eyebrow-dark{color:var(--gold-soft); background:rgba(219,138,60,.12);}
+  .eyebrow-dark{color:var(--gold-soft); background:rgba(217, 113, 75,.12);}
   .section-head{max-width:640px; margin-bottom:52px;}
   .section-head.center{margin-left:auto; margin-right:auto; text-align:center;}
   .section-head h2{font-size:clamp(26px,3.6vw,38px); font-weight:800; line-height:1.35; color:var(--ink); margin-bottom:14px;}
@@ -155,7 +155,7 @@
   ============================================================ */
   .hero{
     position:relative;
-    background:radial-gradient(ellipse 900px 500px at 75% -10%, rgba(219,138,60,.14), transparent 60%),
+    background:radial-gradient(ellipse 900px 500px at 75% -10%, rgba(217, 113, 75,.14), transparent 60%),
                linear-gradient(165deg, var(--primary-deep) 0%, var(--primary-deep-2) 55%, var(--primary-dark) 140%);
     color:#fff;
     padding:76px 0 0;
@@ -216,7 +216,7 @@
   .feature-card:hover{border-color:var(--primary); transform:translateY(-4px); box-shadow:var(--shadow-soft);}
   .feature-icon{
     width:50px; height:50px; border-radius:14px;
-    background:linear-gradient(135deg, var(--surface-tint), #F1E6C8);
+    background:linear-gradient(135deg, var(--surface-tint), #F7E0D6);
     display:flex; align-items:center; justify-content:center; margin-bottom:20px;
   }
   .feature-icon svg{width:24px; height:24px; color:var(--primary-dark);}
@@ -270,9 +270,9 @@
   .badge-card:hover{background:rgba(255,255,255,.08); border-color:var(--gold);}
   .badge-icon{
     width:46px; height:46px; border-radius:50%; margin:0 auto 14px;
-    background:linear-gradient(135deg, var(--gold), #b0641c);
+    background:linear-gradient(135deg, var(--gold), #B14E2C);
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 6px 18px rgba(219,138,60,.28);
+    box-shadow:0 6px 18px rgba(217, 113, 75,.28);
   }
   .badge-icon svg{width:22px; height:22px; color:var(--primary-deep);}
   .badge-card b{display:block; font-size:13.5px; font-weight:700; color:#fff; margin-bottom:4px;}
@@ -311,7 +311,7 @@
   }
   .final-cta-box::before{
     content:''; position:absolute; width:380px; height:380px; border-radius:50%;
-    background:radial-gradient(circle, rgba(219,138,60,.22), transparent 70%);
+    background:radial-gradient(circle, rgba(217, 113, 75,.22), transparent 70%);
     top:-140px; left:-100px;
   }
   .final-cta-box h2{position:relative; z-index:1; font-size:clamp(24px,3.4vw,34px); font-weight:800; margin-bottom:14px;}
@@ -423,7 +423,7 @@
 <section class="hero">
   <div class="hero-star-field" aria-hidden="true">
     <svg class="hero-star-breathe" width="640" height="640" viewBox="0 0 640 640" style="top:-160px; right:-160px;">
-      <polygon points="320,60 385,225 555,225 420,325 470,495 320,395 170,495 220,325 85,225 255,225" fill="none" stroke="#db8a3c" stroke-width="1" opacity=".5"/>
+      <polygon points="320,60 385,225 555,225 420,325 470,495 320,395 170,495 220,325 85,225 255,225" fill="none" stroke="#D9714B" stroke-width="1" opacity=".5"/>
       <circle cx="320" cy="320" r="240" fill="none" stroke="#ffffff" stroke-width="0.6" opacity=".14"/>
     </svg>
     <svg width="420" height="420" viewBox="0 0 420 420" style="bottom:-120px; left:-120px; opacity:.22;">
@@ -529,7 +529,7 @@
 <section class="achievements" id="achievements">
   <div class="ach-star-field" aria-hidden="true">
     <svg width="520" height="520" viewBox="0 0 520 520" style="top:-140px; left:-140px; opacity:.18;">
-      <polygon points="260,50 312,190 460,190 340,278 384,420 260,336 136,420 180,278 60,190 208,190" fill="none" stroke="#db8a3c" stroke-width="1"/>
+      <polygon points="260,50 312,190 460,190 340,278 384,420 260,336 136,420 180,278 60,190 208,190" fill="none" stroke="#D9714B" stroke-width="1"/>
     </svg>
   </div>
 
