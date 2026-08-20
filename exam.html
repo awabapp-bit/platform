@@ -1454,29 +1454,56 @@
     });
 
     const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
-    const examDataToSave = {
-      completed: true,
-      score: correct,
-      earnedPoints: earnedPoints,
-      answers: answersRecord,
-      answeredAt: firebase.database.ServerValue.TIMESTAMP
-    };
+    const examRef = progRef.child('exams/' + examId);
 
     endExamAttempt(compId, lessonId, examId, currentUser.uid, true, false);
 
-    progRef.child('exams/' + examId).set(examDataToSave)
-      .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + earnedPoints))
-      .then(() => progRef.once('value'))
-      .then((snap) => {
-        const lp = snap.val() || {};
-        const c = computeLessonCompletion(lessonData, lp);
-        return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
+    // ✅ لو دي مش أول محاولة (المسؤول فتح للمستخدم محاولة تانية بعد ما كان
+    // خلّص واحدة قبل كده): منستبدلش النتيجة والنقاط المحفوظة إلا لو النتيجة
+    // الجديدة أعلى فعلاً من الأولى. لو أقل أو حتى مساوية، نسيب النتيجة
+    // والنقاط القديمة زي ما هي تمامًا من غير أي تعديل.
+    examRef.once('value')
+      .then((existingSnap) => {
+        const existing = existingSnap.val();
+        const previousScore = existing ? (existing.score || 0) : null;
+        const previousEarnedPoints = existing ? (existing.earnedPoints || 0) : 0;
+        const isFirstAttempt = !existing;
+        const isBetter = isFirstAttempt || correct > previousScore;
+
+        if (!isBetter) {
+          // النتيجة الجديدة مش أحسن من القديمة: منلمسش سجل النتيجة ولا نقاط المستخدم خالص
+          return { saved: false };
+        }
+
+        const examDataToSave = {
+          completed: true,
+          score: correct,
+          earnedPoints: earnedPoints,
+          answers: answersRecord,
+          answeredAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        // نضيف فرق النقاط بس (وليس النقاط الجديدة كاملة) عشان محاولة سابقة
+        // بمحاولة أعلى منها؛ في حالة أول محاولة previousEarnedPoints = 0
+        // فالفرق بيبقى النقاط كاملة زي ما كان يحصل بالظبط قبل كده
+        const pointsDelta = earnedPoints - previousEarnedPoints;
+
+        return examRef.set(examDataToSave)
+          .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + pointsDelta))
+          .then(() => progRef.once('value'))
+          .then((snap) => {
+            const lp = snap.val() || {};
+            const c = computeLessonCompletion(lessonData, lp);
+            return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
+          })
+          .then(() => ({ saved: true }));
       })
-      .then(() => {
+      .then((result) => {
         const percentage = Math.round((correct / total) * 100);
         let autoMsg = '';
-        if (autoSubmit) {
-          autoMsg = 'تم التسليم تلقائياً.';
+        if (autoSubmit) autoMsg = 'تم التسليم تلقائياً.';
+        if (!result.saved) {
+          autoMsg = (autoMsg ? autoMsg + ' ' : '') +
+            'نتيجة هذه المحاولة (' + correct + ' من ' + total + ') لم تتجاوز أفضل نتيجة سابقة لك، لذلك احتُفظ بنتيجتك ونقاطك السابقة كما هي.';
         }
         // إخفاء المؤقت والتحذير
         document.getElementById('examTimer').style.display = 'none';
