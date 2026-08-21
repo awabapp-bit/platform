@@ -323,12 +323,12 @@
               '<div class="cc-cover">' +
                 (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
               '</div>' +
+              '<span class="cc-ribbon ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
               (isNew ? '<span class="cc-new-badge">' + icon('star', 'icon-sm') + ' جديد</span>' : '') +
-              '<span class="cc-seal ' + (isEnrolled ? 'is-enrolled' : (isCourse ? '' : 'competition')) + '">' + icon(isEnrolled ? 'circleCheck' : typeIcon, 'icon-md') + '</span>' +
             '</div>' +
             '<div class="cc-body">' +
-              '<span class="cc-kicker ' + (isEnrolled ? 'is-enrolled' : '') + '">' +
-                (isEnrolled ? 'أنت مشترك بالفعل' : (isCourse ? 'كورس مجاني' : 'مسابقة مجانية')) +
+              '<span class="cc-pill ' + (isEnrolled ? 'is-enrolled' : '') + '">' +
+                (isEnrolled ? icon('circleCheck', 'icon-sm') + ' أنت مشترك بالفعل' : icon('gem', 'icon-sm') + ' ' + (isCourse ? 'كورس مجاني' : 'مسابقة مجانية')) +
               '</span>' +
               '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
               (c.description ? '<p>' + escapeHtml(truncateText(c.description, 80)) + '</p>' : '') +
@@ -337,12 +337,13 @@
                 '<span class="cc-meta-item">' + icon('calendar', 'icon-sm') + ' ' + (isNew ? 'أُضيف حديثًا' : 'متاح الآن') + '</span>' +
               '</div>' +
               (isEnrolled ?
-                '<div class="cc-progress-wrap">' +
-                  '<div class="cc-progress" style="--segs:' + Math.max(lessonsCount, 1) + ';"><div class="cc-progress-fill" style="width:' + pct + '%;"></div></div>' +
-                  '<span class="cc-progress-pct">' + pct + '%</span>' +
+                '<div class="card-progress-wrap">' +
+                  '<div class="card-progress-bar"><div class="card-progress-fill" style="width:' + pct + '%;"></div></div>' +
+                  '<span class="card-progress-pct">' + pct + '%</span>' +
                 '</div>' : ''
               ) +
-              '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' cc-cta">' + ctaLabel + ' ' + icon('chevronLeft', 'icon-sm') + '</span>' +
+              '<span class="cc-details">التفاصيل ' + icon('chevronLeft', 'icon-sm') + '</span>' +
+              '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' cc-cta">' + ctaLabel + '</span>' +
             '</div>' +
           '</a>';
       });

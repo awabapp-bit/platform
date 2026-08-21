@@ -191,6 +191,11 @@
   async function startVoice() {
     if (!navigator.onLine) { alert('لا يوجد اتصال بالإنترنت'); return; }
     if (isWebView || !window.MediaRecorder) { document.getElementById('fileVoiceInput').click(); return; }
+    if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('التسجيل الصوتي من المتصفح يحتاج فتح الصفحة عبر رابط آمن (https) أو من "localhost"، مش بفتح الملف مباشرة من الجهاز. هيتم فتح منتقي الملفات بدل ذلك.');
+      document.getElementById('fileVoiceInput').click();
+      return;
+    }
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
@@ -211,6 +216,13 @@
     } catch (err) {
       console.warn('MediaRecorder failed:', err.name, err.message);
       stopTracks();
+      const messages = {
+        NotAllowedError: 'محتاجين إذن الوصول للميكروفون. من فضلك اسمح بالوصول للميكروفون من إعدادات المتصفح وحاول تاني.',
+        PermissionDeniedError: 'محتاجين إذن الوصول للميكروفون. من فضلك اسمح بالوصول للميكروفون من إعدادات المتصفح وحاول تاني.',
+        NotFoundError: 'مفيش ميكروفون متاح على الجهاز ده.',
+        NotReadableError: 'الميكروفون مش متاح دلوقتي، ممكن يكون بيستخدمه برنامج تاني.'
+      };
+      alert(messages[err.name] || 'حصلت مشكلة في تشغيل الميكروفون، هيتم فتح منتقي الملفات بدل ذلك.');
       document.getElementById('fileVoiceInput').click();
     }
   }

@@ -60,39 +60,6 @@
   .violation-type-badge.tab { background: #FFF3CD; color: #856404; }
   .violation-type-badge.blur { background: #F8D7DA; color: #721C24; }
 
-  /* ===== أزرار أعلى الاختبار: إنهاء الاختبار / معاينة الإجابات ===== */
-  .exam-top-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 18px;
-  }
-  .exam-top-actions .btn {
-    width: auto;
-    flex: 1 1 160px;
-    max-width: 220px;
-    font-size: 13.5px;
-    padding: 10px 14px;
-  }
-  .btn-end-exam {
-    background: #fff;
-    color: var(--danger);
-    border: 1.5px solid var(--danger);
-  }
-  .btn-end-exam:hover { background: #FBEAE6; }
-  .btn-preview-toggle {
-    background: #fff;
-    color: var(--gold-dark);
-    border: 1.5px solid var(--gold);
-  }
-  .btn-preview-toggle:hover { background: var(--gold-pale); }
-  .btn-preview-toggle.editing {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
-  }
-
   /* ===== شريط التنقل بين الأسئلة ===== */
   .exam-nav {
     display: flex;
@@ -129,59 +96,14 @@
     color: var(--success);
   }
   .exam-nav .q-btn.viewed {
-    border-color: var(--danger);
-    background: #FBEAE6;
-    color: var(--danger);
+    border-color: var(--gold);
+    background: var(--gold-pale);
+    color: var(--gold);
   }
   .exam-nav .q-btn.unseen {
     border-color: var(--border);
     background: var(--bg);
     color: var(--text-muted);
-  }
-
-  /* ===== وضع معاينة الإجابات (قبل التسليم) ===== */
-  .answer-preview-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .answer-preview-item {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    background: var(--card-bg);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    text-align: right;
-  }
-  .answer-preview-item:hover { border-color: var(--primary-light); }
-  .answer-preview-item.unanswered {
-    border-color: var(--danger);
-    background: #FBEAE6;
-  }
-  .answer-preview-item .preview-q-text {
-    font-weight: 700;
-    font-size: 14.5px;
-    color: var(--primary-dark);
-    margin: 0 0 4px;
-  }
-  .answer-preview-item .preview-answer-text {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .answer-preview-item.unanswered .preview-answer-text {
-    color: var(--danger);
-    font-weight: 700;
-  }
-  .answer-preview-item .preview-jump {
-    flex-shrink: 0;
-    color: var(--gold);
-    font-size: 15px;
   }
 
   /* ===== منطقة السؤال ===== */
@@ -276,17 +198,12 @@
   .confirm-overlay.open { display: flex; }
   .confirm-box {
     background: var(--card-bg);
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
     max-width: 400px;
     width: 100%;
     padding: 30px 28px;
-    box-shadow: 0 10px 28px rgba(23,19,64,0.12);
+    box-shadow: var(--shadow-lift);
     text-align: center;
-    animation: confirmPopIn .2s ease;
-  }
-  @keyframes confirmPopIn {
-    from { opacity: 0; transform: translateY(6px) scale(.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
   }
   .confirm-box .icon-big {
     font-size: 48px;
@@ -581,8 +498,8 @@
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <div class="icon-big"><i class="fas fa-exclamation-triangle"></i></div>
-    <h3 id="confirmTitle">تأكيد تسليم الاختبار</h3>
-    <p id="confirmMessage">هل أنت متأكد من تسليم الاختبار؟<br>لن تتمكن من تعديل إجاباتك بعد التسليم.</p>
+    <h3>تأكيد تسليم الاختبار</h3>
+    <p>هل أنت متأكد من تسليم الاختبار؟<br>لن تتمكن من تعديل إجاباتك بعد التسليم.</p>
     <div class="confirm-actions">
       <button class="btn btn-primary" id="confirmYesBtn"><i class="fas fa-check"></i> نعم</button>
       <button class="btn btn-outline" id="confirmNoBtn"><i class="fas fa-times"></i> لا</button>
@@ -636,8 +553,6 @@
   let isSubmitted = false;
   let isForceEnded = false;
   let violationCount = 0;
-  let visitedQuestions = new Set();
-  let isPreviewMode = false;
   const MAX_VIOLATIONS_KEY = 'maxViolations';
   let maxViolations = 3;
   let reloadCount = 0;
@@ -648,28 +563,13 @@
   const confirmOverlay = document.getElementById('confirmOverlay');
   const confirmYesBtn = document.getElementById('confirmYesBtn');
   const confirmNoBtn = document.getElementById('confirmNoBtn');
-  const confirmTitleEl = document.getElementById('confirmTitle');
-  const confirmMessageEl = document.getElementById('confirmMessage');
-  let pendingConfirmAction = null;
 
   function showConfirm() { confirmOverlay.classList.add('open'); }
   function hideConfirm() { confirmOverlay.classList.remove('open'); }
 
-  // نافذة تأكيد عامة القابلة لإعادة الاستخدام: تعرض عنوان ورسالة محددين، وتنفّذ
-  // دالة onConfirm عند الضغط على "نعم" فقط
-  function showConfirmDialog(title, message, onConfirm) {
-    confirmTitleEl.textContent = title;
-    confirmMessageEl.innerHTML = message;
-    pendingConfirmAction = onConfirm;
-    showConfirm();
-  }
-
-  confirmNoBtn.addEventListener('click', function () {
-    pendingConfirmAction = null;
-    hideConfirm();
-  });
+  confirmNoBtn.addEventListener('click', hideConfirm);
   confirmOverlay.addEventListener('click', function (e) {
-    if (e.target === this) { pendingConfirmAction = null; hideConfirm(); }
+    if (e.target === this) hideConfirm();
   });
 
   requireAuth(function (user, userData) {
@@ -842,14 +742,30 @@
     `;
   }
 
-  // ===== يبني قائمة مراجعة الأسئلة: كل سؤال مع الاختيارات (الصح أخضر، والخطأ المُختار أحمر) =====
-  // getQuestion(qId) لازم ترجع { text, options, correct }
-  function buildReviewListHtml(qIds, getQuestion, userAnswersObj) {
-    let html = '<div class="review-list">';
+  // ===== عرض مراجعة الإجابات (كل سؤال مع الاختيارات: الصح أخضر، والخطأ المُختار أحمر) =====
+  function renderExamReview(message, questionsMap, progData, orderedIds) {
+    const content = document.getElementById('content');
+    const userAnswers = progData.answers || {};
+    const qIds = orderedIds && orderedIds.length ? orderedIds : Object.keys(questionsMap);
+    const total = qIds.length;
+    const score = progData.score || 0;
+    const earnedPoints = progData.earnedPoints || 0;
+    const percentage = total ? Math.round((score / total) * 100) : 0;
+
+    let html = `
+      <div class="review-summary">
+        <div class="big-icon"><i class="fas fa-clipboard-check"></i></div>
+        <h3 style="margin:4px 0 6px; color:var(--primary-dark);">تفاصيل نتيجتك</h3>
+        <div class="score"><i class="fas fa-trophy"></i> ${earnedPoints} نقطة</div>
+        <div class="details">إجابات صحيحة: <strong>${score}</strong> من <strong>${total}</strong> (${percentage}%)</div>
+        <div class="details" style="margin-top:8px;">${escapeHtml(message)}</div>
+      </div>
+      <div class="review-list">
+    `;
+
     qIds.forEach((qId, idx) => {
-      const q = getQuestion(qId);
-      if (!q) return;
-      const selected = userAnswersObj[qId];
+      const q = questionsMap[qId];
+      const selected = userAnswers[qId];
       const hasAnswer = (selected !== undefined && selected !== null && selected >= 0);
       const isCorrect = hasAnswer && selected === q.correct;
 
@@ -884,55 +800,15 @@
 
       html += `</div></div>`;
     });
-    html += '</div>';
-    return html;
-  }
 
-  // ===== يبني صندوق ملخص النتيجة: النسبة المئية + عدد الصح/الغلط/بدون إجابة =====
-  function buildReviewSummaryHtml(qIds, getQuestion, userAnswersObj, earnedPoints, message) {
-    const total = qIds.length;
-    let correctCount = 0, wrongCount = 0, unansweredCount = 0;
-    qIds.forEach(qId => {
-      const q = getQuestion(qId);
-      const selected = userAnswersObj[qId];
-      const hasAnswer = (selected !== undefined && selected !== null && selected >= 0);
-      if (!hasAnswer) unansweredCount++;
-      else if (q && selected === q.correct) correctCount++;
-      else wrongCount++;
-    });
-    const percentage = total ? Math.round((correctCount / total) * 100) : 0;
-
-    return `
-      <div class="review-summary">
-        <div class="big-icon"><i class="fas fa-clipboard-check"></i></div>
-        <h3 style="margin:4px 0 6px; color:var(--primary-dark);">تفاصيل نتيجتك</h3>
-        <div class="score"><i class="fas fa-percent"></i> ${percentage}%</div>
-        <div class="details">
-          إجابات صحيحة: <strong style="color:var(--success);">${correctCount}</strong>
-          &nbsp;—&nbsp; إجابات خاطئة: <strong style="color:var(--danger);">${wrongCount}</strong>
-          ${unansweredCount ? '&nbsp;—&nbsp; بدون إجابة: <strong>' + unansweredCount + '</strong>' : ''}
-        </div>
-        <div class="details">النقاط المكتسبة: <strong>${earnedPoints}</strong> من ${total}</div>
-        ${message ? '<div class="details" style="margin-top:8px;">' + escapeHtml(message) + '</div>' : ''}
+    html += `
       </div>
-    `;
-  }
-
-  // ===== عرض مراجعة الإجابات (تُستخدم بعد إعادة تحميل الصفحة لمحاولة تم تسليمها مسبقاً) =====
-  function renderExamReview(message, questionsMap, progData, orderedIds) {
-    const content = document.getElementById('content');
-    const userAnswersLocal = progData.answers || {};
-    const qIds = orderedIds && orderedIds.length ? orderedIds : Object.keys(questionsMap);
-    const getQuestion = (qId) => questionsMap[qId];
-    const earnedPoints = progData.earnedPoints || 0;
-
-    const html = buildReviewSummaryHtml(qIds, getQuestion, userAnswersLocal, earnedPoints, message) +
-      buildReviewListHtml(qIds, getQuestion, userAnswersLocal) +
-      `<div style="margin-top:6px; text-align:center;">
+      <div style="margin-top:6px; text-align:center;">
         <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
           <i class="fas fa-arrow-left"></i> العودة للمحاضرة
         </a>
-      </div>`;
+      </div>
+    `;
 
     content.innerHTML = html;
   }
@@ -944,7 +820,7 @@
     document.getElementById('reloadWarning').style.display = 'none';
 
     const duration = examData.duration || 10;
-    const qCount = examData.questionCount || 20;
+    const qCount = examData.questionCount || 10;
     const content = document.getElementById('content');
 
     content.innerHTML =
@@ -1012,7 +888,7 @@
   }
 
   function startNewExam() {
-    const questionCount = examData.questionCount || 20;
+    const questionCount = examData.questionCount || 10;
     getRandomQuestions(compId, lessonId, examId, questionCount)
       .then(function(selectedQuestions) {
         if (!selectedQuestions || selectedQuestions.length === 0) {
@@ -1238,27 +1114,9 @@
       content.innerHTML = '<p class="muted">لا توجد أسئلة.</p>';
       return;
     }
-    if (!isPreviewMode) visitedQuestions.add(currentQuestionIndex);
-
-    // ===== أزرار أعلى الاختبار: إنهاء الاختبار / معاينة الإجابات =====
-    let topHtml = '<div class="exam-top-actions">';
-    topHtml += `<button class="btn btn-end-exam btn-sm" id="endExamBtn"><i class="fas fa-flag-checkered"></i> إنهاء الاختبار</button>`;
-    if (isPreviewMode) {
-      topHtml += `<button class="btn btn-preview-toggle editing btn-sm" id="previewToggleBtn"><i class="fas fa-pen"></i> تعديل إجابة</button>`;
-    } else {
-      topHtml += `<button class="btn btn-preview-toggle btn-sm" id="previewToggleBtn"><i class="fas fa-eye"></i> معاينة الإجابات</button>`;
-    }
-    topHtml += '</div>';
-
-    if (isPreviewMode) {
-      content.innerHTML = topHtml + buildPreviewListHtml() + '<div id="resultArea"></div>';
-      wireTopActions();
-      wirePreviewItems();
-      return;
-    }
-
     const qId = questionIds[currentQuestionIndex];
     const q = questionsData[currentQuestionIndex];
+    const isLast = (currentQuestionIndex === total - 1);
 
     let navHtml = '<div class="exam-progress-wrap">' +
       '<div class="exam-progress-bar"><div class="exam-progress-fill" id="examProgressFill" style="width:0%;"></div></div>' +
@@ -1267,11 +1125,11 @@
     questionIds.forEach((id, idx) => {
       const isActive = idx === currentQuestionIndex;
       const isAnswered = (userAnswers[id] !== undefined);
-      const isVisited = visitedQuestions.has(idx);
+      const isViewed = (idx <= currentQuestionIndex);
       let cls = 'q-btn';
       if (isActive) cls += ' active';
       else if (isAnswered) cls += ' answered';
-      else if (isVisited) cls += ' viewed';
+      else if (isViewed) cls += ' viewed';
       else cls += ' unseen';
       navHtml += `<button class="${cls}" data-index="${idx}">${idx+1}</button>`;
     });
@@ -1302,9 +1160,19 @@
     }
     actionsHtml += '</div>';
 
-    content.innerHTML = topHtml + navHtml + qHtml + actionsHtml + '<div id="resultArea"></div>';
+    let submitHtml = '';
+    if (isLast && !isSubmitted && !isForceEnded) {
+      submitHtml = `
+        <div class="submit-btn-wrapper">
+          <button class="btn-submit-final" onclick="openConfirm()">
+            <i class="fas fa-paper-plane"></i> تسليم الاختبار
+          </button>
+        </div>
+      `;
+    }
+
+    content.innerHTML = navHtml + qHtml + actionsHtml + submitHtml + '<div id="resultArea"></div>';
     updateExamProgressBar();
-    wireTopActions();
 
     document.querySelectorAll('.exam-nav .q-btn').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -1312,54 +1180,6 @@
       });
     });
   }
-
-  // ===== وضع معاينة الإجابات (قبل التسليم): يعرض كل إجاباتك تحت بعض =====
-  function buildPreviewListHtml() {
-    let html = '<div class="answer-preview-list">';
-    questionIds.forEach((qId, idx) => {
-      const q = questionsData[idx];
-      const selected = userAnswers[qId];
-      const hasAnswer = (selected !== undefined);
-      const answerText = hasAnswer ? escapeHtml(q.options[selected]) : 'لم تتم الإجابة على هذا السؤال';
-      html += `<div class="answer-preview-item ${hasAnswer ? '' : 'unanswered'}" data-index="${idx}">
-        <div>
-          <p class="preview-q-text">${idx + 1}. ${escapeHtml(q.text)}</p>
-          <span class="preview-answer-text">${hasAnswer ? '<i class="fas fa-circle-check"></i> ' : '<i class="fas fa-circle-exclamation"></i> '}${answerText}</span>
-        </div>
-        <i class="fas fa-pen preview-jump"></i>
-      </div>`;
-    });
-    html += '</div>';
-    return html;
-  }
-
-  function wirePreviewItems() {
-    document.querySelectorAll('.answer-preview-item').forEach(item => {
-      item.addEventListener('click', function () {
-        if (isSubmitted || isForceEnded) return;
-        currentQuestionIndex = parseInt(this.dataset.index);
-        isPreviewMode = false;
-        renderExam();
-      });
-    });
-  }
-
-  function wireTopActions() {
-    const endBtn = document.getElementById('endExamBtn');
-    const previewBtn = document.getElementById('previewToggleBtn');
-    if (endBtn) endBtn.addEventListener('click', function () {
-      if (!isSubmitted && !isForceEnded) openConfirm();
-    });
-    if (previewBtn) previewBtn.addEventListener('click', togglePreviewMode);
-  }
-
-  function togglePreviewMode() {
-    if (isSubmitted || isForceEnded) return;
-    isPreviewMode = !isPreviewMode;
-    renderExam();
-  }
-
-  window.togglePreviewMode = togglePreviewMode;
 
   function goToQuestion(index) {
     if (isSubmitted || isForceEnded) return;
@@ -1396,39 +1216,14 @@
     label.textContent = answered + ' من ' + total + ' تمت الإجابة عليها';
   }
 
-  function countAnswered() {
-    return questionIds.filter(function (id) { return userAnswers[id] !== undefined; }).length;
-  }
-
   function openConfirm() {
     if (isSubmitted || isForceEnded) return;
-    const answeredCount = countAnswered();
-    if (answeredCount === 0) {
-      showConfirmDialog(
-        'تنبيه',
-        'لم تقم بالإجابة على أي سؤال حتى الآن. هل تريد المتابعة لإنهاء الاختبار؟',
-        function () {
-          showConfirmDialog(
-            'تأكيد تسليم الاختبار',
-            'هل أنت متأكد من تسليم الاختبار؟<br>لن تتمكن من تعديل إجاباتك بعد التسليم.',
-            function () { if (!isSubmitted && !isForceEnded) submitExam(false); }
-          );
-        }
-      );
-    } else {
-      showConfirmDialog(
-        'تأكيد تسليم الاختبار',
-        'هل أنت متأكد من تسليم الاختبار؟<br>لن تتمكن من تعديل إجاباتك بعد التسليم.',
-        function () { if (!isSubmitted && !isForceEnded) submitExam(false); }
-      );
-    }
+    showConfirm();
   }
 
   confirmYesBtn.addEventListener('click', function () {
     hideConfirm();
-    const action = pendingConfirmAction;
-    pendingConfirmAction = null;
-    if (action) action();
+    if (!isSubmitted && !isForceEnded) submitExam(false);
   });
 
   function submitExam(autoSubmit) {
@@ -1454,74 +1249,48 @@
     });
 
     const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
-    const examRef = progRef.child('exams/' + examId);
+    const examDataToSave = {
+      completed: true,
+      score: correct,
+      totalQuestions: total,
+      earnedPoints: earnedPoints,
+      answers: answersRecord,
+      answeredAt: firebase.database.ServerValue.TIMESTAMP
+    };
 
     endExamAttempt(compId, lessonId, examId, currentUser.uid, true, false);
 
-    // ✅ لو دي مش أول محاولة (المسؤول فتح للمستخدم محاولة تانية بعد ما كان
-    // خلّص واحدة قبل كده): منستبدلش النتيجة والنقاط المحفوظة إلا لو النتيجة
-    // الجديدة أعلى فعلاً من الأولى. لو أقل أو حتى مساوية، نسيب النتيجة
-    // والنقاط القديمة زي ما هي تمامًا من غير أي تعديل.
-    examRef.once('value')
-      .then((existingSnap) => {
-        const existing = existingSnap.val();
-        const previousScore = existing ? (existing.score || 0) : null;
-        const previousEarnedPoints = existing ? (existing.earnedPoints || 0) : 0;
-        const isFirstAttempt = !existing;
-        const isBetter = isFirstAttempt || correct > previousScore;
-
-        if (!isBetter) {
-          // النتيجة الجديدة مش أحسن من القديمة: منلمسش سجل النتيجة ولا نقاط المستخدم خالص
-          return { saved: false };
-        }
-
-        const examDataToSave = {
-          completed: true,
-          score: correct,
-          earnedPoints: earnedPoints,
-          answers: answersRecord,
-          answeredAt: firebase.database.ServerValue.TIMESTAMP
-        };
-        // نضيف فرق النقاط بس (وليس النقاط الجديدة كاملة) عشان محاولة سابقة
-        // بمحاولة أعلى منها؛ في حالة أول محاولة previousEarnedPoints = 0
-        // فالفرق بيبقى النقاط كاملة زي ما كان يحصل بالظبط قبل كده
-        const pointsDelta = earnedPoints - previousEarnedPoints;
-
-        return examRef.set(examDataToSave)
-          .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + pointsDelta))
-          .then(() => progRef.once('value'))
-          .then((snap) => {
-            const lp = snap.val() || {};
-            const c = computeLessonCompletion(lessonData, lp);
-            return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
-          })
-          .then(() => ({ saved: true }));
+    progRef.child('exams/' + examId).set(examDataToSave)
+      .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + earnedPoints))
+      .then(() => progRef.once('value'))
+      .then((snap) => {
+        const lp = snap.val() || {};
+        const c = computeLessonCompletion(lessonData, lp);
+        return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
       })
-      .then((result) => {
+      .then(() => {
         const percentage = Math.round((correct / total) * 100);
         let autoMsg = '';
-        if (autoSubmit) autoMsg = 'تم التسليم تلقائياً.';
-        if (!result.saved) {
-          autoMsg = (autoMsg ? autoMsg + ' ' : '') +
-            'نتيجة هذه المحاولة (' + correct + ' من ' + total + ') لم تتجاوز أفضل نتيجة سابقة لك، لذلك احتُفظ بنتيجتك ونقاطك السابقة كما هي.';
+        if (autoSubmit) {
+          autoMsg = '<div style="margin-top:8px;color:var(--danger);font-weight:700;"><i class="fas fa-exclamation-triangle"></i> تم التسليم تلقائياً.</div>';
         }
         // إخفاء المؤقت والتحذير
         document.getElementById('examTimer').style.display = 'none';
         document.getElementById('violationWarning').style.display = 'none';
-
-        const getQuestion = (qId) => {
-          const idx = questionIds.indexOf(qId);
-          return idx >= 0 ? questionsData[idx] : null;
-        };
-        const summaryHtml = buildReviewSummaryHtml(questionIds, getQuestion, answersRecord, earnedPoints, autoMsg);
-        const listHtml = buildReviewListHtml(questionIds, getQuestion, answersRecord);
-        document.getElementById('content').innerHTML = summaryHtml + listHtml + `
-          <div style="margin-top:6px; text-align:center;">
-            <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
-              <i class="fas fa-arrow-left"></i> العودة للمحاضرة
-            </a>
+        document.getElementById('resultArea').innerHTML = `
+          <div class="exam-result">
+            <div class="score"><i class="fas fa-trophy" style="color:var(--gold);"></i> ${earnedPoints} نقطة</div>
+            <div class="details">إجابات صحيحة: <span>${correct}</span> من <span>${total}</span></div>
+            <div class="details">نسبة النجاح: <span>${percentage}%</span></div>
+            ${autoMsg}
+            <div style="margin-top:16px;">
+              <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
+                <i class="fas fa-arrow-left"></i> العودة للمحاضرة
+              </a>
+            </div>
           </div>
         `;
+        document.querySelectorAll('.exam-actions button, .btn-submit-final').forEach(b => b.disabled = true);
         sendExamResultEmail({
           studentName: currentUserData.name || '',
           studentEmail: currentUserData.email || currentUser.email || '',

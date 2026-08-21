@@ -10,36 +10,204 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
   /* ============================================================
-     صفحة "حسابي" — تصميم جديد بالكامل
+     صفحة "حسابي" — إعادة تصميم كاملة: تخطيط لوحة تحكم بمحور مسبحة
      ============================================================ */
 
-  main.page { max-width: 780px; }
+  main.page.acc-page { max-width: 1040px; }
 
-  .info-card {
-    animation: accFadeUp .4s ease both;
+  /* ===== الهيكل العام: عمود جانبي + محتوى ===== */
+  .acc-shell {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px 24px;
+    grid-template-columns: 300px 1fr;
+    align-items: start;
+    gap: 22px;
   }
-  .info-card .info-row { grid-column: span 1; }
-  .info-card .info-row.full-row { grid-column: 1 / -1; }
-  @media (max-width: 600px) {
-    .info-card { grid-template-columns: 1fr; }
+  @media (max-width: 860px) {
+    .acc-shell { grid-template-columns: 1fr; }
   }
-  .info-row .label { display: flex; align-items: center; gap: 10px; }
-  .info-row .label i {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 10px;
-    background: var(--primary-tint); color: var(--gold-dark); font-size: 13px;
+
+  /* ===== العمود الجانبي ===== */
+  .acc-sidebar { position: sticky; top: 18px; }
+  @media (max-width: 860px) { .acc-sidebar { position: static; } }
+
+  .acc-profile-card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 28px 22px 24px;
+    text-align: center;
+    overflow: hidden;
+    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) both;
   }
-  .info-row:hover { background: var(--primary-tint); margin: 0 -12px; padding: 12px; border-radius: var(--radius-sm); }
-  .info-row .value.is-empty { color: var(--text-muted); font-weight: 500; font-style: normal; }
-  .info-row .phone-edit-link {
-    font-size: 12px; font-weight: 700; color: var(--gold-dark);
-    background: var(--gold-pale); padding: 5px 12px; border-radius: 999px;
-    border: none; cursor: pointer; font-family: inherit; margin-inline-start: 8px;
+  .acc-profile-card::before {
+    content: "";
+    position: absolute;
+    top: -40px; inset-inline-end: -40px;
+    width: 130px; height: 130px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23D9714B' stroke-opacity='0.16' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E") center/64px repeat;
+    pointer-events: none;
   }
-  .info-row .phone-edit-link:hover { background: var(--gradient-gold); color: #fff; }
+
+  /* ===== حلقة المسبحة (مؤشر التقدّم) ===== */
+  .acc-ring-wrap {
+    position: relative;
+    width: 134px; height: 134px;
+    margin: 0 auto 14px;
+  }
+  .acc-beads { position: absolute; inset: 0; }
+  .acc-bead {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 8px; height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background .4s ease, box-shadow .4s ease;
+  }
+  .acc-bead.is-filled {
+    background: var(--bead-color, var(--gold));
+    box-shadow: 0 0 7px color-mix(in srgb, var(--bead-color, var(--gold)) 60%, transparent);
+  }
+  .acc-avatar-wrap {
+    position: absolute; inset: 20px;
+    display: block;
+    transition: transform .2s ease;
+  }
+  .acc-avatar-wrap:hover { transform: scale(1.05); }
+  .acc-avatar-wrap:active { transform: scale(.96); }
+  .acc-avatar {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    color: var(--gold-light);
+    font-size: 30px;
+    border: 3px solid var(--card-bg);
+    box-shadow: 0 8px 20px rgba(23,19,64,0.22);
+  }
+  .acc-avatar span {
+    font-family: 'Amiri', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .acc-avatar span:empty { display: none; }
+  .acc-avatar span:empty + i { display: inline-flex; }
+  .acc-avatar i { display: none; }
+  .acc-avatar:has(span:empty) i { display: inline-flex; }
+
+  .acc-name-link { text-decoration: none; display: block; }
+  .acc-name-link:hover h1 { color: var(--gold-dark); }
+  .acc-profile-card h1 {
+    font-family: 'Amiri', serif;
+    font-size: 21px;
+    color: var(--primary-dark);
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .acc-email {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+  .acc-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 800;
+    padding: 5px 13px; border-radius: 999px;
+    background: var(--primary-tint); color: var(--primary);
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+
+  /* ===== موجز المستوى تحت الحلقة ===== */
+  .acc-tier-info { margin-bottom: 18px; }
+  .acc-tier-row {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: 'Amiri', serif; font-weight: 700; font-size: 16px;
+    color: var(--rank-color, var(--gold-dark));
+    margin-bottom: 6px;
+  }
+  .acc-tier-row .acc-tier-level {
+    font-family: 'Cairo', sans-serif; font-size: 10.5px; font-weight: 800;
+    color: var(--text-muted); background: var(--bg);
+    padding: 2px 10px; border-radius: 999px;
+  }
+  .acc-tier-points { font-size: 12.5px; color: var(--text-muted); margin-bottom: 4px; }
+  .acc-tier-points i { color: var(--gold); margin-inline-end: 3px; }
+  .acc-tier-note { font-size: 11.5px; color: var(--text-muted); opacity: .85; }
+
+  /* ===== أزرار الإجراءات ===== */
+  .acc-actions { display: flex; flex-direction: column; gap: 9px; }
+  .acc-action-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 999px;
+    font-weight: 700; font-size: 13.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s ease;
+    border: 1.5px solid transparent;
+  }
+  .acc-action-btn.edit {
+    background: var(--primary-tint);
+    color: var(--primary);
+    border-color: var(--border);
+  }
+  .acc-action-btn.edit:hover { background: var(--gradient-primary); color: #fff; transform: translateY(-2px); }
+  .acc-action-btn.danger {
+    background: #FBEAE6;
+    color: var(--danger);
+    border-color: rgba(193,63,82,0.25);
+  }
+  .acc-action-btn.danger:hover { background: var(--danger); color: #fff; transform: translateY(-2px); }
+
+  /* ===== عمود المحتوى ===== */
+  .acc-main { min-width: 0; }
+
+  /* ===== نموذج تعديل الملف الشخصي ===== */
+  .acc-edit-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 24px 24px 20px;
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .acc-edit-panel.opening { animation: accFadeUp .35s ease both; }
+  .acc-edit-panel .edit-title {
+    font-family: 'Amiri', serif; color: var(--primary-dark); margin: 0 0 16px;
+    display: flex; align-items: center; gap: 8px; font-size: 18px;
+  }
+  .acc-edit-panel .edit-title i { color: var(--gold); }
+  .acc-edit-panel .fields-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px;
+  }
+  .acc-edit-panel .fields-grid .field.full { grid-column: 1 / -1; }
+  @media (max-width: 600px) { .acc-edit-panel .fields-grid { grid-template-columns: 1fr; } }
+  .acc-edit-panel .field { margin-bottom: 14px; }
+  .acc-edit-panel .field label {
+    display: block; font-size: 13px; font-weight: 700;
+    color: var(--primary-dark); margin-bottom: 6px;
+  }
+  .acc-edit-panel .field input {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; font-family: inherit;
+    background: #FCFBF8; color: var(--text);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .acc-edit-panel .field input:focus {
+    border-color: var(--gold); outline: none;
+    box-shadow: 0 0 0 3px rgba(217,113,75,0.15);
+  }
+  .acc-edit-panel .field-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
   /* ===== حقل رقم الهاتف بمقدمة دولية ثابتة (+20) ===== */
   .phone-field-group {
@@ -63,6 +231,9 @@
   }
   .phone-field-group input:focus { outline: none; box-shadow: none !important; }
 
+  .edit-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .edit-actions .btn { width: auto; }
+
   @keyframes accFadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -71,270 +242,33 @@
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-  @keyframes accFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-  }
   @keyframes accShimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
-  @keyframes accPulseRing {
-    0% { box-shadow: 0 0 0 0 rgba(217, 113, 75,0.45); }
-    100% { box-shadow: 0 0 0 14px rgba(217, 113, 75,0); }
-  }
 
-  /* ===== البطاقة الرئيسية (Hero) ===== */
-  .acc-hero {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
-    padding: 34px 30px 28px;
-    color: #fff;
-    box-shadow: var(--shadow-lift);
-    margin-bottom: 20px;
-    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) both;
-  }
-  .acc-hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 90% 0%, rgba(217, 113, 75,0.30), transparent 55%),
-      radial-gradient(circle at 5% 100%, rgba(217, 113, 75,0.14), transparent 50%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23F0A47F' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: auto, auto, 84px 84px;
-    pointer-events: none;
-  }
-  .acc-hero-row {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .acc-avatar-wrap { position: relative; flex-shrink: 0; display: block; transition: transform .2s ease; }
-  .acc-avatar-wrap:hover { transform: scale(1.06); }
-  .acc-avatar-wrap:active { transform: scale(0.97); }
-  .acc-name-link { text-decoration: none; display: inline-block; }
-  .acc-name-link:hover h1 { color: var(--gold-light); }
-  .acc-avatar {
-    width: 84px;
-    height: 84px;
-    border-radius: 26px;
-    background: linear-gradient(135deg, var(--gold-light), var(--gold));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 34px;
-    color: var(--primary-dark);
-    border: 3px solid rgba(255,255,255,0.35);
-    animation: accFloat 4.5s ease-in-out infinite, accPulseRing 2.6s ease-out infinite;
-  }
-  .acc-hero-info { flex: 1; min-width: 200px; }
-  .acc-hero-info h1 {
-    font-family: 'Amiri', serif;
-    font-size: 25px;
-    margin: 0 0 4px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    transition: color .15s ease;
-  }
-  .acc-hero-info .acc-email {
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.72);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-  .acc-badges { display: flex; gap: 8px; flex-wrap: wrap; }
-  .acc-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 800;
-    padding: 5px 13px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(240, 164, 127,0.4);
-    color: var(--gold-light);
-  }
-
-  .acc-hero-actions {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(255,255,255,0.14);
-  }
-  .edit-profile-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(240, 164, 127,0.5);
-    color: var(--gold-light);
-    padding: 10px 20px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 13.5px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-  }
-  .edit-profile-btn:hover {
-    background: rgba(240, 164, 127,0.18);
-    transform: translateY(-2px);
-  }
-  .delete-account-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(193, 63, 82,0.15);
-    border: 1.5px solid rgba(216, 110, 130,0.55);
-    color: #e9a8b8;
-    padding: 10px 20px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 13.5px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-  }
-  .delete-account-btn:hover {
-    background: rgba(193, 63, 82,0.28);
-    transform: translateY(-2px);
-  }
-  .delete-account-btn i { font-size: 13px; }
-
-  /* ===== نموذج تعديل الملف الشخصي ===== */
-  #editProfileWrap { overflow: hidden; }
-  #editProfileWrap.opening { animation: accFadeUp .35s ease both; }
-  #editProfileWrap .field { margin-bottom: 14px; }
-  #editProfileWrap .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: 6px;
-  }
-  #editProfileWrap .field input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-family: inherit;
-    background: #FCFBF8;
-    color: var(--text);
-    transition: border-color 0.15s ease, box-shadow .15s ease;
-  }
-  #editProfileWrap .field input:focus {
-    border-color: var(--gold);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(217, 113, 75,0.15);
-  }
-  .edit-actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
-  .edit-actions .btn { width: auto; }
-
-  /* ===== بطاقة المستوى ===== */
-  .tier-card {
-    position: relative;
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-    border-radius: var(--radius-lg);
-    padding: 24px 28px;
-    color: #fff;
-    overflow: hidden;
-    margin-bottom: 20px;
-    border: 1px solid rgba(240, 164, 127,0.25);
-    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .08s both;
-  }
-  .tier-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 85% 15%, rgba(177, 78, 44,0.28), transparent 55%);
-    pointer-events: none;
-  }
-  .tier-card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: -150%;
-    width: 60%; height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(240, 164, 127,0.14), transparent);
-    animation: accShimmer 5s linear infinite;
-  }
-  .tier-card .tier-top { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
-  .tier-card .tier-icon {
-    width: 56px; height: 56px; border-radius: 16px;
-    background: rgba(255,255,255,0.15);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; color: var(--rank-color, var(--gold-light));
-    flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);
-  }
-  .tier-card .tier-name {
-    font-family: 'Amiri', serif; font-size: 20px; font-weight: 700;
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  }
-  .tier-card .tier-rank-pill {
-    font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 800;
-    background: rgba(255,255,255,0.16); color: var(--rank-color, var(--gold-light));
-    padding: 3px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15);
-  }
-  .tier-card .tier-points { font-size: 13px; opacity: 0.85; margin-top: 4px; }
-  .tier-card .tier-level-big {
-    margin-inline-start: auto; font-family: 'Amiri', serif; font-weight: 700;
-    font-size: 32px; color: var(--rank-color, var(--gold-light)); line-height: 1;
-    position: relative; z-index: 1; flex-shrink: 0; text-align: center;
-  }
-  .tier-card .tier-level-big span { display: block; font-family: 'Cairo', sans-serif; font-size: 10px; font-weight: 700; opacity: 0.6; margin-top: 2px; }
-  .tier-card .tier-progress-wrap { margin-top: 16px; position: relative; z-index: 1; }
-  .tier-card .tier-progress-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.18); overflow: hidden; }
-  .tier-card .tier-progress-fill {
-    height: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, var(--gold-light), var(--gold));
-    transition: width 0.8s cubic-bezier(.22,1,.36,1);
-  }
-  .tier-card .tier-next-note { font-size: 12px; opacity: 0.75; margin-top: 8px; position: relative; z-index: 1; }
-
-  /* ===== التبويبات (شريط منزلق) ===== */
+  /* ===== التبويبات (خط سفلي منزلق) ===== */
   .account-tabs {
     position: relative;
     display: flex;
-    gap: 2px;
-    margin-bottom: 24px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 5px;
-    box-shadow: var(--shadow);
-    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .12s both;
+    gap: 6px;
+    margin-bottom: 22px;
+    border-bottom: 2px solid var(--border);
+    animation: accFadeUp .5s cubic-bezier(.22,1,.36,1) .08s both;
   }
   .acc-tab-indicator {
     position: absolute;
-    top: 5px; bottom: 5px;
-    left: 5px;
-    border-radius: 999px;
-    background: var(--gradient-primary);
-    box-shadow: 0 6px 16px rgba(43, 37, 96,0.25);
+    bottom: -2px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--gradient-gold);
     transition: left .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1);
     z-index: 0;
   }
   .account-tab {
     position: relative;
     z-index: 1;
-    flex: 1;
-    padding: 11px 16px;
+    padding: 12px 6px;
     border: none;
     background: none;
     font-weight: 700;
@@ -347,69 +281,190 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    border-radius: 999px;
     white-space: nowrap;
   }
   .account-tab:hover { color: var(--primary); }
-  .account-tab.active { color: #fff; }
+  .account-tab.active { color: var(--primary-dark); }
   .account-tab i { font-size: 14px; }
+  @media (max-width: 600px) {
+    .account-tabs { gap: 0; justify-content: space-between; }
+    .account-tab { flex: 1; padding: 11px 4px; font-size: 12px; }
+  }
 
   .tab-content { display: none; }
   .tab-content.active { display: block; animation: accFadeUp 0.4s cubic-bezier(.22,1,.36,1) both; }
 
-  /* ===== الاشتراكات والاختبارات ===== */
-  .enrolled-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+  /* ===== قائمة معلوماتي ===== */
+  .info-list { display: flex; flex-direction: column; gap: 10px; }
+  .info-tile {
+    display: flex; align-items: center; gap: 14px;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 14px 18px;
-    margin-bottom: 12px;
+    transition: border-color .2s ease, transform .2s ease;
+    animation: accFadeUp .4s ease both;
+  }
+  .info-tile:hover { border-color: var(--gold); transform: translateX(-2px); }
+  [dir="rtl"] .info-tile:hover { transform: translateX(2px); }
+  .info-tile .info-tile-icon {
+    flex-shrink: 0;
+    width: 42px; height: 42px; border-radius: 13px;
+    background: var(--primary-tint); color: var(--gold-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .info-tile .info-tile-body { flex: 1; min-width: 0; }
+  .info-tile .info-tile-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
+  .info-tile .value { font-size: 14.5px; font-weight: 700; color: var(--text); }
+  .info-tile .value.is-empty { color: var(--text-muted); font-weight: 500; }
+
+  /* ============================================================
+     شريط الإحصائيات المصغّر (مشترك بين تبويبي الاشتراكات والاختبارات)
+     ============================================================ */
+  .acc-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+    animation: accFadeUp .4s ease both;
+  }
+  .acc-stat-chip {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .acc-stat-chip:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .acc-stat-chip .stat-icon {
+    flex-shrink: 0;
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--primary-tint); color: var(--primary);
+    font-size: 15px;
+  }
+  .acc-stat-chip .stat-value { font-family: 'Amiri', serif; font-weight: 700; font-size: 19px; color: var(--text); line-height: 1.2; }
+  .acc-stat-chip .stat-label { font-size: 11.5px; color: var(--text-muted); }
+
+  /* ============================================================
+     تبويب الاشتراكات — بطاقات غنية بشريط تقدّم وصورة غلاف
+     ============================================================ */
+  .subs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .enrolled-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     animation: accFadeUp .4s ease both;
   }
   .enrolled-card:hover {
     box-shadow: var(--shadow-lift);
-    transform: translateY(-3px);
+    transform: translateY(-4px);
     border-color: var(--gold);
   }
   .enrolled-card .ec-cover {
-    width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    position: relative;
+    height: 100px;
+    background: var(--gradient-primary);
     display: flex; align-items: center; justify-content: center;
-    color: var(--gold-pale); font-size: 20px;
+    overflow: hidden;
   }
-  .enrolled-card .ec-body { flex: 1; min-width: 0; }
-  .enrolled-card .ec-title { font-size: 14.5px; font-weight: 700; color: var(--text); }
-  .enrolled-card .ec-sub { font-size: 12px; color: var(--text-muted); }
-  .enrolled-card .ec-arrow { color: var(--gold); font-size: 13px; transition: transform .2s ease; }
-  .enrolled-card:hover .ec-arrow { transform: translateX(-4px); }
+  .enrolled-card .ec-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .enrolled-card .ec-cover .cover-icon { color: rgba(255,255,255,0.5); font-size: 30px; }
+  .enrolled-card .ec-ribbon {
+    position: absolute; top: 10px; inset-inline-start: 10px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 800; color: #fff;
+    background: rgba(23,19,64,0.55); backdrop-filter: blur(4px);
+    padding: 4px 11px; border-radius: 999px;
+  }
+  .enrolled-card .ec-ribbon.is-competition { background: rgba(217,113,75,0.75); }
+  .enrolled-card .ec-donebadge {
+    position: absolute; top: 10px; inset-inline-end: 10px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 800; color: #fff;
+    background: var(--success); padding: 4px 11px; border-radius: 999px;
+  }
+  .enrolled-card .ec-body { flex: 1; min-width: 0; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .enrolled-card .ec-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .enrolled-card .ec-meta-row { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--text-muted); }
+  .enrolled-card .ec-meta-row span { display: flex; align-items: center; gap: 4px; }
+  .enrolled-card .ec-meta-row i { color: var(--gold); }
+  .enrolled-card .ec-progress-wrap { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+  .enrolled-card .ec-progress-bar { flex: 1; height: 7px; border-radius: 999px; background: var(--bg); overflow: hidden; }
+  .enrolled-card .ec-progress-fill { height: 100%; border-radius: 999px; background: var(--gradient-gold); transition: width .8s cubic-bezier(.22,1,.36,1); }
+  .enrolled-card .ec-progress-pct { font-size: 11.5px; font-weight: 800; color: var(--gold-dark); flex-shrink: 0; }
+  .enrolled-card .ec-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border);
+    font-size: 12.5px; font-weight: 700; color: var(--primary);
+  }
+  .enrolled-card .ec-footer .ec-arrow { color: var(--gold); transition: transform .2s ease; }
+  .enrolled-card:hover .ec-footer .ec-arrow { transform: translateX(-4px); }
+  [dir="rtl"] .enrolled-card:hover .ec-footer .ec-arrow { transform: translateX(4px); }
 
+  /* ============================================================
+     تبويب الاختبارات — بطاقات بحلقة نسبة مئوية
+     ============================================================ */
   .exam-history-card {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px 20px;
+    padding: 16px 18px;
     margin-bottom: 12px;
     transition: all 0.2s ease;
     animation: accFadeUp .4s ease both;
   }
-  .exam-history-card:hover { box-shadow: var(--shadow-lift); border-color: var(--gold); transform: translateY(-2px); }
-  .exam-history-card .exam-info { display: flex; flex-direction: column; gap: 4px; }
-  .exam-history-card .exam-info .exam-title { font-weight: 700; font-size: 14px; color: var(--text); }
+  .exam-history-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); border-color: var(--gold); }
+
+  .exam-pct-ring {
+    flex-shrink: 0;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: conic-gradient(var(--ring-color, var(--gold)) calc(var(--pct, 0) * 1%), var(--bg) 0);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .exam-pct-ring::before {
+    content: "";
+    position: absolute; inset: 5px;
+    border-radius: 50%;
+    background: var(--card-bg);
+  }
+  .exam-pct-ring span {
+    position: relative; z-index: 1;
+    font-size: 13px; font-weight: 800; color: var(--ring-color, var(--gold-dark));
+  }
+
+  .exam-history-card .exam-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+  .exam-history-card .exam-info .exam-title { font-weight: 700; font-size: 14.5px; color: var(--text); }
   .exam-history-card .exam-info .exam-title i { color: var(--gold); margin-left: 6px; }
-  .exam-history-card .exam-score { font-weight: 800; color: var(--gold-dark); font-size: 14px; }
-  .exam-history-card .exam-score i { margin-left: 4px; }
+  .exam-history-card .exam-sub { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 3px 12px; }
+  .exam-history-card .exam-sub .sub-item { display: flex; align-items: center; gap: 4px; }
+  .exam-history-card .exam-sub i { color: var(--gold); }
+  .exam-history-card .exam-score {
+    font-weight: 800; color: var(--gold-dark); font-size: 13px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
   .exam-detail-btn {
+    flex-shrink: 0;
     background: var(--primary-tint);
     border: none;
     color: var(--primary);
@@ -421,17 +476,20 @@
     gap: 6px;
     transition: all 0.2s ease;
     font-family: inherit;
-    padding: 8px 16px;
+    padding: 9px 16px;
     border-radius: 999px;
     text-decoration: none;
   }
   .exam-detail-btn:hover { background: var(--primary); color: #fff; }
 
+  @media (max-width: 600px) {
+    .exam-history-card { flex-wrap: wrap; }
+    .exam-detail-btn { width: 100%; justify-content: center; order: 3; }
+  }
+
   /* ===== فلترة الاختبارات (الكل + الكورسات/المسابقات) ===== */
   .exam-filter-tabs { flex-wrap: wrap; margin-bottom: 16px; }
   .exam-filter-tabs .filter-tab { white-space: nowrap; }
-  .exam-history-card .exam-sub { font-size: 12px; color: var(--text-muted); }
-  .exam-history-card .exam-sub i { color: var(--gold); margin-left: 5px; }
 
   .empty-state { text-align: center; padding: 46px 20px; color: var(--text-muted); animation: accFadeIn .4s ease; }
   .empty-state i { font-size: 42px; display: block; margin-bottom: 14px; color: var(--gold); opacity: 0.55; }
@@ -453,29 +511,49 @@
   .delete-modal {
     background: var(--card-bg);
     border-radius: var(--radius-lg);
-    max-width: 480px; width: 100%;
-    padding: 32px 30px;
+    max-width: 460px; width: 100%;
+    padding: 0 0 26px;
     box-shadow: var(--shadow-lift);
     position: relative;
     animation: slideUp 0.3s ease;
     direction: rtl;
-    border-top: 4px solid var(--danger);
+    overflow: hidden;
   }
   @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+  .delete-modal .modal-banner {
+    position: relative;
+    background: linear-gradient(135deg, var(--danger), #7d2536);
+    padding: 34px 20px 40px;
+    overflow: hidden;
+  }
+  .delete-modal .modal-banner::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='%23fff' fill-opacity='0.08'%3E%3Ccircle cx='7' cy='7' r='1.6'/%3E%3Ccircle cx='32' cy='7' r='1.6'/%3E%3Ccircle cx='16' cy='16' r='1.6'/%3E%3Ccircle cx='54' cy='16' r='1.6'/%3E%3Ccircle cx='7' cy='32' r='1.6'/%3E%3Ccircle cx='32' cy='32' r='1.6'/%3E%3C/g%3E%3C/svg%3E") center/48px repeat;
+  }
   .delete-modal .modal-close {
-    position: absolute; top: 14px; left: 14px;
-    background: var(--bg); border: none; width: 32px; height: 32px; border-radius: 50%;
-    font-size: 16px; cursor: pointer; color: var(--text-muted);
+    position: absolute; top: 14px; left: 14px; z-index: 2;
+    background: rgba(255,255,255,0.16); border: none; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 15px; cursor: pointer; color: #fff;
     display: flex; align-items: center; justify-content: center;
     transition: all 0.15s ease;
   }
-  .delete-modal .modal-close:hover { background: var(--border); transform: rotate(90deg); }
+  .delete-modal .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
 
-  .delete-modal .modal-icon { text-align: center; font-size: 48px; color: var(--danger); margin-bottom: 12px; animation: accFloat 2.5s ease-in-out infinite; }
-  .delete-modal .modal-icon i { font-size: 48px; }
+  .delete-modal .modal-icon {
+    position: relative; z-index: 1;
+    width: 64px; height: 64px; margin: 0 auto;
+    border-radius: 50%;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--danger);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+  }
 
-  .delete-modal h3 { font-family: 'Amiri', serif; color: var(--primary-dark); font-size: 20px; text-align: center; margin: 0 0 8px; }
+  .delete-modal .modal-body-wrap { padding: 0 28px; margin-top: -22px; position: relative; z-index: 2; }
+
+  .delete-modal h3 { font-family: 'Amiri', serif; color: var(--primary-dark); font-size: 19px; text-align: center; margin: 14px 0 8px; }
   .delete-modal p { font-size: 14px; color: var(--text-muted); text-align: center; line-height: 1.8; margin: 0 0 18px; }
   .delete-modal .field { margin-bottom: 14px; }
   .delete-modal .field label { display: block; font-size: 13px; font-weight: 600; color: var(--primary-dark); margin-bottom: 6px; }
@@ -507,24 +585,14 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .delete-modal .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
-  .delete-modal .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.3s ease, transform .3s ease; }
-  .delete-modal .step-dot.active { background: var(--gold); transform: scale(1.3); }
+  .delete-modal .step-indicator { display: flex; justify-content: center; gap: 6px; margin: 14px 0 4px; }
+  .delete-modal .step-dot { width: 26px; height: 5px; border-radius: 999px; background: var(--border); transition: background 0.3s ease, transform .3s ease; }
+  .delete-modal .step-dot.active { background: var(--danger); }
   .delete-modal .step-dot.done { background: var(--success); }
 
   @media (max-width: 600px) {
-    .acc-hero { padding: 26px 20px 22px; }
-    .acc-avatar { width: 68px; height: 68px; font-size: 27px; }
-    .acc-hero-info h1 { font-size: 21px; }
-    .account-tabs { gap: 2px; }
-    .account-tab { padding: 10px 10px; font-size: 12.5px; }
-    .tier-card { padding: 18px 20px; }
-    .tier-card .tier-top { gap: 12px; }
-    .tier-card .tier-level-big { font-size: 26px; }
-    .exam-history-card { flex-direction: column; align-items: stretch; }
-    .exam-history-card .exam-info { gap: 2px; }
-    .exam-detail-btn { align-self: flex-start; }
-    .delete-modal { padding: 24px 18px; }
+    .acc-profile-card { padding: 24px 18px 20px; }
+    .delete-modal .modal-body-wrap { padding: 0 20px; }
     .delete-modal .modal-actions .btn { min-width: 80px; font-size: 13px; }
   }
 </style>
@@ -532,131 +600,151 @@
 <body>
 <header class="app-header" id="appHeader"></header>
 
-<main class="page">
+<main class="page acc-page">
   <a class="back-link" href="home.html">
     <i class="fas fa-arrow-right"></i> الرئيسية
   </a>
 
-  <!-- ===== بطاقة الحساب الرئيسية (Hero) ===== -->
-  <div class="acc-hero">
-    <div class="acc-hero-row">
-      <a class="acc-avatar-wrap" href="home.html" title="الذهاب للرئيسية" aria-label="الذهاب للرئيسية">
-        <div class="acc-avatar"><i class="fas fa-user"></i></div>
-      </a>
-      <div class="acc-hero-info">
+  <div class="acc-shell">
+    <!-- ===== العمود الجانبي: بطاقة الملف الشخصي ===== -->
+    <aside class="acc-sidebar">
+      <div class="acc-profile-card">
+        <div class="acc-ring-wrap">
+          <div class="acc-beads" id="tierRingBeads"></div>
+          <a class="acc-avatar-wrap" href="home.html" title="الذهاب للرئيسية" aria-label="الذهاب للرئيسية">
+            <div class="acc-avatar">
+              <span id="heroAvatarInitial"></span>
+              <i class="fas fa-user"></i>
+            </div>
+          </a>
+        </div>
+
         <a class="acc-name-link" href="home.html" title="الذهاب للرئيسية">
           <h1 id="heroName">—</h1>
         </a>
         <div class="acc-email"><i class="fas fa-envelope"></i> <span id="heroEmail">—</span></div>
-        <div class="acc-badges">
-          <span class="acc-badge" id="heroLevelBadge"><i class="fas fa-trophy"></i> —</span>
+        <span class="acc-badge" id="heroLevelBadge"><i class="fas fa-trophy"></i> —</span>
+
+        <div id="tierCardWrap"></div>
+
+        <div class="acc-actions">
+          <button class="acc-action-btn edit" id="editProfileBtn">
+            <i class="fas fa-pen"></i> تعديل الملف الشخصي
+          </button>
+          <button class="acc-action-btn danger" id="deleteAccountBtn">
+            <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
+          </button>
         </div>
       </div>
-    </div>
-    <div class="acc-hero-actions">
-      <button class="edit-profile-btn" id="editProfileBtn">
-        <i class="fas fa-pen"></i> تعديل الملف الشخصي
-      </button>
-      <button class="delete-account-btn" id="deleteAccountBtn">
-        <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
-      </button>
-    </div>
-  </div>
+    </aside>
 
-  <div id="editProfileWrap" style="display:none; margin-bottom:20px;">
-    <div class="info-card">
-      <h3 style="font-family:'Amiri',serif; color:var(--primary-dark); margin:0 0 16px;">
-        <i class="fas fa-user-edit" style="color:var(--gold);"></i> تعديل الملف الشخصي
-      </h3>
-      <div class="form-msg" id="editProfileMsg"></div>
-      <div class="field">
-        <label><i class="fas fa-user"></i> الاسم الجديد (باللغة العربية)</label>
-        <input type="text" id="editNameInput" placeholder="مثال: أحمد محمد علي حسن" dir="rtl">
-        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">الاسم يجب أن يكتب باللغة العربية فقط، ويكون رباعيًا (4 كلمات على الأقل)، وكل كلمة حرفان فأكثر</div>
-      </div>
-      <div class="field" id="editPhoneField">
-        <label><i class="fas fa-phone"></i> رقم الهاتف</label>
-        <div class="phone-field-group">
-          <span class="phone-prefix">+20</span>
-          <input type="tel" id="editPhoneInput" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="1XXXXXXXXX" dir="ltr">
+    <!-- ===== عمود المحتوى ===== -->
+    <section class="acc-main">
+      <div id="editProfileWrap" class="acc-edit-panel" style="display:none;">
+        <h3 class="edit-title"><i class="fas fa-user-edit"></i> تعديل الملف الشخصي</h3>
+        <div class="form-msg" id="editProfileMsg"></div>
+        <div class="fields-grid">
+          <div class="field full">
+            <label><i class="fas fa-user"></i> الاسم الجديد (باللغة العربية)</label>
+            <input type="text" id="editNameInput" placeholder="مثال: أحمد محمد علي حسن" dir="rtl">
+            <div class="field-hint">الاسم يجب أن يكتب باللغة العربية فقط، ويكون رباعيًا (4 كلمات على الأقل)، وكل كلمة حرفان فأكثر</div>
+          </div>
+          <div class="field full" id="editPhoneField">
+            <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+            <div class="phone-field-group">
+              <span class="phone-prefix">+20</span>
+              <input type="tel" id="editPhoneInput" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="1XXXXXXXXX" dir="ltr">
+            </div>
+            <div class="field-hint">اكتب رقمك بدون الصفر الأول، بالصيغة الدولية النهائية: +201XXXXXXXXX. اتركه فارغًا لو لا تريد تغييره</div>
+          </div>
+          <div class="field">
+            <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
+            <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها" autocomplete="new-password">
+          </div>
+          <div class="field" id="editConfirmPassField" style="display:none;">
+            <label><i class="fas fa-lock"></i> تأكيد كلمة المرور الجديدة</label>
+            <input type="password" id="editConfirmPassInput" placeholder="أعد كتابة كلمة المرور الجديدة" autocomplete="new-password">
+          </div>
         </div>
-        <div class="field-hint" style="font-size:12px; color:var(--text-muted); margin-top:4px;">اكتب رقمك بدون الصفر الأول، بالصيغة الدولية النهائية: +201XXXXXXXXX. اتركه فارغًا لو لا تريد تغييره</div>
+        <ul class="rules-list" id="editPwRules" style="display:none;">
+          <li data-rule="length"><span class="tick"></span> 8 أحرف على الأقل</li>
+          <li data-rule="upper"><span class="tick"></span> حرف إنجليزي كبير (A-Z)</li>
+          <li data-rule="lower"><span class="tick"></span> حرف إنجليزي صغير (a-z)</li>
+          <li data-rule="number"><span class="tick"></span> رقم واحد على الأقل</li>
+          <li data-rule="symbol"><span class="tick"></span> رمز خاص (!@#...)</li>
+          <li data-rule="match"><span class="tick"></span> تطابق كلمة المرور مع التأكيد</li>
+        </ul>
+        <div class="edit-actions">
+          <button class="btn btn-primary" id="saveProfileBtn"><i class="fas fa-save"></i> حفظ التغييرات</button>
+          <button class="btn btn-outline" id="cancelEditBtn"><i class="fas fa-times"></i> إلغاء</button>
+        </div>
       </div>
-      <div class="field">
-        <label><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
-        <input type="password" id="editPassInput" placeholder="اتركها فارغة إذا لا تريد تغييرها" autocomplete="new-password">
-      </div>
-      <div class="field" id="editConfirmPassField" style="display:none;">
-        <label><i class="fas fa-lock"></i> تأكيد كلمة المرور الجديدة</label>
-        <input type="password" id="editConfirmPassInput" placeholder="أعد كتابة كلمة المرور الجديدة" autocomplete="new-password">
-      </div>
-      <ul class="rules-list" id="editPwRules" style="display:none;">
-        <li data-rule="length"><span class="tick"></span> 8 أحرف على الأقل</li>
-        <li data-rule="upper"><span class="tick"></span> حرف إنجليزي كبير (A-Z)</li>
-        <li data-rule="lower"><span class="tick"></span> حرف إنجليزي صغير (a-z)</li>
-        <li data-rule="number"><span class="tick"></span> رقم واحد على الأقل</li>
-        <li data-rule="symbol"><span class="tick"></span> رمز خاص (!@#...)</li>
-        <li data-rule="match"><span class="tick"></span> تطابق كلمة المرور مع التأكيد</li>
-      </ul>
-      <div class="edit-actions">
-        <button class="btn btn-primary" id="saveProfileBtn"><i class="fas fa-save"></i> حفظ التغييرات</button>
-        <button class="btn btn-outline" id="cancelEditBtn"><i class="fas fa-times"></i> إلغاء</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== بطاقة المستوى ===== -->
-  <div id="tierCardWrap"></div>
-
-  <!-- ===== التبويبات ===== -->
-  <div class="account-tabs" id="tabsContainer">
-    <div class="acc-tab-indicator" id="tabIndicator"></div>
-    <button class="account-tab active" data-tab="info">
-      <i class="fas fa-id-card"></i> معلوماتي
-    </button>
-    <button class="account-tab" data-tab="subscriptions">
-      <i class="fas fa-book"></i> اشتراكاتي
-    </button>
-    <button class="account-tab" data-tab="exams">
-      <i class="fas fa-pencil-alt"></i> اختباراتي
-    </button>
-  </div>
-
-  <!-- ===== تبويب المعلومات ===== -->
-  <div class="tab-content active" id="tab-info">
-    <div class="info-card">
-      <div class="info-row">
-        <span class="label"><i class="fas fa-user"></i> الاسم</span>
-        <span class="value" id="userName">—</span>
+      <!-- ===== التبويبات ===== -->
+      <div class="account-tabs" id="tabsContainer">
+        <div class="acc-tab-indicator" id="tabIndicator"></div>
+        <button class="account-tab active" data-tab="info">
+          <i class="fas fa-id-card"></i> معلوماتي
+        </button>
+        <button class="account-tab" data-tab="subscriptions">
+          <i class="fas fa-book"></i> اشتراكاتي
+        </button>
+        <button class="account-tab" data-tab="exams">
+          <i class="fas fa-pencil-alt"></i> اختباراتي
+        </button>
       </div>
-      <div class="info-row">
-        <span class="label"><i class="fas fa-envelope"></i> البريد الإلكتروني</span>
-        <span class="value" id="userEmail">—</span>
-      </div>
-      <div class="info-row">
-        <span class="label"><i class="fas fa-phone"></i> رقم الهاتف</span>
-        <span class="value" id="userPhone">—</span>
-      </div>
-      <div class="info-row">
-        <span class="label"><i class="fas fa-trophy"></i> المستوى</span>
-        <span class="value" id="userLevel">—</span>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== تبويب الاشتراكات ===== -->
-  <div class="tab-content" id="tab-subscriptions">
-    <div id="enrolledWrap">
-      <div class="center-loading"><div class="loader"></div></div>
-    </div>
-  </div>
+      <!-- ===== تبويب المعلومات ===== -->
+      <div class="tab-content active" id="tab-info">
+        <div class="info-list">
+          <div class="info-tile">
+            <div class="info-tile-icon"><i class="fas fa-user"></i></div>
+            <div class="info-tile-body">
+              <span class="info-tile-label">الاسم</span>
+              <span class="value" id="userName">—</span>
+            </div>
+          </div>
+          <div class="info-tile">
+            <div class="info-tile-icon"><i class="fas fa-envelope"></i></div>
+            <div class="info-tile-body">
+              <span class="info-tile-label">البريد الإلكتروني</span>
+              <span class="value" id="userEmail">—</span>
+            </div>
+          </div>
+          <div class="info-tile">
+            <div class="info-tile-icon"><i class="fas fa-phone"></i></div>
+            <div class="info-tile-body">
+              <span class="info-tile-label">رقم الهاتف</span>
+              <span class="value" id="userPhone">—</span>
+            </div>
+          </div>
+          <div class="info-tile">
+            <div class="info-tile-icon"><i class="fas fa-trophy"></i></div>
+            <div class="info-tile-body">
+              <span class="info-tile-label">المستوى</span>
+              <span class="value" id="userLevel">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <!-- ===== تبويب الاختبارات ===== -->
-  <div class="tab-content" id="tab-exams">
-    <div class="filter-tabs exam-filter-tabs" id="examsFilterBar" style="display:none;"></div>
-    <div id="examsHistoryWrap">
-      <div class="center-loading"><div class="loader"></div></div>
-    </div>
+      <!-- ===== تبويب الاشتراكات ===== -->
+      <div class="tab-content" id="tab-subscriptions">
+        <div id="subsStatsBar"></div>
+        <div id="enrolledWrap">
+          <div class="center-loading"><div class="loader"></div></div>
+        </div>
+      </div>
+
+      <!-- ===== تبويب الاختبارات ===== -->
+      <div class="tab-content" id="tab-exams">
+        <div id="examsStatsBar"></div>
+        <div class="filter-tabs exam-filter-tabs" id="examsFilterBar" style="display:none;"></div>
+        <div id="examsHistoryWrap">
+          <div class="center-loading"><div class="loader"></div></div>
+        </div>
+      </div>
+    </section>
   </div>
 </main>
 
@@ -665,38 +753,40 @@
      ============================================================== -->
 <div class="delete-modal-overlay" id="deleteModal">
   <div class="delete-modal">
-    <button class="modal-close" id="deleteModalClose" aria-label="إغلاق">
-      <i class="fas fa-times"></i>
-    </button>
-
-    <!-- المؤشر (نقاط المراحل) -->
-    <div class="step-indicator" id="stepIndicator">
-      <span class="step-dot active" data-step="1"></span>
-      <span class="step-dot" data-step="2"></span>
-      <span class="step-dot" data-step="3"></span>
-      <span class="step-dot" data-step="4"></span>
+    <div class="modal-banner">
+      <button class="modal-close" id="deleteModalClose" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="modal-icon" id="modalIcon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
     </div>
 
-    <!-- أيقونة -->
-    <div class="modal-icon" id="modalIcon">
-      <i class="fas fa-exclamation-triangle"></i>
-    </div>
+    <div class="modal-body-wrap">
+      <!-- المؤشر (نقاط المراحل) -->
+      <div class="step-indicator" id="stepIndicator">
+        <span class="step-dot active" data-step="1"></span>
+        <span class="step-dot" data-step="2"></span>
+        <span class="step-dot" data-step="3"></span>
+        <span class="step-dot" data-step="4"></span>
+      </div>
 
-    <!-- العنوان -->
-    <h3 id="modalTitle">تأكيد حذف الحساب</h3>
+      <!-- العنوان -->
+      <h3 id="modalTitle">تأكيد حذف الحساب</h3>
 
-    <!-- المحتوى الديناميكي -->
-    <div id="modalBody">
-      <!-- سيتم ملؤه بواسطة JavaScript -->
-    </div>
+      <!-- المحتوى الديناميكي -->
+      <div id="modalBody">
+        <!-- سيتم ملؤه بواسطة JavaScript -->
+      </div>
 
-    <!-- رسائل الخطأ/النجاح -->
-    <div class="error-msg" id="modalError"></div>
-    <div class="success-msg" id="modalSuccess"></div>
+      <!-- رسائل الخطأ/النجاح -->
+      <div class="error-msg" id="modalError"></div>
+      <div class="success-msg" id="modalSuccess"></div>
 
-    <!-- الأزرار -->
-    <div class="modal-actions" id="modalActions">
-      <!-- سيتم ملؤه بواسطة JavaScript -->
+      <!-- الأزرار -->
+      <div class="modal-actions" id="modalActions">
+        <!-- سيتم ملؤه بواسطة JavaScript -->
+      </div>
     </div>
   </div>
 </div>
@@ -771,6 +861,20 @@
     }
   }
 
+  // ===== حلقة المسبحة (مؤشر التقدّم حول الصورة الرمزية) =====
+  function buildBeadsRing(progress, color, total) {
+    total = total || 33;
+    const filled = Math.round((progress / 100) * total);
+    const radius = 58;
+    let html = '';
+    for (let i = 0; i < total; i++) {
+      const angle = (360 / total) * i - 90;
+      const isFilled = i < filled;
+      html += '<span class="acc-bead' + (isFilled ? ' is-filled' : '') + '" style="transform:rotate(' + angle + 'deg) translate(' + radius + 'px);' + (isFilled ? '--bead-color:' + color + ';' : '') + '"></span>';
+    }
+    return html;
+  }
+
   // ===== تبويب المعلومات =====
   function renderInfoTab() {
     const tier = getUserTier(currentUserData.points || 0);
@@ -796,26 +900,26 @@
     if (heroEmail) heroEmail.textContent = currentUserData.email || currentUser.email || '—';
     if (heroLevelBadge) heroLevelBadge.innerHTML = '<i class="fas fa-' + tier.rank.icon + '"></i> ' + tier.rank.name + ' · المستوى ' + tier.level;
 
+    // الصورة الرمزية: أول حرف من الاسم بدل الأيقونة الافتراضية
+    const avatarInitial = document.getElementById('heroAvatarInitial');
+    if (avatarInitial) {
+      const trimmedName = fullName.trim();
+      avatarInitial.textContent = (trimmedName && trimmedName !== 'مستخدم') ? trimmedName.charAt(0) : '';
+    }
+
+    // حلقة المسبحة حول الصورة (33 خرزة، تمتلئ بحسب التقدّم للمستوى القادم)
+    const beadsWrap = document.getElementById('tierRingBeads');
+    if (beadsWrap) beadsWrap.innerHTML = buildBeadsRing(tier.progress, tier.rank.color, 33);
+
     document.getElementById('tierCardWrap').innerHTML = `
-      <div class="tier-card" style="--rank-color: ${tier.rank.color};">
-        <div class="tier-top">
-          <div class="tier-icon"><i class="fas fa-${tier.rank.icon}"></i></div>
-          <div>
-            <div class="tier-name">
-              ${tier.rank.name}
-              <span class="tier-rank-pill">المستوى ${tier.level}</span>
-            </div>
-            <div class="tier-points"><i class="fas fa-star" style="color:var(--gold);"></i> ${tier.points} نقطة</div>
-          </div>
-          <div class="tier-level-big">${tier.level}<span>/${tier.maxLevel}</span></div>
+      <div class="acc-tier-info" style="--rank-color: ${tier.rank.color};">
+        <div class="acc-tier-row">
+          <i class="fas fa-${tier.rank.icon}"></i> ${tier.rank.name}
+          <span class="acc-tier-level">مستوى ${tier.level}</span>
         </div>
-        <div class="tier-progress-wrap">
-          <div class="tier-progress-bar">
-            <div class="tier-progress-fill" style="width: ${tier.progress}%;"></div>
-          </div>
-          <div class="tier-next-note">
-            ${tier.isMax ? '🎉 وصلت لأعلى مستوى! 👑' : 'محتاج ' + tier.pointsToNext + ' نقطة للمستوى ' + (tier.level + 1) + ' (' + tier.progress + '%)'}
-          </div>
+        <div class="acc-tier-points"><i class="fas fa-star"></i> ${tier.points} نقطة</div>
+        <div class="acc-tier-note">
+          ${tier.isMax ? '🎉 وصلت لأعلى مستوى! 👑' : 'باقي ' + tier.pointsToNext + ' نقطة للمستوى ' + (tier.level + 1) + ' (' + tier.progress + '%)'}
         </div>
       </div>
     `;
@@ -824,26 +928,89 @@
   // ===== تبويب الاشتراكات =====
   function loadSubscriptions() {
     const wrap = document.getElementById('enrolledWrap');
+    const statsBar = document.getElementById('subsStatsBar');
     db.ref('userEnrollments/' + currentUser.uid).on('value', function (snap) {
       const enrolls = snap.val() || {};
       const ids = Object.keys(enrolls);
       if (ids.length === 0) {
+        if (statsBar) statsBar.innerHTML = '';
         wrap.innerHTML = `<div class="empty-state"><i class="fas fa-book-open"></i><p>لا توجد اشتراكات حالية</p></div>`;
         return;
       }
-      Promise.all(ids.map(id => db.ref('competitions/' + id).once('value').then(s => ({ id, data: s.val() }))))
-        .then(results => {
-          const html = results.filter(r => r.data).map(r => `
-            <a class="enrolled-card" href="competition.html?id=${encodeURIComponent(r.id)}">
-              <div class="ec-cover"><i class="fas fa-${r.data.type !== 'competition' ? 'book' : 'trophy'}"></i></div>
+      Promise.all([
+        Promise.all(ids.map(id => db.ref('competitions/' + id).once('value').then(s => ({ id, data: s.val() })))),
+        db.ref('userProgress/' + currentUser.uid).once('value')
+      ]).then(function (results) {
+        const compResults = results[0];
+        const allProgress = results[1].val() || {};
+
+        const items = compResults.filter(r => r.data).map(function (r) {
+          const compData = r.data;
+          const lessons = compData.lessons || {};
+          const lessonsCount = Object.keys(lessons).length;
+          const compProgress = allProgress[r.id] || {};
+          const pct = (window.computeCourseProgress ? computeCourseProgress(lessons, compProgress) : 0);
+          const isCourse = compData.type !== 'competition';
+
+          // مجموع النقاط المكتسبة من هذا الكورس/المسابقة
+          let earned = 0;
+          Object.keys(compProgress).forEach(function (lid) {
+            earned += (compProgress[lid] && compProgress[lid].earnedPoints) || 0;
+          });
+
+          return {
+            id: r.id, data: compData, lessonsCount: lessonsCount,
+            pct: pct, isCourse: isCourse, earned: earned
+          };
+        });
+
+        // ===== شريط إحصائيات الاشتراكات =====
+        if (statsBar) {
+          const total = items.length;
+          const completed = items.filter(x => x.pct >= 100).length;
+          const inProgress = total - completed;
+          const totalEarned = items.reduce((s, x) => s + x.earned, 0);
+          statsBar.innerHTML = `
+            <div class="acc-stats-bar">
+              <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-layer-group"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">إجمالي الاشتراكات</div></div></div>
+              <div class="acc-stat-chip"><div class="stat-icon" style="background:#E6F2EA; color:var(--success);"><i class="fas fa-circle-check"></i></div><div><div class="stat-value">${completed}</div><div class="stat-label">مكتمل</div></div></div>
+              <div class="acc-stat-chip"><div class="stat-icon" style="background:var(--gold-pale); color:var(--gold-dark);"><i class="fas fa-fire"></i></div><div><div class="stat-value">${inProgress}</div><div class="stat-label">قيد التقدم</div></div></div>
+              <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-star"></i></div><div><div class="stat-value">${totalEarned}</div><div class="stat-label">نقاط مكتسبة</div></div></div>
+            </div>
+          `;
+        }
+
+        const html = items.map(function (x) {
+          const compData = x.data;
+          const typeLabel = x.isCourse ? 'كورس' : 'مسابقة';
+          const typeIcon = x.isCourse ? 'book-open' : 'trophy';
+          return `
+            <a class="enrolled-card" href="competition.html?id=${encodeURIComponent(x.id)}">
+              <div class="ec-cover">
+                ${compData.coverUrl ? `<img src="${escapeHtml(compData.coverUrl)}" alt="" loading="lazy">` : `<i class="fas fa-${typeIcon} cover-icon"></i>`}
+                <span class="ec-ribbon${x.isCourse ? '' : ' is-competition'}"><i class="fas fa-${typeIcon}"></i> ${typeLabel}</span>
+                ${x.pct >= 100 ? '<span class="ec-donebadge"><i class="fas fa-check"></i> مكتمل</span>' : ''}
+              </div>
               <div class="ec-body">
-                <div class="ec-title">${escapeHtml(r.data.title || 'بدون عنوان')}</div>
-                <div class="ec-sub">${r.data.type !== 'competition' ? 'كورس' : 'مسابقة'}</div>
+                <div class="ec-title">${escapeHtml(compData.title || 'بدون عنوان')}</div>
+                <div class="ec-meta-row">
+                  <span><i class="fas fa-book"></i> ${x.lessonsCount} محاضرة</span>
+                  <span><i class="fas fa-star"></i> ${x.earned} نقطة</span>
+                </div>
+                <div class="ec-progress-wrap">
+                  <div class="ec-progress-bar"><div class="ec-progress-fill" style="width:${x.pct}%;"></div></div>
+                  <span class="ec-progress-pct">${x.pct}%</span>
+                </div>
+                <div class="ec-footer">
+                  <span>${x.pct >= 100 ? 'مراجعة المحتوى' : 'متابعة التعلم'}</span>
+                  <i class="fas fa-chevron-left ec-arrow"></i>
+                </div>
               </div>
             </a>
-          `).join('');
-          wrap.innerHTML = html || `<div class="empty-state"><i class="fas fa-book-open"></i><p>لا توجد اشتراكات</p></div>`;
-        });
+          `;
+        }).join('');
+        wrap.innerHTML = items.length ? `<div class="subs-grid">${html}</div>` : `<div class="empty-state"><i class="fas fa-book-open"></i><p>لا توجد اشتراكات</p></div>`;
+      });
     });
   }
 
@@ -872,6 +1039,7 @@
                 lessonId,
                 examId,
                 score: e.score || 0,
+                totalQuestions: e.totalQuestions,
                 earnedPoints: e.earnedPoints || 0,
                 answeredAt: e.answeredAt || Date.now()
               });
@@ -882,6 +1050,7 @@
 
       if (rawList.length === 0) {
         allExamsList = [];
+        renderExamsStats([]);
         renderExamsHistory([]);
         return;
       }
@@ -898,10 +1067,16 @@
             const lessons = compData.lessons || {};
             const lessonData = lessons[exam.lessonId] || {};
             const examData = (lessonData.exams || {})[exam.examId] || {};
+            // نعتمد على العدد الفعلي للأسئلة التي أُعطيت للطالب في هذه المحاولة (محفوظ وقت التسليم)
+            // وإن لم يكن محفوظاً (محاولات قديمة قبل هذا الإصلاح) نرجع لإعداد الاختبار، وإلا فالافتراضي 10
+            const totalQuestions = exam.totalQuestions || examData.questionCount || 10;
+            const pct = totalQuestions ? Math.round((exam.score / totalQuestions) * 100) : 0;
             return Object.assign({}, exam, {
               compTitle: compData.title || 'بدون عنوان',
               compType: compData.type !== 'competition' ? 'كورس' : 'مسابقة',
-              examTitle: examData.title || 'اختبار'
+              examTitle: examData.title || 'اختبار',
+              totalQuestions: totalQuestions,
+              pct: Math.max(0, Math.min(100, pct))
             });
           });
 
@@ -917,12 +1092,34 @@
           });
 
           currentExamFilter = 'all';
+          renderExamsStats(allExamsList);
           renderExamsFilterBar(uniqueComps);
           renderExamsHistory(allExamsList);
         });
     }).catch(err => {
       wrap.innerHTML = '<p style="color:var(--danger);"><i class="fas fa-exclamation-circle"></i> حدث خطأ: ' + err.message + '</p>';
     });
+  }
+
+  // ===== شريط إحصائيات الاختبارات =====
+  function renderExamsStats(list) {
+    const statsBar = document.getElementById('examsStatsBar');
+    if (!statsBar) return;
+    if (!list.length) { statsBar.innerHTML = ''; return; }
+
+    const total = list.length;
+    const avgPct = Math.round(list.reduce((s, e) => s + e.pct, 0) / total);
+    const totalPoints = list.reduce((s, e) => s + (e.earnedPoints || 0), 0);
+    const bestPct = Math.max.apply(null, list.map(e => e.pct));
+
+    statsBar.innerHTML = `
+      <div class="acc-stats-bar">
+        <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-pencil-alt"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">اختبار مكتمل</div></div></div>
+        <div class="acc-stat-chip"><div class="stat-icon" style="background:var(--gold-pale); color:var(--gold-dark);"><i class="fas fa-chart-line"></i></div><div><div class="stat-value">${avgPct}%</div><div class="stat-label">متوسط النسبة</div></div></div>
+        <div class="acc-stat-chip"><div class="stat-icon" style="background:#E6F2EA; color:var(--success);"><i class="fas fa-medal"></i></div><div><div class="stat-value">${bestPct}%</div><div class="stat-label">أفضل نتيجة</div></div></div>
+        <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-star"></i></div><div><div class="stat-value">${totalPoints}</div><div class="stat-label">إجمالي النقاط</div></div></div>
+      </div>
+    `;
   }
 
   // ===== شريط فلترة الاختبارات (الكل + اسم كل كورس/مسابقة) =====
@@ -960,12 +1157,21 @@
 
     let html = '';
     list.forEach((exam) => {
+      const ringColor = exam.pct >= 80 ? 'var(--success)' : (exam.pct >= 50 ? 'var(--gold)' : 'var(--danger)');
+      const dateLabel = window.formatRelativeArabicTime ? formatRelativeArabicTime(exam.answeredAt) : '';
+      const dateTitle = window.formatArabicDate ? formatArabicDate(exam.answeredAt) : '';
       html += `
         <div class="exam-history-card">
+          <div class="exam-pct-ring" style="--pct:${exam.pct}; --ring-color:${ringColor};">
+            <span>${exam.pct}%</span>
+          </div>
           <div class="exam-info">
             <div class="exam-title"><i class="fas fa-pencil-alt"></i> ${escapeHtml(exam.examTitle || 'اختبار')}</div>
-            <div class="exam-sub"><i class="fas fa-${exam.compType === 'كورس' ? 'book' : 'trophy'}"></i> ${escapeHtml(exam.compTitle || '')}</div>
-            <div class="exam-score"><i class="fas fa-star"></i> ${exam.earnedPoints} نقطة · ${exam.score} إجابة صحيحة</div>
+            <div class="exam-sub">
+              <span class="sub-item"><i class="fas fa-${exam.compType === 'كورس' ? 'book' : 'trophy'}"></i> ${escapeHtml(exam.compTitle || '')}</span>
+              <span class="sub-item" title="${escapeHtml(dateTitle)}"><i class="fas fa-clock"></i> ${escapeHtml(dateLabel)}</span>
+            </div>
+            <div class="exam-score"><i class="fas fa-star"></i> ${exam.earnedPoints} نقطة · ${exam.score} من ${exam.totalQuestions} إجابة صحيحة</div>
           </div>
           <a class="exam-detail-btn" href="exam.html?comp=${encodeURIComponent(exam.compId)}&lesson=${encodeURIComponent(exam.lessonId)}&exam=${encodeURIComponent(exam.examId)}">
             <i class="fas fa-eye"></i> عرض الإجابات

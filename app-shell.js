@@ -946,32 +946,32 @@ function renderFooter() {
   };
 
   footer.innerHTML =
-    '<div class="footer-inner footer-top-block">' +
-      '<img class="footer-logo-img" src="logo.png" alt="شعار منصة أواب" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
-      '<div class="footer-brand-text">' +
-        '<h4>أواب <span class="brand-en">| Awab</span></h4>' +
-        '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
-      '</div>' +
-    '</div>' +
     '<div class="footer-inner footer-cols">' +
+      '<div class="footer-col footer-col-brand">' +
+        '<img class="footer-logo-img" src="logo.png" alt="شعار منصة أواب" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
+        '<div class="footer-brand-text">' +
+          '<h4>أواب <span class="brand-en">| Awab</span></h4>' +
+          '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="footer-col footer-col-social">' +
+        '<h4 class="footer-col-title">السوشيال ميديا</h4>' +
+        '<div class="footer-list">' +
+          socialLink('wa', 'whatsapp', 'واتساب', 'https://whatsapp.com/channel/0029Vb4Efn45a240GzodQC1V') +
+          socialLink('tg', 'telegram', 'تلجرام', 'https://t.me/awabofficial0') +
+          socialLink('ig', 'instagram', 'انستجرام', 'https://www.instagram.com/awab_1223?igsh=M2FtZ284Z2lkdHh1') +
+          socialLink('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
+          socialLink('tt', 'tiktok', 'تيك توك', 'https://www.tiktok.com/@awab_1223') +
+          socialLink('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
+          socialLink('sr', 'commentDots', 'صارحني', 'https://55391054521568.sarhne.com') +
+        '</div>' +
+      '</div>' +
       '<div class="footer-col footer-col-pages">' +
         '<h4 class="footer-col-title">الصفحات</h4>' +
         '<div class="footer-list">' +
           pageLink('الرئيسية', 'home.html') +
           pageLink('حسابي', 'account.html') +
           pageLink('الدعم الفني', 'support.html') +
-        '</div>' +
-      '</div>' +
-      '<div class="footer-col footer-col-social">' +
-        '<h4 class="footer-col-title">السوشيال ميديا</h4>' +
-        '<div class="footer-list">' +
-          socialLink('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
-          socialLink('ig', 'instagram', 'انستجرام', 'https://www.instagram.com/awab_1223?igsh=M2FtZ284Z2lkdHh1') +
-          socialLink('tt', 'tiktok', 'تيك توك', 'https://www.tiktok.com/@awab_1223') +
-          socialLink('tg', 'telegram', 'تلجرام', 'https://t.me/awabofficial0') +
-          socialLink('wa', 'whatsapp', 'واتساب', 'https://whatsapp.com/channel/0029Vb4Efn45a240GzodQC1V') +
-          socialLink('sr', 'commentDots', 'صارحني', 'https://55391054521568.sarhne.com') +
-          socialLink('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
         '</div>' +
       '</div>' +
     '</div>' +

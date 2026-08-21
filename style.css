@@ -31,6 +31,11 @@
   --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
   --gradient-gold: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
   --pattern-ink: rgba(43, 37, 96, 0.05);
+  /* ===== هوية الشعار: حبر + كريمي + معينات (مستخدمة في كارت المسابقات وصفحات المحاضرة/الاختبار/الفيديو) ===== */
+  --ink: #171340;
+  --cream: #F3E9CF;
+  --cream-deep: #E9DBB4;
+  --ink-border: 2px solid var(--ink);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -1846,15 +1851,15 @@ a.lesson-row.locked { cursor: not-allowed; }
 .subscribed-badge .icon { color: var(--success); }
 
 .enroll-lock-card {
-  background: var(--card-bg);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
+  background: var(--cream);
+  border: var(--ink-border);
+  border-radius: 6px 24px 6px 24px;
   padding: 32px 20px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text);
 }
-.enroll-lock-card .big-icon { color: var(--gold); margin-bottom: 10px; }
-.enroll-lock-card h3 { margin: 0 0 6px; color: var(--primary-dark); font-family: 'Amiri', serif; }
+.enroll-lock-card .big-icon { color: var(--ink); margin-bottom: 10px; }
+.enroll-lock-card h3 { margin: 0 0 6px; color: var(--ink); font-family: 'Amiri', serif; }
 .enroll-lock-card p { margin: 0 0 16px; font-size: 13.5px; }
 
 /* ================= مسار المحاضرات (تصميم "خطوات رحلة") ================= */
@@ -1867,40 +1872,41 @@ a.lesson-row.locked { cursor: not-allowed; }
   position: absolute;
   top: 32px; bottom: 32px;
   inset-inline-start: var(--rail);
-  border-inline-start: 2px dashed rgba(217, 113, 75,.35);
+  border-inline-start: 2px dashed var(--ink);
+  opacity: .35;
   z-index: 0;
 }
 @media (max-width: 560px) { .lessons-path { --rail: 36px; } }
 
 .accordion-lesson {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 4px 18px 4px 18px;
+  background: var(--cream);
+  border: var(--ink-border);
+  border-radius: 6px 20px 6px 20px;
   margin-bottom: 12px;
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: 3px 3px 0 0 var(--ink);
   position: relative;
   z-index: 1;
-  transition: box-shadow .2s ease, border-color .2s ease, transform .2s ease;
+  transition: box-shadow .2s ease, transform .2s ease;
 }
-.accordion-lesson.is-done { border-inline-end: 4px solid var(--success); }
-.accordion-lesson.is-active { border-inline-end: 4px solid var(--gold); }
+.accordion-lesson.is-done { border-inline-end: 5px solid var(--success); }
+.accordion-lesson.is-active { border-inline-end: 5px solid var(--gold); }
 .accordion-lesson.is-locked { opacity: .82; }
-.accordion-lesson.open { border-color: var(--primary-light); box-shadow: var(--shadow-lift); }
+.accordion-lesson.open { box-shadow: 5px 5px 0 0 var(--ink); }
 .accordion-header {
   display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer;
   background: none; border: none; width: 100%; text-align: right; font-family: inherit;
   transition: background .15s ease;
 }
-.accordion-header:not(:disabled):hover { background: rgba(43, 37, 96,0.03); }
+.accordion-header:not(:disabled):hover { background: rgba(23, 19, 64,0.05); }
 .accordion-header:disabled { cursor: not-allowed; }
-.accordion-lesson.open .accordion-header { background: var(--primary); }
+.accordion-lesson.open .accordion-header { background: var(--ink); }
 .accordion-lesson.open .lesson-title { color: #fff; }
 .accordion-lesson.open .lesson-sub-text,
 .accordion-lesson.open .lesson-desc-text { color: rgba(255,255,255,.82); }
 .accordion-lesson.open .lesson-more { color: var(--gold-light); }
-.accordion-lesson.open .lesson-badge.active { background: #fff; color: var(--primary); }
-.accordion-lesson.open .lesson-count { background: rgba(255,255,255,.16); color: #fff; }
+.accordion-lesson.open .lesson-badge.active { background: #fff; color: var(--ink); }
+.accordion-lesson.open .lesson-count { background: rgba(255,255,255,.16); color: #fff; border-color: transparent; }
 .accordion-lesson.open .lesson-end .chevron { color: #fff; }
 .accordion-header .chevron { transition: transform .2s ease; color: var(--text-muted); font-size: 12px; }
 .accordion-lesson.open .accordion-header .chevron { transform: rotate(180deg); }
@@ -1908,27 +1914,28 @@ a.lesson-row.locked { cursor: not-allowed; }
   max-height: 0; overflow: hidden; transition: max-height .3s ease;
   border-top: 1px solid transparent;
 }
-.accordion-lesson.open .accordion-body { max-height: 3000px; border-top-color: var(--border); }
+.accordion-lesson.open .accordion-body { max-height: 3000px; border-top-color: var(--ink); }
 .accordion-body-inner { padding: 10px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
 
-/* -- شارة الخطوة الدائرية على "المسار"، تحمل رقم المحاضرة أو حالتها -- */
+/* -- شارة الخطوة (معين) على "المسار"، تحمل رقم المحاضرة أو حالتها -- */
 .lesson-side { flex-shrink: 0; }
 .lesson-badge {
-  width: 42px; height: 42px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  border: 3px solid var(--card-bg);
-  box-shadow: var(--shadow);
+  border: var(--ink-border);
+  transform: rotate(45deg);
 }
+.lesson-badge > * { transform: rotate(-45deg); }
 .lesson-step-num { font-size: 15px; font-weight: 800; }
-.lesson-badge.active { background: linear-gradient(150deg, var(--primary-light), var(--primary-dark)); color: #fff; box-shadow: 0 0 0 3px rgba(43, 37, 96,.15), var(--shadow); }
-.lesson-badge.done { background: linear-gradient(150deg, #34c294, var(--success)); color: #fff; font-size: 15px; }
-.lesson-badge.locked { background: var(--gold-pale); color: var(--gold-dark); box-shadow: none; font-size: 14px; }
-@media (max-width: 560px) { .lesson-badge { width: 36px; height: 36px; } .lesson-step-num { font-size: 13px; } }
+.lesson-badge.active { background: var(--ink); color: #fff; }
+.lesson-badge.done { background: #34c294; color: #fff; font-size: 15px; }
+.lesson-badge.locked { background: var(--cream-deep); color: var(--gold-dark); font-size: 14px; }
+@media (max-width: 560px) { .lesson-badge { width: 34px; height: 34px; } .lesson-step-num { font-size: 13px; } }
 
 .lesson-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 auto; }
 .lesson-title {
-  margin: 0; font-size: 15.5px; font-weight: 700; color: var(--primary-dark);
+  margin: 0; font-size: 15.5px; font-weight: 700; color: var(--ink);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .lesson-sub { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
@@ -1941,19 +1948,19 @@ a.lesson-row.locked { cursor: not-allowed; }
 
 .lesson-end { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .lesson-count {
-  font-size: 11px; font-weight: 800; color: var(--text-muted);
-  background: var(--bg); border: 1px solid var(--border);
+  font-size: 11px; font-weight: 800; color: var(--text);
+  background: var(--cream-deep); border: 1.5px solid var(--ink);
   min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px;
   display: inline-flex; align-items: center; justify-content: center;
 }
 
 /* -- مجموعات المحتوى جوه المحاضرة (الشرح / الامتحان / المرفقات): تبويبات شريطية -- */
 .lesson-group {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  background: var(--cream-deep);
+  border: 1.5px solid var(--ink);
+  border-radius: 4px 14px 4px 14px;
   overflow: hidden;
-  border-inline-start: 3px solid var(--border);
+  border-inline-start: 4px solid var(--ink);
 }
 .lesson-group.video-group { border-inline-start-color: var(--gold); }
 .lesson-group.exam-group { border-inline-start-color: var(--primary); }
@@ -1964,14 +1971,11 @@ a.lesson-row.locked { cursor: not-allowed; }
   background: none; border: none; cursor: pointer; font-family: inherit; text-align: right;
 }
 .lg-title { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 700; color: var(--text); }
-.lg-title i { font-size: 11px; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--gold-pale); color: var(--gold-dark); flex-shrink: 0; }
-.video-group .lg-title i { background: var(--gold-pale); color: var(--gold-dark); }
-.exam-group .lg-title i { background: rgba(43, 37, 96,.1); color: var(--primary); }
-.material-group .lg-title i { background: rgba(193, 63, 82,.1); color: var(--danger); }
+.lg-title i { font-size: 11px; width: 20px; height: 20px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; background: var(--cream); border: 1.5px solid var(--ink); color: var(--ink); flex-shrink: 0; }
 .lg-count { font-size: 10.5px; font-weight: 800; color: var(--text-muted); }
 .lg-toggle {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 700; color: var(--primary); flex-shrink: 0;
+  font-size: 12px; font-weight: 700; color: var(--ink); flex-shrink: 0;
 }
 .lg-toggle i { font-size: 11px; transition: transform .2s ease; }
 .lesson-group.open .lg-toggle i { transform: rotate(180deg); }
@@ -1982,16 +1986,16 @@ a.lesson-row.locked { cursor: not-allowed; }
 .content-item {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; padding: 10px 13px;
-  background: var(--card-bg); border: 1px solid var(--border); border-radius: 999px;
+  background: var(--cream); border: 1.5px solid var(--ink); border-radius: 10px;
   text-decoration: none; color: inherit;
-  transition: background .15s ease, border-color .15s ease, transform .15s ease;
+  transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-.content-item:hover:not(.disabled) { border-color: var(--primary-light); transform: translateX(2px); }
+.content-item:hover:not(.disabled) { transform: translateX(2px); box-shadow: 2px 2px 0 0 var(--ink); }
 .content-item.disabled { opacity: .55; cursor: not-allowed; }
 .content-item .ci-left { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600; min-width: 0; }
 .content-item .ci-icon {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--gold-pale); color: var(--gold);
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--cream-deep); color: var(--gold-dark); border: 1.5px solid var(--ink);
   display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;
 }
 .content-item.exam-item .ci-icon { background: rgba(43, 37, 96,0.1); color: var(--primary); }
@@ -3305,27 +3309,28 @@ body.support-body .app-header { flex-shrink: 0; }
    شارة ركن مطوية للمحتوى الجديد، ومسار تقدّم بمقاطع = عدد المحاضرات
    =================================================== */
 .comp-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--cream);
+  border: var(--ink-border);
+  border-radius: 6px 24px 6px 24px;
   overflow: visible;
-  box-shadow: var(--shadow);
-  transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, border-color .25s ease;
+  box-shadow: 4px 4px 0 0 var(--ink);
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease;
   display: flex;
   flex-direction: column;
   position: relative;
 }
-.comp-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); border-color: rgba(217, 113, 75,.4); }
-.comp-card:hover .cc-seal { transform: rotate(-8deg) scale(1.06); }
+.comp-card:hover { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 0 var(--ink); }
+.comp-card:hover .cc-seal { transform: rotate(45deg) scale(1.08); }
 
 .cc-media { position: relative; padding: 14px 14px 0; }
 
 .cc-cover {
   height: 154px;
-  border-radius: 14px 14px 4px 4px;
+  border-radius: 3px 16px 3px 3px;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(150deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+  background: var(--cream-deep);
+  border: var(--ink-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3333,20 +3338,14 @@ body.support-body .app-header { flex-shrink: 0; }
 .cc-cover::before {
   content: "";
   position: absolute; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.3'%3E%3Ccircle cx='7' cy='7' r='1.8'/%3E%3Ccircle cx='24' cy='7' r='1.8'/%3E%3Ccircle cx='12' cy='12' r='1.8'/%3E%3Ccircle cx='40' cy='12' r='1.8'/%3E%3Ccircle cx='7' cy='24' r='1.8'/%3E%3Ccircle cx='24' cy='24' r='1.8'/%3E%3Ccircle cx='12' cy='40' r='1.8'/%3E%3Ccircle cx='40' cy='40' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='%23171340' fill-opacity='0.12'%3E%3Ccircle cx='7' cy='7' r='1.8'/%3E%3Ccircle cx='24' cy='7' r='1.8'/%3E%3Ccircle cx='12' cy='12' r='1.8'/%3E%3Ccircle cx='40' cy='12' r='1.8'/%3E%3Ccircle cx='7' cy='24' r='1.8'/%3E%3Ccircle cx='24' cy='24' r='1.8'/%3E%3Ccircle cx='12' cy='40' r='1.8'/%3E%3Ccircle cx='40' cy='40' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 70px 70px;
 }
-.cc-cover::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at 25% 15%, rgba(240, 164, 127,0.35), transparent 60%);
-}
+.cc-cover::after { content: none; }
 .cc-cover img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; }
-.cc-cover .cover-icon { font-size: 30px; color: var(--gold-light); position: relative; z-index: 1; }
+.cc-cover .cover-icon { font-size: 30px; color: var(--ink); position: relative; z-index: 1; }
 
-.comp-card.is-enrolled .cc-cover::after {
-  background: radial-gradient(circle at 25% 15%, rgba(31, 156, 122,0.4), transparent 60%);
-}
+.comp-card.is-enrolled .cc-cover { background: #E4EFE6; }
 
 /* شارة "جديد": ركن ورقة مطوية أعلى الغلاف */
 .cc-new-badge {
@@ -3357,42 +3356,41 @@ body.support-body .app-header { flex-shrink: 0; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--danger);
-  color: #fff;
+  background: var(--gold);
+  border: 1.5px solid var(--ink);
+  border-top: none;
+  color: var(--ink);
   font-size: 10px;
   font-weight: 800;
   padding: 5px 10px 6px;
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 6px 12px rgba(193, 63, 82, 0.35);
 }
 
-/* الختم/الوسام: دائرة متدلية على حافة الغلاف السفلية، بديل الشريط القديم */
+/* الختم: معين (مستوحى من شكل الشعار) معلّق على حافة الغلاف السفلية */
 .cc-seal {
   position: absolute;
-  bottom: -24px;
-  inset-inline-start: 26px;
+  bottom: -22px;
+  inset-inline-start: 30px;
   z-index: 4;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(150deg, var(--gold-light), var(--gold-dark));
-  border: 3px solid var(--card-bg);
-  outline: 2px dashed rgba(255,255,255,.55);
-  outline-offset: -6px;
-  box-shadow: var(--shadow-gold);
-  color: #fff;
+  background: var(--cream);
+  border: var(--ink-border);
+  color: var(--ink);
+  transform: rotate(45deg);
   transition: transform .25s cubic-bezier(.2,.8,.2,1);
 }
-.cc-seal .icon { width: 19px; height: 19px; }
-.cc-seal.competition { background: linear-gradient(150deg, var(--primary-light), var(--primary-dark)); box-shadow: 0 10px 22px rgba(23,19,64,.35); }
-.cc-seal.is-enrolled { background: linear-gradient(150deg, #34c294, var(--success)); box-shadow: 0 10px 22px rgba(31,156,122,.35); }
+.cc-seal .icon { width: 18px; height: 18px; transform: rotate(-45deg); }
+.cc-seal.competition { background: var(--cream); }
+.cc-seal.is-enrolled { background: #E4EFE6; border-color: var(--success); color: var(--success); }
 
 /* جسم البطاقة */
 .cc-body {
-  padding: 32px 20px 20px;
+  padding: 30px 20px 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -3409,10 +3407,10 @@ body.support-body .app-header { flex-shrink: 0; }
   letter-spacing: .2px;
   color: var(--gold-dark);
 }
-.cc-kicker::after { content: "•"; margin-inline-start: 3px; color: var(--border); font-weight: 400; }
+.cc-kicker::after { content: "◆"; margin-inline-start: 3px; color: var(--ink); font-size: 6px; }
 .cc-kicker.is-enrolled { color: var(--success); }
 
-.cc-body h3 { margin: 0; font-size: 16.5px; font-weight: 800; color: var(--primary-dark); line-height: 1.4; }
+.cc-body h3 { margin: 0; font-size: 16.5px; font-weight: 800; color: var(--ink); line-height: 1.4; }
 .cc-body p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
 .cc-meta-row { display: flex; flex-wrap: wrap; gap: 7px 16px; }
@@ -3427,8 +3425,8 @@ body.support-body .app-header { flex-shrink: 0; }
   position: relative;
   height: 9px;
   border-radius: 999px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--cream-deep);
+  border: 1.5px solid var(--ink);
   overflow: hidden;
 }
 .cc-progress-fill {
@@ -3452,16 +3450,21 @@ body.support-body .app-header { flex-shrink: 0; }
   text-align: center;
   padding: 12px 16px;
   font-size: 14.5px;
-  border-radius: 14px;
+  border-radius: 6px 16px 6px 16px !important;
+  border: var(--ink-border) !important;
+  background: var(--gradient-gold) !important;
+  color: #fff !important;
+  box-shadow: none !important;
 }
+.cc-cta.btn-outline { background: transparent !important; color: var(--ink) !important; }
 .cc-cta .icon { width: 14px; height: 14px; }
 
 @media (max-width: 640px) {
-  .cc-body { padding: 28px 16px 18px; gap: 8px; }
+  .cc-body { padding: 26px 16px 18px; gap: 8px; }
   .cc-body h3 { font-size: 15px; }
   .cc-cover { height: 138px; }
-  .cc-seal { width: 48px; height: 48px; bottom: -20px; }
-  .cc-seal .icon { width: 17px; height: 17px; }
+  .cc-seal { width: 38px; height: 38px; bottom: -19px; }
+  .cc-seal .icon { width: 16px; height: 16px; }
 }
 
 /* ===================================================
@@ -3478,10 +3481,10 @@ body.support-body .app-header { flex-shrink: 0; }
 
 /* بطاقة الوسائط (يسار) */
 .chv-media-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  background: var(--cream);
+  border: var(--ink-border);
+  border-radius: 6px 28px 6px 28px;
+  box-shadow: 5px 5px 0 0 var(--ink);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -3490,14 +3493,15 @@ body.support-body .app-header { flex-shrink: 0; }
 .chv-cover {
   position: relative;
   height: 220px;
-  background: linear-gradient(150deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+  background: var(--cream-deep);
+  border-bottom: var(--ink-border);
   overflow: hidden;
 }
 .chv-cover-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .chv-cover-placeholder {
   display: flex; align-items: center; justify-content: center;
-  color: var(--gold-pale);
-  background: radial-gradient(circle at 30% 20%, rgba(240, 164, 127,0.35), transparent 65%);
+  color: var(--ink);
+  background: var(--cream-deep);
 }
 .chv-cover::after {
   content: "";
@@ -3520,25 +3524,25 @@ body.support-body .app-header { flex-shrink: 0; }
 .chv-cta {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   margin: 16px 16px 0;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold));
-  color: var(--primary-dark);
-  border: none;
+  background: var(--gradient-gold);
+  color: #fff;
+  border: var(--ink-border);
   padding: 13px 16px;
-  border-radius: var(--radius-sm);
+  border-radius: 6px 16px 6px 16px;
   font-family: inherit; font-size: 14.5px; font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(217, 113, 75,0.32);
+  box-shadow: 3px 3px 0 0 var(--ink);
   transition: transform .15s ease, box-shadow .15s ease;
 }
-.chv-cta:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(217, 113, 75,0.4); }
+.chv-cta:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 0 var(--ink); }
 .chv-cta-done {
   margin: 16px 16px 0;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(31, 156, 122,0.08);
+  background: #E4EFE6;
   color: var(--success);
-  border: 1.5px solid rgba(31, 156, 122,0.35);
+  border: 1.5px solid var(--success);
   padding: 12px 16px;
-  border-radius: var(--radius-sm);
+  border-radius: 6px 16px 6px 16px;
   font-size: 14px; font-weight: 800;
 }
 .chv-cta-done span { display: flex; align-items: center; gap: 8px; }
@@ -3546,7 +3550,7 @@ body.support-body .app-header { flex-shrink: 0; }
 .chv-includes { padding: 16px; }
 .chv-includes h4 {
   display: flex; align-items: center; gap: 6px;
-  margin: 0 0 10px; font-size: 13px; font-weight: 800; color: var(--primary-dark);
+  margin: 0 0 10px; font-size: 13px; font-weight: 800; color: var(--ink);
 }
 .chv-includes h4 .icon { color: var(--gold-dark); }
 .chv-includes ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
@@ -3558,14 +3562,14 @@ body.support-body .app-header { flex-shrink: 0; }
 
 /* بطاقة المعلومات (يمين) */
 .chv-info-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  background: var(--cream);
+  border: var(--ink-border);
+  border-radius: 6px 28px 6px 28px;
+  box-shadow: 5px 5px 0 0 var(--ink);
   padding: 24px 26px 26px;
 }
-.chv-info-card h1 { font-family: 'Amiri', serif; font-size: 25px; margin: 0 0 10px; color: var(--primary-dark); }
-.chv-info-card p { margin: 0; font-size: 13.5px; line-height: 1.8; color: var(--text-muted); }
+.chv-info-card h1 { font-family: 'Amiri', serif; font-size: 25px; margin: 0 0 10px; color: var(--ink); }
+.chv-info-card p { margin: 0; font-size: 13.5px; line-height: 1.8; color: var(--text); }
 .chv-info-card .desc-more-btn { margin-top: 8px; }
 
 .chv-progress-wrap { margin-top: 20px; }
@@ -3573,22 +3577,21 @@ body.support-body .app-header { flex-shrink: 0; }
   display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;
   color: var(--text-muted); margin-bottom: 6px;
 }
-.chv-progress-bar { height: 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; }
+.chv-progress-bar { height: 9px; border-radius: 999px; background: var(--cream-deep); border: 1.5px solid var(--ink); overflow: hidden; }
 .chv-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold-light), var(--gold)); transition: width .4s ease; }
 
 .chv-teacher {
   display: flex; align-items: center; gap: 14px;
   margin-top: 22px; padding-top: 20px;
-  border-top: 1px dashed var(--border);
+  border-top: 2px dashed var(--ink);
 }
 .chv-teacher-avatar {
-  width: 58px; height: 58px; border-radius: 50%; object-fit: cover;
-  border: 2.5px solid var(--gold-light);
-  box-shadow: 0 6px 16px rgba(217, 113, 75,0.28);
+  width: 58px; height: 58px; border-radius: 10px; object-fit: cover;
+  border: var(--ink-border);
   flex-shrink: 0;
 }
 .chv-teacher-info { display: flex; flex-direction: column; gap: 4px; }
-.chv-teacher-info strong { font-size: 15px; font-weight: 800; color: var(--primary-dark); }
+.chv-teacher-info strong { font-size: 15px; font-weight: 800; color: var(--ink); }
 .chv-teacher-info span { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--gold-dark); }
 
 @media (max-width: 820px) {
