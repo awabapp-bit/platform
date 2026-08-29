@@ -927,6 +927,15 @@
       return;
     }
 
+    // ✅ محاولة فاسدة/ناقصة (مفيهاش أسئلة أصلاً، غالبًا بسبب تصفير جزئي من لوحة التحكم):
+    // نمسحها تلقائيًا ونبدأ محاولة جديدة نضيفة بدل ما نحاول نسترجعها ونطيح الصفحة.
+    if (!attempt.questions || attempt.questions.length === 0) {
+      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).remove()
+        .then(function() { startNewExam(); })
+        .catch(function() { startNewExam(); });
+      return;
+    }
+
     // ✅ السماح بإعادة تحميل الصفحة حتى MAX_RELOADS مرة قبل إنهاء الاختبار قسريًا
     reloadCount = (attempt.reloadCount || 0) + 1;
     if (reloadCount > MAX_RELOADS) {
@@ -1228,12 +1237,20 @@
 
   function submitExam(autoSubmit) {
     if (isSubmitted) return;
+    const total = questionIds.length;
+    if (total === 0) {
+      // لا توجد أسئلة لتسليمها (بيانات محاولة فاسدة) — لا تحاول الحفظ، امسح المحاولة وابدأ من جديد
+      isSubmitted = true;
+      clearInterval(timerInterval);
+      clearInterval(sessionCheckInterval);
+      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).remove()
+        .finally(function() { location.reload(); });
+      return;
+    }
     isSubmitted = true;
     clearInterval(timerInterval);
     clearInterval(sessionCheckInterval);
     hideProtectionOverlay();
-
-    const total = questionIds.length;
     let correct = 0;
     let earnedPoints = 0;
     const answersRecord = {};
@@ -1260,8 +1277,24 @@
 
     endExamAttempt(compId, lessonId, examId, currentUser.uid, true, false);
 
-    progRef.child('exams/' + examId).set(examDataToSave)
-      .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + earnedPoints))
+    // ✅ نقرأ نتيجة أي محاولة سابقة لنفس الاختبار قبل ما نقرر: لو الطالب بدأ محاولة
+    // تانية (بعد ما المسؤول صفّر بياناته) وطلع بدرجة أقل من محاولته السابقة، نحتفظ
+    // بالدرجة الأعلى ومنلمسش نقاطه. لو طلع بدرجة أعلى أو دي أول محاولة، نحفظ الجديدة.
+    let keptPrevious = false;
+    let prevEarnedForMsg = 0;
+    progRef.child('exams/' + examId).once('value')
+      .then((prevSnap) => {
+        const prevData = prevSnap.val() || {};
+        const prevEarned = prevData.earnedPoints || 0;
+        prevEarnedForMsg = prevEarned;
+        if (earnedPoints >= prevEarned) {
+          return progRef.child('exams/' + examId).set(examDataToSave)
+            .then(() => db.ref('users/' + currentUser.uid + '/points').transaction((current) => (current || 0) + (earnedPoints - prevEarned)));
+        }
+        // المحاولة الجديدة أقل من الأعلى المسجلة سابقًا: نحتفظ بالبيانات القديمة كما هي
+        keptPrevious = true;
+        return Promise.resolve();
+      })
       .then(() => progRef.once('value'))
       .then((snap) => {
         const lp = snap.val() || {};
@@ -1273,6 +1306,9 @@
         let autoMsg = '';
         if (autoSubmit) {
           autoMsg = '<div style="margin-top:8px;color:var(--danger);font-weight:700;"><i class="fas fa-exclamation-triangle"></i> تم التسليم تلقائياً.</div>';
+        }
+        if (keptPrevious) {
+          autoMsg += '<div style="margin-top:8px;color:var(--muted);font-weight:600;"><i class="fas fa-info-circle"></i> درجتك في هذه المحاولة (' + earnedPoints + ' نقطة) أقل من أعلى نتيجة سابقة لك (' + prevEarnedForMsg + ' نقطة)، لذلك تم الاحتفاظ بالأعلى.</div>';
         }
         // إخفاء المؤقت والتحذير
         document.getElementById('examTimer').style.display = 'none';
