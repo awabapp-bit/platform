@@ -202,13 +202,17 @@
             '</div>' : ''
           ) +
 
-          '<div class="chv-teacher">' +
-            '<img class="chv-teacher-avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9WEzR2qp5-V0UXqaDe5wC-uv5Er8XiK7fdC_KAc4yfg&s" alt="الشيخ علاء حامد حامد">' +
-            '<div class="chv-teacher-info">' +
-              '<strong>الشيخ علاء حامد حامد</strong>' +
-              '<span>' + icon('mosque', 'icon-sm') + ' معلم المادة</span>' +
-            '</div>' +
-          '</div>' +
+          (compData.instructorName ?
+            '<div class="chv-teacher">' +
+              (compData.instructorPhotoUrl
+                ? '<img class="chv-teacher-avatar" src="' + escapeHtml(compData.instructorPhotoUrl) + '" alt="' + escapeHtml(compData.instructorName) + '">'
+                : '<span class="chv-teacher-avatar chv-teacher-avatar-placeholder">' + icon('graduationCap', 'icon-md') + '</span>') +
+              '<div class="chv-teacher-info">' +
+                '<strong>' + escapeHtml(compData.instructorName) + '</strong>' +
+                '<span>' + icon('mosque', 'icon-sm') + ' معلم المادة</span>' +
+              '</div>' +
+            '</div>' : ''
+          ) +
         '</div>' +
 
       '</div>';

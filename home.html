@@ -334,7 +334,9 @@
               (c.description ? '<p>' + escapeHtml(truncateText(c.description, 80)) + '</p>' : '') +
               '<div class="cc-meta-row">' +
                 '<span class="cc-meta-item">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</span>' +
-                '<span class="cc-meta-item">' + icon('calendar', 'icon-sm') + ' ' + (isNew ? 'أُضيف حديثًا' : 'متاح الآن') + '</span>' +
+                (c.instructorName
+                  ? '<span class="cc-meta-item">' + icon('graduationCap', 'icon-sm') + ' ' + escapeHtml(c.instructorName) + '</span>'
+                  : '<span class="cc-meta-item">' + icon('calendar', 'icon-sm') + ' ' + (isNew ? 'أُضيف حديثًا' : 'متاح الآن') + '</span>') +
               '</div>' +
               (isEnrolled ?
                 '<div class="card-progress-wrap">' +

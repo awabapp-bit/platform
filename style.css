@@ -2766,7 +2766,7 @@ a.lesson-row.locked { cursor: not-allowed; }
 .fc-textarea {
   flex: 1; resize: vertical; min-height: 46px; max-height: 200px;
   padding: 11px 15px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 14.5px; background: var(--bg);
+  font-family: inherit; font-size: 16px; background: var(--bg);
   transition: border-color .15s ease, background .15s ease;
 }
 .fc-textarea:focus { border-color: var(--teal); outline: none; background: var(--card-bg); }
@@ -2845,7 +2845,7 @@ a.lesson-row.locked { cursor: not-allowed; }
 .forum-reply-form textarea {
   flex: 1; resize: vertical; min-height: 40px; padding: 9px 13px;
   border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 14px;
+  font-family: inherit; font-size: 16px;
 }
 .forum-reply-form textarea.shake { border-color: var(--danger); }
 .forum-reply-form .reply-send-btn { flex-shrink: 0; margin-top: 2px; }
@@ -3397,7 +3397,7 @@ body.support-body .app-header { flex-shrink: 0; }
 }
 .support-input-wrapper textarea {
   border: none; background: none; resize: none; width: 100%; font-family: inherit;
-  font-size: 14px; line-height: 1.5; max-height: 110px; color: var(--text);
+  font-size: 16px; line-height: 1.5; max-height: 110px; color: var(--text);
 }
 .support-input-wrapper textarea:focus { outline: none; }
 .support-send-btn {
@@ -4152,6 +4152,10 @@ body.support-body .app-header { flex-shrink: 0; }
   width: 58px; height: 58px; border-radius: 10px; object-fit: cover;
   border: var(--ink-border);
   flex-shrink: 0;
+}
+.chv-teacher-avatar-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--teal-pale); color: var(--teal-dark);
 }
 .chv-teacher-info { display: flex; flex-direction: column; gap: 4px; }
 .chv-teacher-info strong { font-size: 15px; font-weight: 800; color: var(--ink); }
