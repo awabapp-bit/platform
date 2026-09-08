@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>الحساب الشخصي — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
@@ -46,7 +46,7 @@
     position: absolute;
     top: -40px; inset-inline-end: -40px;
     width: 130px; height: 130px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23D9714B' stroke-opacity='0.16' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E") center/64px repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%2314B8A6' stroke-opacity='0.16' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E") center/64px repeat;
     pointer-events: none;
   }
 
@@ -67,8 +67,8 @@
     transition: background .4s ease, box-shadow .4s ease;
   }
   .acc-bead.is-filled {
-    background: var(--bead-color, var(--gold));
-    box-shadow: 0 0 7px color-mix(in srgb, var(--bead-color, var(--gold)) 60%, transparent);
+    background: var(--bead-color, var(--teal));
+    box-shadow: 0 0 7px color-mix(in srgb, var(--bead-color, var(--teal)) 60%, transparent);
   }
   .acc-avatar-wrap {
     position: absolute; inset: 20px;
@@ -83,10 +83,10 @@
     background: var(--gradient-primary);
     display: flex; align-items: center; justify-content: center;
     position: relative;
-    color: var(--gold-light);
+    color: var(--teal-light);
     font-size: 30px;
     border: 3px solid var(--card-bg);
-    box-shadow: 0 8px 20px rgba(23,19,64,0.22);
+    box-shadow: 0 8px 20px rgba(10, 36, 64,0.22);
   }
   .acc-avatar span {
     font-family: 'Amiri', serif;
@@ -100,7 +100,7 @@
   .acc-avatar:has(span:empty) i { display: inline-flex; }
 
   .acc-name-link { text-decoration: none; display: block; }
-  .acc-name-link:hover h1 { color: var(--gold-dark); }
+  .acc-name-link:hover h1 { color: var(--teal-dark); }
   .acc-profile-card h1 {
     font-family: 'Amiri', serif;
     font-size: 21px;
@@ -124,12 +124,34 @@
     margin-bottom: 18px;
   }
 
+  .acc-code-chip {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; font-weight: 700;
+    padding: 8px 12px; border-radius: 12px;
+    background: #FFF3F3; color: #C0142A;
+    border: 1px dashed rgba(214, 69, 91, 0.45);
+    margin: -8px 0 18px;
+    max-width: 100%;
+  }
+  .acc-code-chip i.fa-shield-halved { font-size: 13px; flex-shrink: 0; }
+  .acc-code-label { color: #C0142A; opacity: .8; flex-shrink: 0; }
+  .acc-code-value {
+    font-weight: 800; letter-spacing: .5px; direction: ltr;
+    color: #E30613; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .acc-code-copy {
+    margin-inline-start: auto; background: none; border: none; cursor: pointer;
+    color: #C0142A; padding: 2px 4px; border-radius: 6px; flex-shrink: 0;
+    transition: background .15s ease;
+  }
+  .acc-code-copy:hover { background: rgba(214, 69, 91, 0.12); }
+
   /* ===== موجز المستوى تحت الحلقة ===== */
   .acc-tier-info { margin-bottom: 18px; }
   .acc-tier-row {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     font-family: 'Amiri', serif; font-weight: 700; font-size: 16px;
-    color: var(--rank-color, var(--gold-dark));
+    color: var(--rank-color, var(--teal-dark));
     margin-bottom: 6px;
   }
   .acc-tier-row .acc-tier-level {
@@ -138,7 +160,7 @@
     padding: 2px 10px; border-radius: 999px;
   }
   .acc-tier-points { font-size: 12.5px; color: var(--text-muted); margin-bottom: 4px; }
-  .acc-tier-points i { color: var(--gold); margin-inline-end: 3px; }
+  .acc-tier-points i { color: var(--teal); margin-inline-end: 3px; }
   .acc-tier-note { font-size: 11.5px; color: var(--text-muted); opacity: .85; }
 
   /* ===== أزرار الإجراءات ===== */
@@ -185,7 +207,7 @@
     font-family: 'Amiri', serif; color: var(--primary-dark); margin: 0 0 16px;
     display: flex; align-items: center; gap: 8px; font-size: 18px;
   }
-  .acc-edit-panel .edit-title i { color: var(--gold); }
+  .acc-edit-panel .edit-title i { color: var(--teal); }
   .acc-edit-panel .fields-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px;
   }
@@ -204,8 +226,8 @@
     transition: border-color .15s ease, box-shadow .15s ease;
   }
   .acc-edit-panel .field input:focus {
-    border-color: var(--gold); outline: none;
-    box-shadow: 0 0 0 3px rgba(217,113,75,0.15);
+    border-color: var(--teal); outline: none;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166,0.15);
   }
   .acc-edit-panel .field-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
@@ -216,7 +238,7 @@
     overflow: hidden; background: #FCFBF8;
     transition: border-color .15s ease, box-shadow .15s ease;
   }
-  .phone-field-group:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217, 113, 75,0.15); }
+  .phone-field-group:focus-within { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(20, 184, 166,0.15); }
   .field.has-error .phone-field-group { border-color: var(--danger); }
   .phone-field-group .phone-prefix {
     display: flex; align-items: center; justify-content: center;
@@ -305,12 +327,12 @@
     transition: border-color .2s ease, transform .2s ease;
     animation: accFadeUp .4s ease both;
   }
-  .info-tile:hover { border-color: var(--gold); transform: translateX(-2px); }
+  .info-tile:hover { border-color: var(--teal); transform: translateX(-2px); }
   [dir="rtl"] .info-tile:hover { transform: translateX(2px); }
   .info-tile .info-tile-icon {
     flex-shrink: 0;
     width: 42px; height: 42px; border-radius: 13px;
-    background: var(--primary-tint); color: var(--gold-dark);
+    background: var(--primary-tint); color: var(--teal-dark);
     display: flex; align-items: center; justify-content: center;
     font-size: 16px;
   }
@@ -337,7 +359,7 @@
     display: flex; align-items: center; gap: 12px;
     transition: border-color .2s ease, transform .2s ease;
   }
-  .acc-stat-chip:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .acc-stat-chip:hover { border-color: var(--teal); transform: translateY(-2px); }
   .acc-stat-chip .stat-icon {
     flex-shrink: 0;
     width: 38px; height: 38px; border-radius: 12px;
@@ -371,7 +393,7 @@
   .enrolled-card:hover {
     box-shadow: var(--shadow-lift);
     transform: translateY(-4px);
-    border-color: var(--gold);
+    border-color: var(--teal);
   }
   .enrolled-card .ec-cover {
     position: relative;
@@ -386,10 +408,10 @@
     position: absolute; top: 10px; inset-inline-start: 10px;
     display: inline-flex; align-items: center; gap: 5px;
     font-size: 11px; font-weight: 800; color: #fff;
-    background: rgba(23,19,64,0.55); backdrop-filter: blur(4px);
+    background: rgba(10, 36, 64,0.55); backdrop-filter: blur(4px);
     padding: 4px 11px; border-radius: 999px;
   }
-  .enrolled-card .ec-ribbon.is-competition { background: rgba(217,113,75,0.75); }
+  .enrolled-card .ec-ribbon.is-competition { background: rgba(20, 184, 166,0.75); }
   .enrolled-card .ec-donebadge {
     position: absolute; top: 10px; inset-inline-end: 10px;
     display: inline-flex; align-items: center; gap: 5px;
@@ -403,17 +425,17 @@
   }
   .enrolled-card .ec-meta-row { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--text-muted); }
   .enrolled-card .ec-meta-row span { display: flex; align-items: center; gap: 4px; }
-  .enrolled-card .ec-meta-row i { color: var(--gold); }
+  .enrolled-card .ec-meta-row i { color: var(--teal); }
   .enrolled-card .ec-progress-wrap { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
   .enrolled-card .ec-progress-bar { flex: 1; height: 7px; border-radius: 999px; background: var(--bg); overflow: hidden; }
   .enrolled-card .ec-progress-fill { height: 100%; border-radius: 999px; background: var(--gradient-gold); transition: width .8s cubic-bezier(.22,1,.36,1); }
-  .enrolled-card .ec-progress-pct { font-size: 11.5px; font-weight: 800; color: var(--gold-dark); flex-shrink: 0; }
+  .enrolled-card .ec-progress-pct { font-size: 11.5px; font-weight: 800; color: var(--teal-dark); flex-shrink: 0; }
   .enrolled-card .ec-footer {
     display: flex; align-items: center; justify-content: space-between;
     margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border);
     font-size: 12.5px; font-weight: 700; color: var(--primary);
   }
-  .enrolled-card .ec-footer .ec-arrow { color: var(--gold); transition: transform .2s ease; }
+  .enrolled-card .ec-footer .ec-arrow { color: var(--teal); transition: transform .2s ease; }
   .enrolled-card:hover .ec-footer .ec-arrow { transform: translateX(-4px); }
   [dir="rtl"] .enrolled-card:hover .ec-footer .ec-arrow { transform: translateX(4px); }
 
@@ -432,12 +454,12 @@
     transition: all 0.2s ease;
     animation: accFadeUp .4s ease both;
   }
-  .exam-history-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); border-color: var(--gold); }
+  .exam-history-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); border-color: var(--teal); }
 
   .exam-pct-ring {
     flex-shrink: 0;
     width: 58px; height: 58px; border-radius: 50%;
-    background: conic-gradient(var(--ring-color, var(--gold)) calc(var(--pct, 0) * 1%), var(--bg) 0);
+    background: conic-gradient(var(--ring-color, var(--teal)) calc(var(--pct, 0) * 1%), var(--bg) 0);
     display: flex; align-items: center; justify-content: center;
     position: relative;
   }
@@ -449,17 +471,17 @@
   }
   .exam-pct-ring span {
     position: relative; z-index: 1;
-    font-size: 13px; font-weight: 800; color: var(--ring-color, var(--gold-dark));
+    font-size: 13px; font-weight: 800; color: var(--ring-color, var(--teal-dark));
   }
 
   .exam-history-card .exam-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
   .exam-history-card .exam-info .exam-title { font-weight: 700; font-size: 14.5px; color: var(--text); }
-  .exam-history-card .exam-info .exam-title i { color: var(--gold); margin-left: 6px; }
+  .exam-history-card .exam-info .exam-title i { color: var(--teal); margin-left: 6px; }
   .exam-history-card .exam-sub { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 3px 12px; }
   .exam-history-card .exam-sub .sub-item { display: flex; align-items: center; gap: 4px; }
-  .exam-history-card .exam-sub i { color: var(--gold); }
+  .exam-history-card .exam-sub i { color: var(--teal); }
   .exam-history-card .exam-score {
-    font-weight: 800; color: var(--gold-dark); font-size: 13px;
+    font-weight: 800; color: var(--teal-dark); font-size: 13px;
     display: flex; align-items: center; gap: 4px;
   }
 
@@ -492,7 +514,7 @@
   .exam-filter-tabs .filter-tab { white-space: nowrap; }
 
   .empty-state { text-align: center; padding: 46px 20px; color: var(--text-muted); animation: accFadeIn .4s ease; }
-  .empty-state i { font-size: 42px; display: block; margin-bottom: 14px; color: var(--gold); opacity: 0.55; }
+  .empty-state i { font-size: 42px; display: block; margin-bottom: 14px; color: var(--teal); opacity: 0.55; }
   .empty-state p { font-size: 14px; }
 
   /* ============================================================
@@ -500,7 +522,7 @@
      ============================================================ */
   .delete-modal-overlay {
     position: fixed; inset: 0; z-index: 300;
-    background: rgba(23, 19, 64,0.72);
+    background: rgba(10, 36, 64,0.72);
     backdrop-filter: blur(6px);
     display: none; align-items: center; justify-content: center; padding: 20px;
     animation: fadeInOverlay 0.3s ease;
@@ -624,6 +646,12 @@
         </a>
         <div class="acc-email"><i class="fas fa-envelope"></i> <span id="heroEmail">—</span></div>
         <span class="acc-badge" id="heroLevelBadge"><i class="fas fa-trophy"></i> —</span>
+        <div class="acc-code-chip" id="heroCodeChip" title="كود التوثيق الخاص بك — يظهر على مقاطع الفيديو لحمايتها من إعادة النشر">
+          <i class="fas fa-shield-halved"></i>
+          <span class="acc-code-label">كود التوثيق</span>
+          <span class="acc-code-value" id="heroCodeValue">••••••••••••</span>
+          <button type="button" class="acc-code-copy" id="heroCodeCopyBtn" aria-label="نسخ الكود"><i class="fas fa-copy"></i></button>
+        </div>
 
         <div id="tierCardWrap"></div>
 
@@ -797,9 +825,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="icons.js"></script>
+<script src="icons.js?v=2"></script>
 <script src="password-rules.js"></script>
-<script src="app-shell.js"></script>
+<script src="app-shell.js?v=2"></script>
 <script>
   // ============================================================
   // account.html — الحساب الشخصي
@@ -900,6 +928,24 @@
     if (heroEmail) heroEmail.textContent = currentUserData.email || currentUser.email || '—';
     if (heroLevelBadge) heroLevelBadge.innerHTML = '<i class="fas fa-' + tier.rank.icon + '"></i> ' + tier.rank.name + ' · المستوى ' + tier.level;
 
+    // كود التوثيق الخاص بالمستخدم (نفس الكود اللي بيظهر متحرك فوق الفيديو)
+    const heroCodeValue = document.getElementById('heroCodeValue');
+    const heroCodeCopyBtn = document.getElementById('heroCodeCopyBtn');
+    if (heroCodeValue && window.getOrCreateWatermarkCode) {
+      getOrCreateWatermarkCode(currentUser.uid, function (code) {
+        heroCodeValue.textContent = code;
+        if (heroCodeCopyBtn) {
+          heroCodeCopyBtn.addEventListener('click', function () {
+            navigator.clipboard.writeText(code).then(function () {
+              const icon = heroCodeCopyBtn.querySelector('i');
+              icon.className = 'fas fa-check';
+              setTimeout(function () { icon.className = 'fas fa-copy'; }, 1500);
+            });
+          });
+        }
+      });
+    }
+
     // الصورة الرمزية: أول حرف من الاسم بدل الأيقونة الافتراضية
     const avatarInitial = document.getElementById('heroAvatarInitial');
     if (avatarInitial) {
@@ -974,7 +1020,7 @@
             <div class="acc-stats-bar">
               <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-layer-group"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">إجمالي الاشتراكات</div></div></div>
               <div class="acc-stat-chip"><div class="stat-icon" style="background:#E6F2EA; color:var(--success);"><i class="fas fa-circle-check"></i></div><div><div class="stat-value">${completed}</div><div class="stat-label">مكتمل</div></div></div>
-              <div class="acc-stat-chip"><div class="stat-icon" style="background:var(--gold-pale); color:var(--gold-dark);"><i class="fas fa-fire"></i></div><div><div class="stat-value">${inProgress}</div><div class="stat-label">قيد التقدم</div></div></div>
+              <div class="acc-stat-chip"><div class="stat-icon" style="background:var(--teal-pale); color:var(--teal-dark);"><i class="fas fa-fire"></i></div><div><div class="stat-value">${inProgress}</div><div class="stat-label">قيد التقدم</div></div></div>
               <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-star"></i></div><div><div class="stat-value">${totalEarned}</div><div class="stat-label">نقاط مكتسبة</div></div></div>
             </div>
           `;
@@ -1115,7 +1161,7 @@
     statsBar.innerHTML = `
       <div class="acc-stats-bar">
         <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-pencil-alt"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">اختبار مكتمل</div></div></div>
-        <div class="acc-stat-chip"><div class="stat-icon" style="background:var(--gold-pale); color:var(--gold-dark);"><i class="fas fa-chart-line"></i></div><div><div class="stat-value">${avgPct}%</div><div class="stat-label">متوسط النسبة</div></div></div>
+        <div class="acc-stat-chip"><div class="stat-icon" style="background:var(--teal-pale); color:var(--teal-dark);"><i class="fas fa-chart-line"></i></div><div><div class="stat-value">${avgPct}%</div><div class="stat-label">متوسط النسبة</div></div></div>
         <div class="acc-stat-chip"><div class="stat-icon" style="background:#E6F2EA; color:var(--success);"><i class="fas fa-medal"></i></div><div><div class="stat-value">${bestPct}%</div><div class="stat-label">أفضل نتيجة</div></div></div>
         <div class="acc-stat-chip"><div class="stat-icon"><i class="fas fa-star"></i></div><div><div class="stat-value">${totalPoints}</div><div class="stat-label">إجمالي النقاط</div></div></div>
       </div>
@@ -1157,7 +1203,7 @@
 
     let html = '';
     list.forEach((exam) => {
-      const ringColor = exam.pct >= 80 ? 'var(--success)' : (exam.pct >= 50 ? 'var(--gold)' : 'var(--danger)');
+      const ringColor = exam.pct >= 80 ? 'var(--success)' : (exam.pct >= 50 ? 'var(--teal)' : 'var(--danger)');
       const dateLabel = window.formatRelativeArabicTime ? formatRelativeArabicTime(exam.answeredAt) : '';
       const dateTitle = window.formatArabicDate ? formatArabicDate(exam.answeredAt) : '';
       html += `

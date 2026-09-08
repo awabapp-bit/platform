@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>تفاصيل المحتوى — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 <!-- Font Awesome للأيقونات -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
@@ -40,7 +40,7 @@
   <div id="courseHero"></div>
 
   <h2 style="font-family:'Amiri',serif; color:var(--primary-dark); font-size:19px; margin:0 0 14px;">
-    <i class="fas fa-book-open" style="color:var(--gold);"></i> المحاضرات
+    <i class="fas fa-book-open" style="color:var(--teal);"></i> المحاضرات
   </h2>
 
   <div id="lessonsWrap">
@@ -77,8 +77,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="icons.js"></script>
-<script src="app-shell.js"></script>
+<script src="icons.js?v=2"></script>
+<script src="app-shell.js?v=2"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const compId = params.get('id');
@@ -176,6 +176,8 @@
             : '<button type="button" class="chv-cta" id="subscribeBtn">' + icon('gem', 'icon-sm') + ' ' + subscribeLabel + ' — مجانًا</button>'
           ) +
 
+          '<a class="chv-forum-btn" href="forum.html?id=' + encodeURIComponent(compId) + '">' + icon('commentDots', 'icon-sm') + ' منتدى الأسئلة</a>' +
+
           '<div class="chv-includes">' +
             '<h4>' + icon('listCheck', 'icon-sm') + ' يشمل هذا المحتوى</h4>' +
             '<ul>' +
@@ -183,6 +185,7 @@
               '<li>' + icon('circleCheck', 'icon-sm') + ' ' + videosCount + ' فيديو شرح</li>' +
               '<li>' + icon('circleCheck', 'icon-sm') + ' ' + examsCount + ' اختبار تفاعلي</li>' +
               '<li>' + icon('circleCheck', 'icon-sm') + ' وصول كامل مجانًا</li>' +
+              '<li>' + icon('circleCheck', 'icon-sm') + ' منتدى أسئلة يرد عليه المسؤول</li>' +
             '</ul>' +
           '</div>' +
         '</div>' +

@@ -9,23 +9,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --primary:#2B2560;
-    --primary-dark:#171340;
-    --primary-deep:#171340;
-    --gold:#D9714B;
-    --ink:#201A3D;
-    --slate:#746E96;
-    --slate-light:#8B84A8;
-    --line:#E5E1F5;
+    --primary:#123A63;
+    --primary-dark:#0A2440;
+    --primary-deep:#0A2440;
+    --teal:#14B8A6;
+    --ink:#142033;
+    --slate:#66748C;
+    --slate-light:#8FA0B8;
+    --line:#E3E9F0;
     --surface:#FFFFFF;
-    --surface-soft:#F6F5FB;
-    --danger:#C13F52;
+    --surface-soft:#F4F7FA;
+    --danger:#D6455B;
     --success:#1F9C7A;
     --radius-lg:30px;
     --radius-md:20px;
     --radius-sm:12px;
-    --shadow-soft:0 1px 2px rgba(23, 19, 64,.04), 0 8px 24px rgba(23, 19, 64,.06);
-    --shadow-lift:0 4px 12px rgba(23, 19, 64,.22);
+    --shadow-soft:0 1px 2px rgba(10, 36, 64,.04), 0 8px 24px rgba(10, 36, 64,.06);
+    --shadow-lift:0 4px 12px rgba(10, 36, 64,.22);
     --ease:cubic-bezier(.4,0,.2,1);
   }
 
@@ -35,9 +35,9 @@
     font-family:'Cairo',sans-serif;
     background:var(--surface-soft);
   background-image:
-    radial-gradient(circle at 8% 4%, rgba(217, 113, 75,0.07) 0, transparent 42%),
-    radial-gradient(circle at 96% 96%, rgba(23, 19, 64,0.08) 0, transparent 46%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%232B2560' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+    radial-gradient(circle at 8% 4%, rgba(20, 184, 166,0.07) 0, transparent 42%),
+    radial-gradient(circle at 96% 96%, rgba(10, 36, 64,0.08) 0, transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23123A63' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
   background-size: auto, auto, 84px 84px;
     color:var(--ink);
@@ -65,7 +65,7 @@
     position:relative;
     flex:0 0 44%;
     max-width:600px;
-    background:linear-gradient(160deg, var(--primary-deep) 0%, #171340 55%, var(--primary-dark) 130%);
+    background:linear-gradient(160deg, var(--primary-deep) 0%, #0A2440 55%, var(--primary-dark) 130%);
     color:#fff;
     display:flex;
     flex-direction:column;
@@ -83,7 +83,7 @@
     position:absolute;
     width:520px;height:520px;
     border-radius:50%;
-    background:radial-gradient(circle, rgba(217, 113, 75,.15) 0%, rgba(217, 113, 75,0) 70%);
+    background:radial-gradient(circle, rgba(20, 184, 166,.15) 0%, rgba(20, 184, 166,0) 70%);
     top:-120px;
     left:-160px;
     pointer-events:none;
@@ -103,13 +103,13 @@
   .brand-name span{display:block;font-family:'Cairo',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:.5px;}
 
   .brand-mid{position:relative; z-index:2; margin-top:auto; margin-bottom:auto; padding:60px 0;}
-  .brand-quote-mark{font-family:'Amiri',serif; font-size:64px; font-weight:800; color:var(--gold); opacity:.35; line-height:1; margin-bottom:8px;}
+  .brand-quote-mark{font-family:'Amiri',serif; font-size:64px; font-weight:800; color:var(--teal); opacity:.35; line-height:1; margin-bottom:8px;}
   .brand-headline{font-size:32px; font-weight:800; line-height:1.5; max-width:420px; letter-spacing:.2px;}
   .brand-sub{margin-top:18px; font-size:15px; color:rgba(255,255,255,.6); line-height:1.9; max-width:380px;}
 
   .brand-bottom{position:relative; z-index:2; display:flex; gap:28px;}
   .brand-stat{display:flex; flex-direction:column; gap:4px;}
-  .brand-stat b{font-family:'Amiri',serif; font-size:20px; color:var(--gold); font-weight:800;}
+  .brand-stat b{font-family:'Amiri',serif; font-size:20px; color:var(--teal); font-weight:800;}
   .brand-stat span{font-size:12px; color:rgba(255,255,255,.5);}
 
   /* geometric star motif */
@@ -207,7 +207,7 @@
   .field input::placeholder{color:transparent;}
   .field input:focus{
     border-color:var(--primary);
-    box-shadow:0 0 0 4px rgba(23, 19, 64,.12);
+    box-shadow:0 0 0 4px rgba(10, 36, 64,.12);
   }
   .field input:invalid:not(:placeholder-shown):not(:focus){border-color:var(--danger);}
 
@@ -339,7 +339,7 @@
     justify-content:center;
     gap:10px;
   }
-  .submit-btn:hover{transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 8px 20px rgba(23, 19, 64,.28);}
+  .submit-btn:hover{transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 8px 20px rgba(10, 36, 64,.28);}
   .submit-btn:active{transform:translateY(0);}
   .submit-btn:focus-visible{outline:2px solid var(--primary-deep); outline-offset:3px;}
   .submit-btn .spinner{
@@ -473,7 +473,7 @@
     <div class="brand-glow" aria-hidden="true"></div>
     <div class="star-field" aria-hidden="true">
       <svg width="620" height="620" viewBox="0 0 620 620" style="top:-60px; right:-140px; opacity:.35;">
-        <g stroke="#D9714B" stroke-width="1" fill="none" opacity=".5">
+        <g stroke="#14B8A6" stroke-width="1" fill="none" opacity=".5">
           <polygon points="310,60 380,230 560,230 415,340 470,510 310,405 150,510 205,340 60,230 240,230"/>
         </g>
         <circle cx="310" cy="310" r="230" stroke="#ffffff" stroke-width="0.6" fill="none" opacity=".18"/>

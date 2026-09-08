@@ -412,7 +412,7 @@ function showArabicNameNotice() {
   overlay.style.zIndex = '99999';
   overlay.innerHTML =
     '<div class="modal" style="max-width:420px; text-align:center;">' +
-      '<div style="width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--gold-pale); color:var(--gold); display:flex; align-items:center; justify-content:center;">' + icon('pen', 'icon-md') + '</div>' +
+      '<div style="width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--teal-pale); color:var(--teal); display:flex; align-items:center; justify-content:center;">' + icon('pen', 'icon-md') + '</div>' +
       '<h3>من فضلك، غيّر اسمك إلى العربية</h3>' +
       '<p style="color:var(--text-muted); line-height:1.8; font-size:14.5px; margin:0 0 20px;">' +
         'لاحظنا أن اسمك المسجَّل مكتوب بحروف إنجليزية. اسم المنصة إجباري أن يكون باللغة العربية، ولازم تعدّله الآن قبل ما تقدر تكمل استخدام المنصة.' +
@@ -447,7 +447,7 @@ function showAddPhoneNotice(user, userData) {
   overlay.style.zIndex = '99999';
   overlay.innerHTML =
     '<div class="modal" style="max-width:420px; text-align:center;">' +
-      '<div style="width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--gold-pale); color:var(--gold); display:flex; align-items:center; justify-content:center;">' +
+      '<div style="width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--teal-pale); color:var(--teal); display:flex; align-items:center; justify-content:center;">' +
         '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
       '</div>' +
       '<h3>هل تحب تضيف رقم هاتفك؟</h3>' +
@@ -571,7 +571,45 @@ function requireAuth(onReady) {
 }
 window.requireAuth = requireAuth;
 
-/* يرجّع أول 3 كلمات فقط من الاسم (اسم ثلاثي) بدل الاسم الكامل، لعرضه في قائمة الحساب المختصرة */
+/* ===== كود العلامة المائية: رقم مكوّن من 12 رقمًا ثابت لكل مستخدم، يُنشأ أول مرة ويُخزّن في قاعدة البيانات ===== */
+function getOrCreateWatermarkCode(uid, callback) {
+  const codeRef = db.ref('users/' + uid + '/watermarkCode');
+  codeRef.once('value').then(function (snap) {
+    const existing = snap.val();
+    if (existing) { callback(existing); return; }
+    let code = '';
+    for (let i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
+    codeRef.set(code).then(function () { callback(code); }).catch(function () { callback(code); });
+  }).catch(function () {
+    let code = '';
+    for (let i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
+    callback(code);
+  });
+}
+window.getOrCreateWatermarkCode = getOrCreateWatermarkCode;
+
+/* ===== علامة مائية حمراء متحركة فوق الفيديو: تعرض كود المستخدم + اسمه وتتنقل بين أماكن عشوائية بالمشغّل ===== */
+function startVideoWatermark(containerEl, code, name) {
+  if (!containerEl || containerEl.querySelector('.video-watermark')) return;
+  const wm = document.createElement('div');
+  wm.className = 'video-watermark';
+  wm.innerHTML = '<span class="video-watermark-code">' + code + '</span><span class="video-watermark-name">' + (name || '') + '</span>';
+  containerEl.appendChild(wm);
+
+  function reposition() {
+    const maxX = 78, maxY = 82; // نسبة مئوية تقريبية تفادي خروج العلامة من حدود المشغّل
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    wm.style.left = x + '%';
+    wm.style.top = y + '%';
+  }
+  reposition();
+  const timer = setInterval(reposition, 4000);
+  wm._wmTimer = timer;
+  return wm;
+}
+window.startVideoWatermark = startVideoWatermark;
+
 function getShortName(fullName, wordsCount) {
   const n = wordsCount || 3;
   const parts = (fullName || 'مستخدم').trim().split(/\s+/).filter(Boolean);
@@ -595,12 +633,6 @@ function renderAppHeader(user, userData, opts) {
         '<div class="brand-text"><h2>أواب <span class="brand-en">| Awab</span></h2></div>' +
       '</div>' +
       '<div class="header-right">' +
-        (showPoints ?
-          '<div class="points-badge" title="نقاطي">' +
-            icon('star') +
-            '<span id="pointsValue">' + (userData.points || 0) + '</span>' +
-          '</div>' : ''
-        ) +
         '<button class="header-search-btn" id="headerSearchBtn" aria-label="بحث">' + icon('search', 'icon-md') + '</button>' +
         '<div class="notif-menu">' +
           '<button class="notif-btn" id="notifBtn" aria-label="الإشعارات">' + icon('bell', 'icon-md') + '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
@@ -616,6 +648,11 @@ function renderAppHeader(user, userData, opts) {
         '<div class="account-menu">' +
           '<button class="account-btn" id="accountBtn" aria-label="حساب المستخدم">' +
             '<div class="avatar">' + icon('user', 'icon-md') + '</div>' +
+            '<div class="account-btn-text">' +
+              '<span class="account-btn-name">' + escapeHtml(getShortName(name, 1)) + '</span>' +
+              (showPoints ? '<span class="account-btn-points">' + icon('star', 'icon-xs') + '<span id="pointsValue">' + (userData.points || 0) + '</span></span>' : '') +
+            '</div>' +
+            icon('chevronDown', 'icon-xs') +
           '</button>' +
           '<div class="account-dropdown" id="accountDropdown">' +
             '<div class="account-dropdown-head">' +
@@ -984,17 +1021,216 @@ function renderFooter() {
 window.renderFooter = renderFooter;
 
 function renderSupportFab() {
-  if (document.getElementById('supportFab')) return;
-  const fab = document.createElement('a');
-  fab.id = 'supportFab';
-  fab.className = 'support-fab';
-  fab.href = 'support.html';
-  fab.innerHTML = '<span class="support-fab-ring"></span><span class="support-fab-icon">' + icon('headset') + '</span><span class="support-fab-text">الدعم الفني</span>';
-  fab.setAttribute('aria-label', 'الدعم الفني');
-  fab.title = 'الدعم الفني';
-  document.body.appendChild(fab);
+  if (document.getElementById('fabStack')) return;
+
+  const stack = document.createElement('div');
+  stack.id = 'fabStack';
+  stack.className = 'fab-stack';
+
+  const notesFab = document.createElement('a');
+  notesFab.id = 'notesFab';
+  notesFab.className = 'support-fab fab-notes';
+  notesFab.href = '#';
+  notesFab.innerHTML = '<span class="support-fab-icon"><span class="notes-fab-icon-wrap">' + icon('fileLines') + '<span class="notes-fab-badge">' + icon('pen') + '</span></span></span>';
+  notesFab.setAttribute('aria-label', 'ملاحظات');
+  notesFab.title = 'ملاحظات';
+  notesFab.addEventListener('click', function (e) {
+    e.preventDefault();
+    openNotesModal();
+  });
+
+  const supportFab = document.createElement('a');
+  supportFab.id = 'supportFab';
+  supportFab.className = 'support-fab fab-help';
+  supportFab.href = 'support.html';
+  supportFab.innerHTML = '<span class="support-fab-icon">' + icon('headset') + '</span>';
+  supportFab.setAttribute('aria-label', 'الدعم الفني');
+  supportFab.title = 'الدعم الفني';
+
+  stack.appendChild(notesFab);
+  stack.appendChild(supportFab);
+  document.body.appendChild(stack);
 }
 window.renderSupportFab = renderSupportFab;
+
+/* ============================================================
+   📝 مودال الملاحظات الشخصية (تفتح فوق الصفحة الحالية)
+   البيانات محفوظة في Firebase تحت المسار notes/{uid}
+   ============================================================ */
+let _notesState = null;
+
+function openNotesModal() {
+  if (document.getElementById('notesModal')) return;
+
+  const user = auth.currentUser;
+  if (!user) { window.location.href = 'index.html'; return; }
+
+  _notesState = { uid: user.uid, notes: {}, activeId: null, saveTimer: null };
+
+  document.body.style.overflow = 'hidden';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'notesModal';
+  overlay.style.zIndex = '99998';
+  overlay.innerHTML =
+    '<div class="modal modal-notes">' +
+      '<button type="button" class="modal-close" id="notesCloseBtn">' + icon('xmark') + '</button>' +
+      '<div class="notes-header"><h3>الملاحظات</h3></div>' +
+      '<div class="notes-body">' +
+        '<div class="notes-sidebar">' +
+          '<div class="notes-sidebar-head">' +
+            '<div class="notes-sidebar-icon">' + icon('fileLines') + '</div>' +
+            '<div>' +
+              '<div class="notes-sidebar-title">ملاحظاتي</div>' +
+              '<div class="notes-sidebar-count" id="notesCount">0 ملاحظة</div>' +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="btn btn-primary notes-new-btn" id="notesNewBtn">' + icon('plus') + ' ملاحظة جديدة</button>' +
+          '<div class="notes-list" id="notesList"></div>' +
+        '</div>' +
+        '<div class="notes-main" id="notesMain">' +
+          '<div class="notes-placeholder">' +
+            '<div class="notes-placeholder-icon">' + icon('fileLines') + '</div>' +
+            '<div class="notes-placeholder-text">اختر ملاحظة للبدء أو أنشئ ملاحظة جديدة</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  function closeNotesModal() {
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onEsc);
+    overlay.remove();
+    _notesState = null;
+  }
+  function onEsc(e) { if (e.key === 'Escape') closeNotesModal(); }
+  document.addEventListener('keydown', onEsc);
+
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeNotesModal(); });
+  document.getElementById('notesCloseBtn').addEventListener('click', closeNotesModal);
+  document.getElementById('notesNewBtn').addEventListener('click', createNewNote);
+
+  const notesRef = db.ref('notes/' + user.uid);
+  notesRef.once('value').then(function (snap) {
+    _notesState.notes = snap.val() || {};
+    renderNotesList();
+  }).catch(function () {
+    document.getElementById('notesList').innerHTML = '<div class="notes-empty">تعذّر تحميل الملاحظات</div>';
+  });
+}
+window.openNotesModal = openNotesModal;
+
+function renderNotesList() {
+  if (!_notesState) return;
+  const listEl = document.getElementById('notesList');
+  const countEl = document.getElementById('notesCount');
+  const ids = Object.keys(_notesState.notes).sort(function (a, b) {
+    return (_notesState.notes[b].updatedAt || 0) - (_notesState.notes[a].updatedAt || 0);
+  });
+
+  countEl.textContent = ids.length + ' ملاحظة';
+
+  if (!ids.length) {
+    listEl.innerHTML = '<div class="notes-empty">لا توجد ملاحظات بعد</div>';
+    return;
+  }
+
+  listEl.innerHTML = ids.map(function (id) {
+    const n = _notesState.notes[id];
+    const title = (n.title && n.title.trim()) || 'بدون عنوان';
+    const preview = (n.content || '').trim().slice(0, 60);
+    return '<button type="button" class="notes-item' + (id === _notesState.activeId ? ' active' : '') + '" data-id="' + id + '">' +
+      '<span class="notes-item-title">' + escapeHtml(title) + '</span>' +
+      (preview ? '<span class="notes-item-preview">' + escapeHtml(preview) + '</span>' : '') +
+    '</button>';
+  }).join('');
+
+  Array.prototype.forEach.call(listEl.querySelectorAll('.notes-item'), function (btn) {
+    btn.addEventListener('click', function () { selectNote(btn.getAttribute('data-id')); });
+  });
+}
+
+function createNewNote() {
+  if (!_notesState) return;
+  const uid = _notesState.uid;
+  const newRef = db.ref('notes/' + uid).push();
+  const now = firebase.database.ServerValue.TIMESTAMP;
+  const localNow = Date.now();
+  const data = { title: '', content: '', createdAt: now, updatedAt: now };
+  newRef.set(data).then(function () {
+    _notesState.notes[newRef.key] = { title: '', content: '', createdAt: localNow, updatedAt: localNow };
+    renderNotesList();
+    selectNote(newRef.key);
+  });
+}
+
+function selectNote(id) {
+  if (!_notesState) return;
+  _notesState.activeId = id;
+  const n = _notesState.notes[id] || { title: '', content: '' };
+
+  Array.prototype.forEach.call(document.querySelectorAll('.notes-item'), function (btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-id') === id);
+  });
+
+  const mainEl = document.getElementById('notesMain');
+  mainEl.innerHTML =
+    '<div class="notes-editor">' +
+      '<div class="notes-editor-toolbar">' +
+        '<input type="text" class="notes-editor-title" id="notesTitleInput" placeholder="بدون عنوان" value="' + escapeHtml(n.title || '') + '">' +
+        '<button type="button" class="notes-delete-btn" id="notesDeleteBtn" aria-label="حذف الملاحظة" title="حذف">' + icon('trash') + '</button>' +
+      '</div>' +
+      '<textarea class="notes-editor-content" id="notesContentInput" placeholder="اكتب ملاحظتك هنا...">' + escapeHtml(n.content || '') + '</textarea>' +
+      '<div class="notes-editor-status" id="notesSaveStatus">&nbsp;</div>' +
+    '</div>';
+
+  const titleInput = document.getElementById('notesTitleInput');
+  const contentInput = document.getElementById('notesContentInput');
+  titleInput.focus();
+
+  function scheduleSave() {
+    const statusEl = document.getElementById('notesSaveStatus');
+    if (statusEl) statusEl.textContent = 'جارٍ الحفظ...';
+    clearTimeout(_notesState.saveTimer);
+    _notesState.saveTimer = setTimeout(function () {
+      const title = titleInput.value;
+      const content = contentInput.value;
+      const now = firebase.database.ServerValue.TIMESTAMP;
+      db.ref('notes/' + _notesState.uid + '/' + id).update({ title: title, content: content, updatedAt: now }).then(function () {
+        if (_notesState.notes[id]) {
+          _notesState.notes[id].title = title;
+          _notesState.notes[id].content = content;
+          _notesState.notes[id].updatedAt = Date.now();
+        }
+        renderNotesList();
+        Array.prototype.forEach.call(document.querySelectorAll('.notes-item'), function (btn) {
+          btn.classList.toggle('active', btn.getAttribute('data-id') === id);
+        });
+        const s = document.getElementById('notesSaveStatus');
+        if (s) s.textContent = 'تم الحفظ';
+      });
+    }, 600);
+  }
+
+  titleInput.addEventListener('input', scheduleSave);
+  contentInput.addEventListener('input', scheduleSave);
+
+  document.getElementById('notesDeleteBtn').addEventListener('click', function () {
+    if (!confirm('هل تريد حذف هذه الملاحظة؟')) return;
+    db.ref('notes/' + _notesState.uid + '/' + id).remove().then(function () {
+      delete _notesState.notes[id];
+      if (_notesState.activeId === id) _notesState.activeId = null;
+      renderNotesList();
+      document.getElementById('notesMain').innerHTML =
+        '<div class="notes-placeholder">' +
+          '<div class="notes-placeholder-icon">' + icon('fileLines') + '</div>' +
+          '<div class="notes-placeholder-text">اختر ملاحظة للبدء أو أنشئ ملاحظة جديدة</div>' +
+        '</div>';
+    });
+  });
+}
 
 /* ============================================================
    ✅ دالة حذف حساب المستخدم

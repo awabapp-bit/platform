@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>الاختبار — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 <!-- Font Awesome للأيقونات -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
@@ -16,7 +16,7 @@
     padding: 24px;
     box-shadow: var(--shadow-lift);
     border: 1px solid var(--border);
-    border-top: 4px solid var(--gold);
+    border-top: 4px solid var(--teal);
   }
   .exam-timer {
     display: flex;
@@ -25,15 +25,15 @@
     font-size: 16px;
     font-weight: 700;
     color: var(--primary-dark);
-    background: var(--gold-pale);
+    background: var(--teal-pale);
     padding: 10px 18px;
     border-radius: var(--radius-sm);
     margin-bottom: 20px;
   }
-  .exam-timer i { color: var(--gold); }
+  .exam-timer i { color: var(--teal); }
   .exam-timer #timerDisplay {
     font-weight: 800;
-    color: var(--gold);
+    color: var(--teal);
     direction: ltr;
   }
   .violation-warning {
@@ -48,7 +48,7 @@
     display: none;
   }
   .violation-warning.show { display: block; }
-  .violation-warning.reload-info { background: var(--gold-pale); border-color: var(--gold); color: var(--gold-dark); }
+  .violation-warning.reload-info { background: var(--teal-pale); border-color: var(--teal); color: var(--teal-dark); }
   .violation-type-badge {
     display: inline-block;
     padding: 2px 10px;
@@ -88,7 +88,7 @@
     border-color: var(--primary);
     background: var(--primary);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(43, 37, 96,0.3);
+    box-shadow: 0 4px 12px rgba(18, 58, 99,0.3);
   }
   .exam-nav .q-btn.answered {
     border-color: var(--success);
@@ -96,9 +96,9 @@
     color: var(--success);
   }
   .exam-nav .q-btn.viewed {
-    border-color: var(--gold);
-    background: var(--gold-pale);
-    color: var(--gold);
+    border-color: var(--teal);
+    background: var(--teal-pale);
+    color: var(--teal);
   }
   .exam-nav .q-btn.unseen {
     border-color: var(--border);
@@ -120,7 +120,7 @@
     color: var(--primary-dark);
     margin-bottom: 16px;
   }
-  .exam-question-area .q-text i { color: var(--gold); margin-left: 8px; }
+  .exam-question-area .q-text i { color: var(--teal); margin-left: 8px; }
 
   .quiz-options {
     display: grid;
@@ -162,7 +162,7 @@
     justify-content: center;
   }
   .btn-submit-final {
-    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    background: linear-gradient(135deg, var(--teal-light), var(--teal));
     color: #fff;
     border: none;
     padding: 14px 40px;
@@ -171,11 +171,11 @@
     font-weight: 800;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 6px 20px rgba(217, 113, 75,0.3);
+    box-shadow: 0 6px 20px rgba(20, 184, 166,0.3);
   }
   .btn-submit-final:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(217, 113, 75,0.4);
+    box-shadow: 0 10px 28px rgba(20, 184, 166,0.4);
   }
   .btn-submit-final:disabled {
     opacity: 0.5;
@@ -188,7 +188,7 @@
     position: fixed;
     inset: 0;
     z-index: 300;
-    background: rgba(23, 19, 64,0.65);
+    background: rgba(10, 36, 64,0.65);
     backdrop-filter: blur(4px);
     display: none;
     align-items: center;
@@ -207,7 +207,7 @@
   }
   .confirm-box .icon-big {
     font-size: 48px;
-    color: var(--gold);
+    color: var(--teal);
     margin-bottom: 12px;
   }
   .confirm-box h3 {
@@ -233,15 +233,15 @@
   .exam-result {
     margin-top: 24px;
     padding: 24px;
-    background: var(--gold-pale);
+    background: var(--teal-pale);
     border-radius: var(--radius);
-    border: 1px solid var(--gold-light);
+    border: 1px solid var(--teal-light);
     text-align: center;
   }
   .exam-result .score {
     font-size: 38px;
     font-weight: 800;
-    color: var(--gold);
+    color: var(--teal);
     font-family: 'Amiri', serif;
   }
   .exam-result .details {
@@ -288,9 +288,9 @@
     width: 72px; height: 72px;
     margin: 0 auto 14px;
     border-radius: 30% 70% 65% 35% / 45% 35% 65% 55%;
-    background: var(--gold-pale);
+    background: var(--teal-pale);
     display: flex; align-items: center; justify-content: center;
-    font-size: 30px; color: var(--gold);
+    font-size: 30px; color: var(--teal);
   }
   .exam-start-screen h2 {
     font-family: 'Amiri', serif;
@@ -310,12 +310,12 @@
   }
   .start-info-grid .info-chip {
     display: flex; align-items: center; gap: 8px;
-    background: var(--gold-pale);
-    color: var(--gold-dark);
+    background: var(--teal-pale);
+    color: var(--teal-dark);
     padding: 8px 16px; border-radius: 999px;
     font-weight: 700; font-size: 13.5px;
   }
-  .start-info-grid .info-chip i { color: var(--gold); }
+  .start-info-grid .info-chip i { color: var(--teal); }
   .start-section {
     text-align: right;
     background: var(--bg);
@@ -330,7 +330,7 @@
     margin: 0 0 10px;
     display: flex; align-items: center; gap: 8px;
   }
-  .start-section h3 i { color: var(--gold); }
+  .start-section h3 i { color: var(--teal); }
   .start-list {
     margin: 0; padding-inline-start: 18px;
     display: flex; flex-direction: column; gap: 8px;
@@ -426,10 +426,10 @@
     box-shadow: var(--shadow);
     margin-bottom: 20px;
   }
-  .review-summary .big-icon { color: var(--gold); margin-bottom: 8px; }
+  .review-summary .big-icon { color: var(--teal); margin-bottom: 8px; }
   .review-summary .big-icon i { font-size: 40px; }
   .review-summary .score { font-size: 24px; font-weight: 800; color: var(--primary-dark); margin: 6px 0; }
-  .review-summary .score i { color: var(--gold); margin-inline-start: 6px; }
+  .review-summary .score i { color: var(--teal); margin-inline-start: 6px; }
   .review-summary .details { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
   .review-item {
     background: var(--card-bg);
@@ -457,7 +457,7 @@
   }
   .review-status.correct { color: var(--success); background: #E6F2EA; }
   .review-status.wrong { color: var(--danger); background: #FBEAE6; }
-  .review-status.unanswered { color: var(--text-muted); background: var(--gold-pale); }
+  .review-status.unanswered { color: var(--text-muted); background: var(--teal-pale); }
   .quiz-option.disabled { cursor: default; pointer-events: none; }
 </style>
 </head>
@@ -523,8 +523,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="icons.js"></script>
-<script src="app-shell.js"></script>
+<script src="icons.js?v=2"></script>
+<script src="app-shell.js?v=2"></script>
 <script>
   // ============================================================
   // exam.html — صفحة الاختبار مع منع إعادة المحاولة
@@ -630,7 +630,7 @@
         if (!eSnap.exists()) {
           document.getElementById('examTitle').textContent = 'محتوى مغلق';
           document.getElementById('content').innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock"></i></div>' +
+            '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-lock"></i></div>' +
             '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3>' +
             '<p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الاختبار.</p>' +
             '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
@@ -651,13 +651,13 @@
 
       if (!access.allowed) {
         const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-lock"></i></div>' +
+        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-lock"></i></div>' +
           '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">' + reasonText + '</p></div>';
         return;
       }
 
       if (examData.releaseAt && examData.releaseAt > Date.now()) {
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);"><i class="fas fa-clock"></i></div>' +
+        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-clock"></i></div>' +
           '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">هذا الاختبار لم يحن معاده بعد' +
           (typeof formatArabicDate === 'function' ? '، يُتاح في ' + formatArabicDate(examData.releaseAt) : '') + '.</p></div>';
         return;
@@ -731,8 +731,8 @@
 
   function alreadySubmittedFallback(message) {
     return `
-      <div class="already-done-card" style="border-color:var(--gold-light);">
-        <div class="big-icon" style="color:var(--gold);"><i class="fas fa-check-circle"></i></div>
+      <div class="already-done-card" style="border-color:var(--teal-light);">
+        <div class="big-icon" style="color:var(--teal);"><i class="fas fa-check-circle"></i></div>
         <h3 style="margin:10px 0 6px; color:var(--primary-dark);">✅ تم التسليم</h3>
         <p class="muted">${message}</p>
         <a class="btn btn-primary btn-sm" style="width:auto; margin-top:14px;" href="competition.html?id=${encodeURIComponent(compId)}">
@@ -1315,7 +1315,7 @@
         document.getElementById('violationWarning').style.display = 'none';
         document.getElementById('resultArea').innerHTML = `
           <div class="exam-result">
-            <div class="score"><i class="fas fa-trophy" style="color:var(--gold);"></i> ${earnedPoints} نقطة</div>
+            <div class="score"><i class="fas fa-trophy" style="color:var(--teal);"></i> ${earnedPoints} نقطة</div>
             <div class="details">إجابات صحيحة: <span>${correct}</span> من <span>${total}</span></div>
             <div class="details">نسبة النجاح: <span>${percentage}%</span></div>
             ${autoMsg}

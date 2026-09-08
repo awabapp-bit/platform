@@ -5,18 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>الفيديو — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
 <header class="app-header" id="appHeader"></header>
 
 <main class="page video-page">
-  <a class="back-link" id="backLink" href="competition.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> رجوع للمحاضرة</a>
-  <h1 class="page-title" id="videoTitle">جارٍ التحميل...</h1>
+  <h1 class="sr-only" id="videoTitle">جارٍ التحميل...</h1>
 
-  <div id="content">
-    <div class="center-loading"><div class="loader"></div></div>
+  <div class="video-layout">
+    <div class="video-main">
+      <div class="video-top-bar">
+        <a class="video-back-link" id="backLink" href="competition.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> الرجوع للكورس</a>
+      </div>
+      <div class="video-quick-row" id="videoQuickRow"></div>
+      <button type="button" class="video-fav-btn" id="favoriteBtn" style="display:none;"></button>
+
+      <div id="content">
+        <div class="center-loading"><div class="loader"></div></div>
+      </div>
+    </div>
+
+    <aside class="video-sidebar" id="videoSidebar" style="display:none;">
+      <h2 class="video-sidebar-heading">الدروس</h2>
+      <div class="video-sidebar-list" id="videoSidebarList"></div>
+    </aside>
   </div>
 </main>
 
@@ -26,8 +40,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="icons.js"></script>
-<script src="app-shell.js"></script>
+<script src="icons.js?v=2"></script>
+<script src="app-shell.js?v=2"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const compId = params.get('comp');
@@ -39,6 +53,20 @@
 
   let currentUser = null;
   let currentUserData = null;
+
+  /* ---------------- حالة حد المشاهدات ووقت المشاهدة (مشتركة بين الدوال) ---------------- */
+  const DEFAULT_MAX_VIEWS = 3;
+  let progRef = null;
+  let maxViewsAllowed = DEFAULT_MAX_VIEWS;
+  let viewsUsedCount = 0;
+  let isVideoBlocked = false;
+  let crossed80This = false;
+  let maxWatchedPercentBase = 0;
+  let lastFlushedPercent = 0;
+  let totalWatchSecondsBase = 0;
+  let watchAccumSeconds = 0;
+  let lastFlushedAccum = 0;
+  let statsFlushTimer = null;
 
   requireAuth(function (user, userData) {
     currentUser = user;
@@ -60,7 +88,7 @@
         if (!eSnap.exists()) {
           document.getElementById('videoTitle').textContent = 'محتوى مغلق';
           document.getElementById('content').innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);">' + icon('lock', 'icon-xl') + '</div>' +
+            '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);">' + icon('lock', 'icon-xl') + '</div>' +
             '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3><p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الفيديو.</p>' +
             '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
           return;
@@ -78,25 +106,44 @@
           document.getElementById('videoTitle').textContent = 'محتوى مغلق';
           const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
           content.innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--gold);">' + icon('lock', 'icon-xl') + '</div>' +
+            '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);">' + icon('lock', 'icon-xl') + '</div>' +
             '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا المحتوى مغلق</h3><p class="muted">' + reasonText + '</p></div>';
           return;
         }
 
         const video = lesson.videos[videoId];
+        const lessonProgress = progressData[lessonId] || {};
+        const videoProgress = (lessonProgress.videos && lessonProgress.videos[videoId]) || {};
         document.getElementById('videoTitle').textContent = video.title || 'فيديو الشرح';
-        renderVideo(video, lesson);
+        renderVideo(video, lesson, videoProgress);
+        renderQuickActions(lesson);
+        setupFavoriteButton();
+        renderVideoSidebar(lessons, progressData);
       });
       }
     });
   }
 
-  function renderVideo(video, lesson) {
+  function renderVideo(video, lesson, videoProgress) {
     const content = document.getElementById('content');
     const ytId = extractYouTubeId(video.url);
 
+    progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
+
+    // إعداد حالة عدد المشاهدات المسموح بها (يضبطها المسؤول لكل فيديو من Firebase، وإلا الافتراضي 3)
+    const configuredMax = Number(video.maxViews);
+    maxViewsAllowed = (configuredMax && configuredMax > 0) ? Math.floor(configuredMax) : DEFAULT_MAX_VIEWS;
+    viewsUsedCount = Number(videoProgress.viewsUsed) || 0;
+    isVideoBlocked = viewsUsedCount >= maxViewsAllowed;
+    crossed80This = false;
+    maxWatchedPercentBase = Number(videoProgress.maxWatchedPercent) || 0;
+    lastFlushedPercent = maxWatchedPercentBase;
+    totalWatchSecondsBase = Number(videoProgress.totalWatchSeconds) || 0;
+    watchAccumSeconds = 0;
+    lastFlushedAccum = 0;
+
     let html = '';
-    if (ytId) {
+    if (ytId && !isVideoBlocked) {
       const thumbUrl = 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg';
       html += '<div class="video-solo-wrap" id="videoWrap">' +
           '<div class="video-cover" id="videoCover">' +
@@ -125,11 +172,22 @@
             '</div>' +
           '</div>' +
         '</div>';
+    } else if (isVideoBlocked) {
+      html += '<div class="already-done-card" id="videoLockedCard">' +
+          '<div class="big-icon" style="color:var(--teal);">' + icon('lock', 'icon-xl') + '</div>' +
+          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">استنفدت عدد المشاهدات المتاحة</h3>' +
+          '<p class="muted">استخدمت كل مشاهداتك المسموح بها لهذه المحاضرة (' + maxViewsAllowed + ' مشاهدات). تقدر تشوف تفاصيل المحاضرة تحت.</p>' +
+        '</div>';
     } else {
       html += '<p class="muted">تعذر تحميل الفيديو</p>';
     }
 
-    html += '<div class="video-toolbar"><button class="btn btn-outline btn-sm" id="shareBtn" style="width:auto;">' + icon('shareNodes', 'icon-sm') + ' مشاركة</button></div>';
+    html += '<div class="video-title-row">' +
+        '<button type="button" class="video-share-btn" id="shareBtn" aria-label="مشاركة" title="مشاركة">' + icon('shareNodes', 'icon-sm') + '</button>' +
+        '<h2 class="video-title-text">' + icon('bookOpen', 'icon-sm') + ' <span>' + escapeHtml(video.title || lesson.title || 'فيديو الشرح') + '</span></h2>' +
+      '</div>';
+
+    html += renderVideoStatsCard(video, lesson);
 
     html += '<div class="comments-section">' +
       '<h3>' + icon('comment', 'icon-md') + ' الأسئلة والتعليقات</h3>' +
@@ -142,10 +200,20 @@
     '</div>';
 
     content.innerHTML = html;
-    if (ytId) setupVideoCover(ytId);
+    if (ytId && !isVideoBlocked) {
+      setupVideoCover(ytId);
+      getOrCreateWatermarkCode(currentUser.uid, function (code) {
+        const wrap = document.getElementById('videoWrap');
+        startVideoWatermark(wrap, code, currentUserData.name || '');
+      });
+      statsFlushTimer = setInterval(flushProgressStats, 4000);
+      window.addEventListener('pagehide', flushProgressStats);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') flushProgressStats();
+      });
+    }
 
     // تسجيل المشاهدة تلقائيًا وتحديث حالة اكتمال المحاضرة
-    const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
     progRef.child('videos/' + videoId + '/watched').set(true).then(function () {
       progRef.once('value').then(function (snap) {
         const lp = snap.val() || {};
@@ -160,6 +228,250 @@
     document.getElementById('commentInput').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') sendComment();
     });
+  }
+
+  /* ---------------- بطاقة تفاصيل المحاضرة: الوصف + مدة الفيديو + عدد المشاهدات + إجمالي وقت المشاهدة ---------------- */
+  function renderVideoStatsCard(video, lesson) {
+    const desc = (lesson.description || '').trim();
+    const descHtml = desc
+      ? '<p class="video-stats-desc">' + icon('circleInfo', 'icon-xs') + ' <span>' + escapeHtml(desc) + '</span></p>'
+      : '';
+
+    const hasAdminDuration = !!(Number(video.durationMinutes) > 0);
+    const durationLabel = hasAdminDuration
+      ? formatMinutesLabel(Number(video.durationMinutes))
+      : (isVideoBlocked ? 'غير محددة' : '—');
+
+    return (
+      '<div class="video-stats-card" id="videoStatsCard">' +
+        descHtml +
+        '<div class="video-stats-grid">' +
+          '<div class="video-stats-item">' + icon('clock', 'icon-sm') +
+            '<span class="vsi-label">مدة الفيديو</span>' +
+            '<span class="vsi-value" id="statDuration">' + durationLabel + '</span>' +
+          '</div>' +
+          '<div class="video-stats-item">' + icon('eye', 'icon-sm') +
+            '<span class="vsi-label">عدد المشاهدات</span>' +
+            '<span class="vsi-value" id="statViews">' + viewsUsedCount + ' من ' + maxViewsAllowed + '</span>' +
+          '</div>' +
+          '<div class="video-stats-item">' + icon('hourglass', 'icon-sm') +
+            '<span class="vsi-label">إجمالي وقت المشاهدة</span>' +
+            '<span class="vsi-value" id="statWatchTime">' + formatWatchDuration(totalWatchSecondsBase) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="video-stats-progress">' +
+          '<div class="vsp-head"><span>' + icon('chartSimple', 'icon-xs') + ' نسبة مشاهدتك للمحاضرة</span><span id="statPercentLabel">' + Math.round(maxWatchedPercentBase) + '%</span></div>' +
+          '<div class="vsp-track"><div class="vsp-fill" id="statPercentFill" style="width:' + Math.round(maxWatchedPercentBase) + '%"></div></div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function formatMinutesLabel(mins) {
+    mins = Math.max(1, Math.round(mins));
+    return mins + ' دقيقة';
+  }
+
+  function formatWatchDuration(totalSeconds) {
+    totalSeconds = Math.floor(totalSeconds || 0);
+    if (totalSeconds < 60) return totalSeconds + ' ثانية';
+    return Math.round(totalSeconds / 60) + ' دقيقة';
+  }
+
+  /* يُستدعى مع كل تحديث لموضع التشغيل: يحدّث أعلى نسبة مشاهدة، ويخصم مشاهدة تلقائيًا عند تخطي 80% (مرة واحدة لكل دخول للصفحة) */
+  function trackWatchProgress(pct) {
+    if (!isFinite(pct)) return;
+    pct = Math.max(0, Math.min(100, pct));
+    if (pct > maxWatchedPercentBase) {
+      maxWatchedPercentBase = pct;
+      const label = document.getElementById('statPercentLabel');
+      const fill = document.getElementById('statPercentFill');
+      if (label) label.textContent = Math.round(maxWatchedPercentBase) + '%';
+      if (fill) fill.style.width = Math.round(maxWatchedPercentBase) + '%';
+    }
+    if (!crossed80This && maxWatchedPercentBase >= 80) {
+      crossed80This = true;
+      registerViewUsed();
+    }
+  }
+
+  /* خصم مشاهدة واحدة عند اكتمال 80% من المحاضرة */
+  function registerViewUsed() {
+    viewsUsedCount += 1;
+    progRef.child('videos/' + videoId + '/viewsUsed').set(viewsUsedCount);
+    const el = document.getElementById('statViews');
+    if (el) el.textContent = viewsUsedCount + ' من ' + maxViewsAllowed;
+    if (viewsUsedCount >= maxViewsAllowed && typeof showToast === 'function') {
+      showToast('كده استخدمت كل المشاهدات المتاحة لهذه المحاضرة (' + maxViewsAllowed + ')', 'info');
+    }
+  }
+
+  /* عداد وقت المشاهدة الفعلي: يزيد ثانية بثانية أثناء التشغيل فقط */
+  function tickWatchTime() {
+    if (!ytReady || !ytPlayer) return;
+    if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+      watchAccumSeconds += 1;
+      const el = document.getElementById('statWatchTime');
+      if (el) el.textContent = formatWatchDuration(totalWatchSecondsBase + watchAccumSeconds);
+    }
+  }
+
+  /* حفظ دوري (وعند مغادرة الصفحة) لنسبة المشاهدة القصوى وإجمالي وقت المشاهدة، بدون كتابة زيادة عن الحاجة */
+  function flushProgressStats() {
+    if (!progRef) return;
+    const updates = {};
+    if (watchAccumSeconds > lastFlushedAccum) {
+      updates['videos/' + videoId + '/totalWatchSeconds'] = totalWatchSecondsBase + watchAccumSeconds;
+      lastFlushedAccum = watchAccumSeconds;
+    }
+    const roundedPct = Math.round(maxWatchedPercentBase);
+    if (roundedPct > lastFlushedPercent) {
+      updates['videos/' + videoId + '/maxWatchedPercent'] = roundedPct;
+      lastFlushedPercent = roundedPct;
+    }
+    if (Object.keys(updates).length) progRef.update(updates);
+  }
+
+  /* ---------------- الأزرار السريعة أعلى الفيديو (ملف شرح / اختبار تطبيقي) ---------------- */
+  function renderQuickActions(lesson) {
+    const row = document.getElementById('videoQuickRow');
+    const materials = lesson.materials || {};
+    const materialIds = Object.keys(materials);
+    const exams = lesson.exams || {};
+    const now = Date.now();
+    const examIds = Object.keys(exams).filter(function (eid) {
+      const ex = exams[eid];
+      return !ex.releaseAt || ex.releaseAt <= now;
+    });
+
+    let html = '';
+    if (materialIds.length) {
+      const m = materials[materialIds[0]];
+      html += '<a class="video-pill-btn" href="' + escapeHtml(m.url) + '" target="_blank" rel="noopener">ملف شرح ' + icon('chevronLeft', 'icon-xs') + '</a>';
+    }
+    if (examIds.length) {
+      html += '<a class="video-pill-btn" href="exam.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&exam=' + encodeURIComponent(examIds[0]) + '">اختبار تطبيقي ' + icon('chevronLeft', 'icon-xs') + '</a>';
+    }
+    row.innerHTML = html;
+    row.style.display = html ? 'flex' : 'none';
+  }
+
+  /* ---------------- زر إضافة إلى المفضلة (محفوظ لكل مستخدم تحت favorites/{uid}/{lessonId}) ---------------- */
+  function setupFavoriteButton() {
+    const btn = document.getElementById('favoriteBtn');
+    const favRef = db.ref('favorites/' + currentUser.uid + '/' + lessonId);
+
+    function renderState(isFav) {
+      btn.innerHTML = icon(isFav ? 'circleCheck' : 'star', 'icon-xs') + ' ' + (isFav ? 'أُضيفت إلى المفضلة' : 'إضافة إلى المفضلة');
+      btn.classList.toggle('is-active', isFav);
+    }
+
+    favRef.once('value').then(function (snap) {
+      renderState(!!snap.val());
+      btn.style.display = 'inline-flex';
+    });
+
+    btn.addEventListener('click', function () {
+      favRef.once('value').then(function (snap) {
+        const isFav = !!snap.val();
+        favRef.set(isFav ? null : true).then(function () { renderState(!isFav); });
+      });
+    });
+  }
+
+  /* ---------------- الشريط الجانبي: قائمة "الدروس" مع تمييز المحاضرة الحالية ---------------- */
+  function renderVideoSidebar(lessons, progressData) {
+    const sidebar = document.getElementById('videoSidebar');
+    const listEl = document.getElementById('videoSidebarList');
+    const now = Date.now();
+
+    const l = lessons[lessonId];
+    const lp = progressData[lessonId] || {};
+
+    const desc = (l.description || '').trim();
+    const DESC_LIMIT = 60;
+    let descHtml = '';
+    if (desc) {
+      const isLong = desc.length > DESC_LIMIT;
+      const shortDesc = isLong ? desc.slice(0, DESC_LIMIT).trim() + '…' : desc;
+      descHtml =
+        '<div class="vs-current-note">' + icon('circleInfo', 'icon-xs') +
+          '<span class="vs-note-text" data-full="' + escapeHtml(desc) + '" data-short="' + escapeHtml(shortDesc) + '" data-expanded="0">' + escapeHtml(shortDesc) + '</span>' +
+        '</div>' +
+        (isLong ? '<button type="button" class="vs-more-btn" data-role="vs-desc-toggle">عرض باقي التفاصيل</button>' : '');
+    }
+
+    const videos = l.videos || {};
+    const videoIds = Object.keys(videos);
+    let videosHtml = videoIds.map(function (vid) {
+      const watched = !!(lp.videos && lp.videos[vid] && lp.videos[vid].watched);
+      const isPlaying = vid === videoId;
+      return '<a class="vs-item' + (isPlaying ? ' active' : '') + '" href="video.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&video=' + encodeURIComponent(vid) + '">' +
+        '<span class="vs-item-title">' + icon('play', 'icon-xs') + ' ' + escapeHtml(videos[vid].title || 'فيديو الشرح') + '</span>' +
+        (watched ? '<span class="vs-item-status">' + icon('check', 'icon-xs') + '</span>' : '') +
+      '</a>';
+    }).join('') || '<div class="vs-empty">لا يوجد فيديوهات</div>';
+
+    const exams = l.exams || {};
+    const examIds = Object.keys(exams).filter(function (eid) { const ex = exams[eid]; return !ex.releaseAt || ex.releaseAt <= now; });
+    let examsHtml = examIds.map(function (eid) {
+      const ex = exams[eid];
+      const examDone = !!(lp.exams && lp.exams[eid] && lp.exams[eid].completed);
+      return '<a class="vs-item' + (examDone ? ' done' : '') + '" href="exam.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&exam=' + encodeURIComponent(eid) + '">' +
+        '<span class="vs-item-title">' + icon('listCheck', 'icon-xs') + ' ' + escapeHtml(ex.title || 'اختبار تطبيقي') + '</span>' +
+        (examDone ? '<span class="vs-item-status">' + icon('check', 'icon-xs') + '</span>' : '') +
+      '</a>';
+    }).join('') || '<div class="vs-empty">لا يوجد اختبارات</div>';
+
+    const html =
+      '<div class="vs-lesson vs-current">' +
+        '<span class="vs-live-dot"></span>' +
+        '<div class="vs-current-head">' +
+          '<div class="vs-current-info">' +
+            '<div class="vs-current-title">' + icon('bookOpen', 'icon-sm') + ' <span>' + escapeHtml(l.title || 'محاضرة') + '</span></div>' +
+            descHtml +
+          '</div>' +
+          '<span class="vs-here-badge">أنت هنا</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vs-group open">' +
+        '<button type="button" class="vs-group-header" data-target="vsGroupVideos">' +
+          '<span class="vs-group-title">الشرح</span>' +
+          '<span class="vs-group-toggle">عرض ' + icon('chevronUp', 'icon-xs') + '</span>' +
+        '</button>' +
+        '<div class="vs-group-body" id="vsGroupVideos">' + videosHtml + '</div>' +
+      '</div>' +
+      '<div class="vs-group open">' +
+        '<button type="button" class="vs-group-header" data-target="vsGroupExams">' +
+          '<span class="vs-group-title">التطبيق التفاعلي</span>' +
+          '<span class="vs-group-toggle">عرض ' + icon('chevronUp', 'icon-xs') + '</span>' +
+        '</button>' +
+        '<div class="vs-group-body" id="vsGroupExams">' + examsHtml + '</div>' +
+      '</div>';
+
+    listEl.innerHTML = html;
+    sidebar.style.display = '';
+
+    listEl.querySelectorAll('.vs-group-header').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const group = btn.closest('.vs-group');
+        group.classList.toggle('open');
+        btn.querySelector('.vs-group-toggle').innerHTML = group.classList.contains('open')
+          ? 'عرض ' + icon('chevronUp', 'icon-xs')
+          : 'إخفاء ' + icon('chevronDown', 'icon-xs');
+      });
+    });
+
+    const descToggle = listEl.querySelector('[data-role="vs-desc-toggle"]');
+    if (descToggle) {
+      descToggle.addEventListener('click', function () {
+        const textEl = listEl.querySelector('.vs-note-text');
+        const expanded = textEl.getAttribute('data-expanded') === '1';
+        textEl.textContent = expanded ? textEl.getAttribute('data-short') : textEl.getAttribute('data-full');
+        descToggle.textContent = expanded ? 'عرض باقي التفاصيل' : 'عرض أقل';
+        textEl.setAttribute('data-expanded', expanded ? '0' : '1');
+      });
+    }
   }
 
   /* ---------------- مشغل يوتيوب مخصص: بدون عناصر تحكم أصلية، بس شريط تقدّم + مدة + صوت + سرعة ---------------- */
@@ -232,6 +544,14 @@
     ytReady = true;
     ytPlayer.playVideo();
     setInterval(updateProgress, 250);
+    setInterval(tickWatchTime, 1000);
+
+    // لو المسؤول ماحددش مدة المحاضرة يدويًا، نجيبها من اليوتيوب نفسه بعد جاهزية المشغل
+    const durationEl = document.getElementById('statDuration');
+    if (durationEl && durationEl.textContent === '—') {
+      const durSec = ytPlayer.getDuration() || 0;
+      if (durSec > 0) durationEl.textContent = formatMinutesLabel(durSec / 60);
+    }
 
     document.getElementById('playPauseBtn').addEventListener('click', function () { togglePlay(); showControlsBar(); });
     setupTapGestures();
@@ -504,6 +824,7 @@
     const track = document.getElementById('progressTrack');
     if (track) track.style.setProperty('--fill', pct + '%');
     timeEl.textContent = formatPlayerTime(current) + ' / ' + formatPlayerTime(duration);
+    trackWatchProgress(pct);
   }
 
   function formatPlayerTime(sec) {
@@ -583,8 +904,8 @@
         let replyHtml = '';
         if (reply) {
           replyHtml =
-            '<div class="comment-card" style="margin-inline-start:28px; margin-top:8px; background:var(--gold-pale); border-color:rgba(217, 113, 75,0.3);">' +
-              '<div class="c-head"><span class="c-avatar" style="background:linear-gradient(135deg, var(--gold-light), var(--gold));">' + icon('shield', 'icon-sm') + '</span>' +
+            '<div class="comment-card" style="margin-inline-start:28px; margin-top:8px; background:var(--teal-pale); border-color:rgba(20, 184, 166,0.3);">' +
+              '<div class="c-head"><span class="c-avatar" style="background:linear-gradient(135deg, var(--teal-light), var(--teal));">' + icon('shield', 'icon-sm') + '</span>' +
               '<span class="c-name">إدارة أواب</span>' +
               '<span class="c-time">' + formatArabicDate(reply.createdAt) + '</span></div>' +
               '<p class="c-text">' + escapeHtml(reply.text) + '</p>' +
