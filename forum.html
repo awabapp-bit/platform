@@ -6,345 +6,348 @@
 <title>منتدى الأسئلة — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css?v=2">
-<style>
-  /* إضافة دعم للأسطر الجديدة في نصوص الأسئلة والردود */
-  .preserve-linebreaks {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-</style>
+<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="forum.css?v=1">
 </head>
 <body>
 
-<header class="app-header" id="appHeader"></header>
+<header class="ah-bar" id="appHeader"></header>
 
-<main class="page forum-page">
-  <a class="back-link" id="backLink" href="competition.html">
-    <svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
-    رجوع لصفحة المحتوى
-  </a>
-
-  <div id="forumRoot">
-    <div class="center-loading"><div class="loader"></div></div>
-  </div>
+<main class="fm" id="forumRoot">
+  <div class="center-loading"><div class="loader"></div></div>
 </main>
 
-<footer class="site-footer" id="siteFooter"></footer>
+<div class="fm-lightbox" id="lightbox" role="dialog" aria-label="عرض الصورة">
+  <button type="button" id="lightboxClose" aria-label="إغلاق"></button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<footer class="sf-footer" id="siteFooter"></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="icons.js?v=2"></script>
-<script src="app-shell.js?v=2"></script>
+<script src="app-shell.js?v=3"></script>
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const compId = params.get('id');
-  if (!compId) window.location.href = 'home.html';
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var compId = params.get('id');
+  if (!compId) { window.location.href = 'home.html'; return; }
 
-  document.getElementById('backLink').href = 'competition.html?id=' + encodeURIComponent(compId);
+  var $ = function (id) { return document.getElementById(id); };
+  var root = $('forumRoot');
+  var currentUser = null, currentUserData = null, compData = null, isEnrolled = false;
+  var pendingImage = null, questions = {}, filter = 'all', sending = false;
+  var contentUrl = 'competition.html?id=' + encodeURIComponent(compId);
+  var ic = function (n) { return icon(n, 'fm-ic'); };
 
-  let currentUser = null;
-  let currentUserData = null;
-  let compData = null;
-  let isEnrolled = false;
-  let pendingImageData = null; /* Base64 data URL للصورة المرفقة قبل الإرسال */
+  $('lightboxClose').innerHTML = icon('xmark', 'fm-ic');
 
   requireAuth(function (user, userData) {
-    currentUser = user;
-    currentUserData = userData;
+    currentUser = user; currentUserData = userData;
     renderAppHeader(user, userData, { showPoints: true });
     renderFooter();
     load();
   });
 
+  function forumRef() { return db.ref('forumQuestions/' + compId); }
+  function safeImg(u) { return /^data:image\//.test(u || '') || /^https:\/\//.test(u || '') ? u : ''; }
+
   function load() {
     db.ref('competitions/' + compId).once('value').then(function (snap) {
       if (!snap.exists()) { window.location.href = 'home.html'; return; }
       compData = snap.val();
-
-      db.ref('userEnrollments/' + currentUser.uid + '/' + compId).once('value').then(function (eSnap) {
-        isEnrolled = eSnap.exists();
+      return db.ref('userEnrollments/' + currentUser.uid + '/' + compId).once('value').then(function (e) {
+        isEnrolled = e.exists();
         renderShell();
-        if (isEnrolled) loadQuestions();
+        if (isEnrolled) listen();
       });
     });
   }
 
-  /* ===== الإطار العام: غلاف المنتدى + صندوق السؤال أو رسالة القفل ===== */
+  /* ===== الهيكل: العنوان + (صندوق السؤال والأسئلة) أو (رسالة القفل) ===== */
   function renderShell() {
-    const root = document.getElementById('forumRoot');
-    const isCourse = compData.type !== 'competition';
-    const title = compData.title || (isCourse ? 'كورس' : 'مسابقة');
+    var isCourse = compData.type !== 'competition';
+    var title = compData.title || (isCourse ? 'كورس' : 'مسابقة');
+    var cover = safeImg(compData.coverUrl);
 
-    let html =
-      '<div class="forum-cover">' +
-        (compData.coverUrl
-          ? '<img class="forum-cover-img" src="' + escapeHtml(compData.coverUrl) + '" alt="">'
-          : '<div class="forum-cover-img forum-cover-placeholder">' + icon(isCourse ? 'bookOpen' : 'trophy', 'icon-xl') + '</div>') +
-        '<div class="forum-cover-shade"></div>' +
-        '<div class="forum-cover-info">' +
-          '<span class="forum-cover-kicker">' + icon('commentDots', 'icon-sm') + ' منتدى الأسئلة</span>' +
-          '<h1>' + escapeHtml(title) + '</h1>' +
-          '<span class="forum-cover-sub">اسأل عن أي حاجة متعلقة بهذا ال' + (isCourse ? 'كورس' : 'محتوى') + '، والإدارة هترد عليك هنا</span>' +
-        '</div>' +
-      '</div>';
+    var html =
+      '<a class="fm-back" href="' + contentUrl + '">' + ic('arrowRight') + 'رجوع إلى ' + (isCourse ? 'الكورس' : 'المسابقة') + '</a>' +
+      '<section class="fm-top">' +
+        '<div class="fm-arch" aria-hidden="true">' + (cover ? '<img src="' + escapeHtml(cover) + '" alt="">' : ic(isCourse ? 'bookOpen' : 'trophy')) + '</div>' +
+        '<div><h1>منتدى الأسئلة</h1><p>' + escapeHtml(title) + '</p></div>' +
+      '</section>';
 
     if (!isEnrolled) {
       html +=
-        '<div class="enroll-lock-card" style="margin-top:16px;">' +
-          '<div class="big-icon"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
-          '<h3>المنتدى مقفول</h3>' +
-          '<p>' + (isCourse ? 'اشترك في الكورس' : 'انضم للمحتوى') + ' أولاً عشان تقدر تسأل وتشوف أسئلة زمايلك.</p>' +
-          '<a class="btn btn-primary btn-sm" style="width:auto; margin-top:6px;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a>' +
-        '</div>';
+        '<section class="fm-lock">' +
+          '<div class="fm-arch" aria-hidden="true">' + ic('lock') + '</div>' +
+          '<h3>المنتدى مغلق</h3>' +
+          '<p>' + (isCourse ? 'اشترك في الكورس' : 'انضم إلى المسابقة') + ' أولًا لتتمكن من السؤال ومشاهدة أسئلة زملائك.</p>' +
+          '<a class="fm-send" href="' + contentUrl + '">' + (isCourse ? 'الذهاب إلى الكورس' : 'الذهاب إلى المسابقة') + '</a>' +
+        '</section>';
       root.innerHTML = html;
       return;
     }
 
     html +=
-      '<div class="forum-composer" id="forumComposer">' +
-        '<div class="fc-head">' +
-          '<span class="fc-avatar">' + escapeHtml((currentUserData.name || '؟').trim().charAt(0)) + '</span>' +
-          '<textarea id="questionInput" class="fc-textarea" placeholder="اكتب سؤالك هنا..." maxlength="600" rows="2"></textarea>' +
+      '<section class="fm-ask" aria-label="اسأل سؤالًا">' +
+        '<div class="fm-ask-row">' +
+          '<span class="fm-avatar" aria-hidden="true">' + escapeHtml((currentUserData.name || '؟').trim().charAt(0)) + '</span>' +
+          '<textarea id="qInput" maxlength="600" rows="3" placeholder="ما سؤالك عن هذا ' + (isCourse ? 'الكورس' : 'المحتوى') + '؟" aria-label="نص السؤال"></textarea>' +
         '</div>' +
-        '<div class="fc-image-preview" id="imagePreview" style="display:none;">' +
-          '<img id="imagePreviewImg" alt="">' +
-          '<button type="button" class="fc-image-remove" id="removeImageBtn" aria-label="إزالة الصورة">' + icon('xmark', 'icon-sm') + '</button>' +
+        '<div class="fm-preview" id="preview"><img id="previewImg" alt="الصورة المرفقة"><button type="button" id="previewRemove" aria-label="إزالة الصورة">' + ic('xmark') + '</button></div>' +
+        '<p class="fm-error" id="qError" role="alert"></p>' +
+        '<p class="fm-note">' + ic('lock') + 'سؤالك يظهر لك وللإدارة فقط، ولا يراه زملاؤك إلا بعد أن تنشره الإدارة.</p>' +
+        '<div class="fm-ask-foot">' +
+          '<label class="fm-attach">' + ic('image') + '<span>إضافة صورة</span><input type="file" id="imgInput" accept="image/*" hidden></label>' +
+          '<span class="fm-count" id="qCount">0 / 600</span>' +
+          '<button type="button" class="fm-send" id="qSend">' + ic('paperPlane') + 'إرسال السؤال</button>' +
         '</div>' +
-        '<div class="fc-msg" id="forumMsg"></div>' +
-        '<div class="fc-actions">' +
-          '<label class="fc-attach-btn" id="attachLabel">' +
-            icon('image', 'icon-sm') + ' إضافة صورة' +
-            '<input type="file" id="imageInput" accept="image/*" hidden>' +
-          '</label>' +
-          '<button type="button" class="btn btn-primary btn-sm" id="sendQuestionBtn" style="width:auto;">' + icon('paperPlane', 'icon-sm') + ' إرسال السؤال</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="forum-feed-head">' + icon('users', 'icon-sm') + ' أسئلة الطلاب</div>' +
-      '<div class="forum-feed" id="forumFeed"><div class="center-loading" style="min-height:80px;"><div class="loader"></div></div></div>';
-
+      '</section>' +
+      '<div class="fm-head"><h2>أسئلة الطلاب</h2><div class="fm-tabs" id="tabs" role="tablist"></div></div>' +
+      '<div class="fm-feed" id="feed"><div class="center-loading" style="min-height:80px;"><div class="loader"></div></div></div>';
     root.innerHTML = html;
 
-    document.getElementById('imageInput').addEventListener('change', handleImageSelect);
-    document.getElementById('removeImageBtn').addEventListener('click', clearPendingImage);
-    document.getElementById('sendQuestionBtn').addEventListener('click', sendQuestion);
-    document.getElementById('questionInput').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendQuestion();
-    });
+    $('imgInput').addEventListener('change', onImagePick);
+    $('previewRemove').addEventListener('click', clearImage);
+    $('qSend').addEventListener('click', sendQuestion);
+    $('qInput').addEventListener('input', function () { $('qCount').textContent = this.value.length + ' / 600'; });
+    $('qInput').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendQuestion(); });
   }
 
-  /* ===== إرفاق صورة: ضغط عبر Canvas وتحويلها Base64 (الموقع لا يستخدم Firebase Storage) ===== */
-  function compressImage(file, maxDim, quality) {
+  /* ===== الصورة: ضغط عبر Canvas ثم Base64 (لا يوجد Firebase Storage) ===== */
+  function compress(file, maxDim, quality) {
     return new Promise(function (resolve, reject) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
+      var r = new FileReader();
+      r.onload = function (e) {
+        var img = new Image();
         img.onload = function () {
-          let w = img.width, h = img.height;
+          var w = img.width, h = img.height;
           if (w > h) { if (w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; } }
-          else { if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; } }
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', quality));
+          else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+          var c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', quality));
         };
-        img.onerror = function () { reject(new Error('تعذرت قراءة الصورة')); };
+        img.onerror = function () { reject(new Error('read')); };
         img.src = e.target.result;
       };
-      reader.onerror = function () { reject(new Error('تعذرت قراءة الملف')); };
-      reader.readAsDataURL(file);
+      r.onerror = function () { reject(new Error('read')); };
+      r.readAsDataURL(file);
     });
   }
-
-  function handleImageSelect(e) {
-    const file = e.target.files && e.target.files[0];
+  function onImagePick(e) {
+    var file = e.target.files && e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      showToast('الملف المختار مش صورة', 'error');
-      return;
-    }
-    compressImage(file, 900, 0.65).then(function (dataUrl) {
-      if (dataUrl.length > 450000) {
-        return compressImage(file, 640, 0.5).then(function (smaller) {
-          if (smaller.length > 450000) throw new Error('too-big');
-          setPendingImage(smaller);
-        });
-      }
-      setPendingImage(dataUrl);
-    }).catch(function () {
-      showToast('تعذر إرفاق الصورة، جرّب صورة أصغر', 'error');
-    });
+    if (file.type.indexOf('image/') !== 0) { showToast('الملف المختار ليس صورة', 'error'); return; }
+    compress(file, 900, 0.65).then(function (d) {
+      if (d.length <= 450000) return d;
+      return compress(file, 640, 0.5).then(function (s) { if (s.length > 450000) throw new Error('big'); return s; });
+    }).then(function (d) {
+      pendingImage = d;
+      $('previewImg').src = d;
+      $('preview').classList.add('show');
+    }).catch(function () { showToast('تعذّر إرفاق الصورة، جرّب صورة أصغر', 'error'); });
+  }
+  function clearImage() {
+    pendingImage = null;
+    $('previewImg').src = '';
+    $('preview').classList.remove('show');
   }
 
-  function setPendingImage(dataUrl) {
-    pendingImageData = dataUrl;
-    document.getElementById('imagePreviewImg').src = dataUrl;
-    document.getElementById('imagePreview').style.display = 'flex';
-  }
+  /* ===== إرسال سؤال ===== */
+  function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); el.focus(); }
 
-  function clearPendingImage() {
-    pendingImageData = null;
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('imagePreviewImg').src = '';
-  }
-
-  /* ===== إرسال سؤال جديد ===== */
   function sendQuestion() {
-    const input = document.getElementById('questionInput');
-    const btn = document.getElementById('sendQuestionBtn');
-    const msg = document.getElementById('forumMsg');
-    const text = input.value.trim();
-
-    msg.classList.remove('show');
-
-    if (!text) {
-      input.classList.remove('shake');
-      void input.offsetWidth;
-      input.classList.add('shake');
-      input.focus();
-      return;
-    }
-
-    const originalBtnHtml = btn.innerHTML;
-    input.disabled = true;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="btn-spinner"></span>';
-
-    const payload = {
-      uid: currentUser.uid,
-      name: currentUserData.name || 'مستخدم',
-      text: text,
-      createdAt: firebase.database.ServerValue.TIMESTAMP
-    };
-    if (pendingImageData) payload.imageData = pendingImageData;
-
+    if (sending) return;
+    var input = $('qInput'), btn = $('qSend'), err = $('qError');
+    var text = input.value.trim();
+    err.classList.remove('show');
+    if (!text) { shake(input); return; }
+    sending = true; input.disabled = true; btn.disabled = true;
+    var payload = { uid: currentUser.uid, name: currentUserData.name || 'مستخدم', text: text, createdAt: firebase.database.ServerValue.TIMESTAMP, published: false };
+    if (pendingImage) payload.imageData = pendingImage;
     forumRef().push(payload).then(function () {
-      input.value = '';
-      clearPendingImage();
-      input.disabled = false;
-      btn.disabled = false;
-      btn.innerHTML = originalBtnHtml;
-      showToast('لقد تم إرسال سؤالك، سوف يتم الرد عليه في أقرب وقت', 'success');
-    }).catch(function (err) {
-      msg.innerHTML = icon('exclamation-triangle', 'icon-sm') + ' تعذر إرسال السؤال' + (err && err.message ? ': ' + err.message : '') + '، حاول مرة أخرى';
-      msg.classList.add('show');
-      input.disabled = false;
-      btn.disabled = false;
-      btn.innerHTML = originalBtnHtml;
+      input.value = ''; $('qCount').textContent = '0 / 600'; clearImage();
+      showToast('تم إرسال سؤالك، وسيظهر لك فقط حتى تنشره الإدارة', 'success'); filter = 'mine';
+    }).catch(function (e) {
+      err.textContent = 'تعذّر إرسال السؤال' + (e && e.message ? ': ' + e.message : '') + '. حاول مرة أخرى.';
+      err.classList.add('show');
+    }).then(function () { sending = false; input.disabled = false; btn.disabled = false; });
+  }
+
+  /* ===== الأسئلة: استماع حيّ + تبويبات ===== */
+  /* المسؤول يقرأ كل شيء. المستخدم يقرأ نوعين فقط (تفرضهما قواعد Firebase):
+     المنشور للجميع + أسئلته هو. */
+  var pubData = {}, mineData = {}, failed = 0;
+  function merge() { questions = Object.assign({}, pubData, mineData); renderFeed(); }
+  function onFail(err) {
+    console.error(err);
+    if (++failed >= (currentUserData.isAdmin ? 1 : 2)) {
+      var f = $('feed');
+      if (f) f.innerHTML = '<div class="fm-empty"><h3>تعذّر تحميل الأسئلة</h3><p>تحقق من الاتصال وأعد تحميل الصفحة.</p></div>';
+    }
+  }
+  function listen() {
+    if (currentUserData.isAdmin) {
+      forumRef().on('value', function (s) { questions = s.val() || {}; renderFeed(); }, onFail);
+      return;
+    }
+    forumRef().orderByChild('published').equalTo(true).on('value', function (s) { pubData = s.val() || {}; merge(); }, onFail);
+    forumRef().orderByChild('uid').equalTo(currentUser.uid).on('value', function (s) { mineData = s.val() || {}; merge(); }, onFail);
+  }
+
+  function sortedIds() {
+    return Object.keys(questions).sort(function (a, b) { return (questions[b].createdAt || 0) - (questions[a].createdAt || 0); });
+  }
+
+  /* منتظِر: بلا رد. وللمسؤول أيضًا: غير منشور (يحتاج قرارًا) */
+  function isPending(q) { return !q.adminReply || (currentUserData.isAdmin && q.published !== true); }
+
+  function renderTabs(ids) {
+    var mine = ids.filter(function (i) { return questions[i].uid === currentUser.uid; }).length;
+    var pending = ids.filter(function (i) { return isPending(questions[i]); }).length;
+    var defs = [['all', 'الكل', ids.length], ['mine', 'أسئلتي', mine], ['pending', 'بانتظار الرد', pending]];
+    $('tabs').innerHTML = defs.map(function (d) {
+      return '<button type="button" role="tab" class="fm-tab' + (filter === d[0] ? ' active' : '') + '" aria-selected="' + (filter === d[0]) + '" data-f="' + d[0] + '">' + d[1] + '<small>' + d[2] + '</small></button>';
+    }).join('');
+    $('tabs').querySelectorAll('.fm-tab').forEach(function (b) {
+      b.addEventListener('click', function () { filter = b.dataset.f; renderFeed(); });
     });
   }
 
-  /* ===== قراءة الأسئلة حيًّا وعرضها (الأحدث أولاً، زي فيد جروب) ===== */
-  function forumRef() {
-    return db.ref('forumQuestions/' + compId);
-  }
+  function renderFeed() {
+    var feed = $('feed'); if (!feed) return;
+    var all = sortedIds();
+    renderTabs(all);
 
-  function loadQuestions() {
-    forumRef().on('value', function (snap) {
-      const data = snap.val() || {};
-      const ids = Object.keys(data).sort(function (a, b) { return (data[b].createdAt || 0) - (data[a].createdAt || 0); });
-      const feed = document.getElementById('forumFeed');
-      if (!feed) return;
-
-      if (ids.length === 0) {
-        feed.innerHTML =
-          '<div class="comment-empty">' + icon('commentDots', 'icon-lg') +
-          '<p>لا توجد أسئلة بعد، كن أول من يسأل في هذا المنتدى.</p></div>';
-        return;
-      }
-
-      feed.innerHTML = ids.map(function (id) {
-        const q = data[id];
-        const initial = (q.name || '؟').trim().charAt(0);
-        const reply = q.adminReply;
-
-        let statusHtml = '';
-        if (reply) {
-          statusHtml =
-            '<div class="forum-reply-card">' +
-              '<div class="fq-head"><span class="fq-avatar admin">' + icon('shield', 'icon-sm') + '</span>' +
-              '<span class="fq-name">إدارة أواب</span>' +
-              '<span class="fq-time">' + formatArabicDate(reply.createdAt) + '</span></div>' +
-              '<p class="fq-text preserve-linebreaks">' + escapeHtml(reply.text) + '</p>' +
-            '</div>';
-        } else if (currentUserData.isAdmin) {
-          statusHtml =
-            '<div class="forum-reply-form">' +
-              '<textarea class="reply-input" data-question="' + id + '" placeholder="اكتب ردًا كإدارة المنصة..." rows="2"></textarea>' +
-              '<button type="button" class="btn btn-gold btn-xs reply-send-btn" data-question="' + id + '">' + icon('reply', 'icon-sm') + ' رد</button>' +
-            '</div>';
-        } else {
-          statusHtml =
-            '<div class="forum-pending-badge">' + icon('hourglass', 'icon-sm') + ' بانتظار رد الإدارة</div>';
-        }
-
-        return (
-          '<div class="forum-post">' +
-            '<div class="fq-head"><span class="fq-avatar">' + escapeHtml(initial) + '</span>' +
-            '<span class="fq-name">' + escapeHtml(q.name || 'مستخدم') + '</span>' +
-            '<span class="fq-time">' + formatArabicDate(q.createdAt) + '</span></div>' +
-            '<p class="fq-text preserve-linebreaks">' + escapeHtml(q.text) + '</p>' +
-            (q.imageData ? '<img class="fq-image" src="' + q.imageData + '" alt="" loading="lazy">' : '') +
-            statusHtml +
-          '</div>'
-        );
-      }).join('');
-
-      if (currentUserData.isAdmin) {
-        feed.querySelectorAll('.reply-send-btn').forEach(function (btn) {
-          btn.addEventListener('click', function () { sendAdminReply(btn.dataset.question); });
-        });
-      }
+    /* حفظ ما يكتبه المسؤول في خانات الرد قبل إعادة الرسم */
+    var drafts = {}, focusId = null;
+    feed.querySelectorAll('.fm-reply-form textarea').forEach(function (t) {
+      if (t.value) drafts[t.dataset.q] = t.value;
+      if (document.activeElement === t) focusId = t.dataset.q;
     });
-  }
 
-  function sendAdminReply(questionId) {
-    const input = document.querySelector('.reply-input[data-question="' + questionId + '"]');
-    const btn = document.querySelector('.reply-send-btn[data-question="' + questionId + '"]');
-    const text = input.value.trim();
+    var ids = all.filter(function (id) {
+      var q = questions[id];
+      return filter === 'mine' ? q.uid === currentUser.uid : filter === 'pending' ? isPending(q) : true;
+    });
 
-    if (!text) {
-      input.classList.remove('shake');
-      void input.offsetWidth;
-      input.classList.add('shake');
-      input.focus();
+    if (!ids.length) {
+      var msgs = {
+        all: ['لا توجد أسئلة بعد', 'كن أول من يسأل في هذا المنتدى.'],
+        mine: ['لم تسأل شيئًا بعد', 'اكتب سؤالك في الأعلى وسيصلك الرد هنا.'],
+        pending: ['لا توجد أسئلة منتظرة', currentUserData.isAdmin ? 'كل الأسئلة منشورة ومُجاب عنها.' : 'كل الأسئلة التي تراها تم الرد عليها.']
+      }[filter];
+      feed.innerHTML = '<div class="fm-empty"><div class="fm-arch" aria-hidden="true">' + ic('commentDots') + '</div><h3>' + msgs[0] + '</h3><p>' + msgs[1] + '</p></div>';
       return;
     }
 
-    const originalBtnHtml = btn.innerHTML;
-    input.disabled = true;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="btn-spinner"></span>';
+    feed.innerHTML = ids.map(function (id) {
+      var q = questions[id], mine = q.uid === currentUser.uid, rep = q.adminReply, img = safeImg(q.imageData);
+      var published = q.published === true, admin = currentUserData.isAdmin, status = '', head = '';
+      if (rep) {
+        status +=
+          '<div class="fm-reply"><div class="fm-who"><span class="fm-avatar admin" aria-hidden="true">' + ic('shield') + '</span>' +
+          '<div class="fm-who-text"><div class="fm-name">إدارة أواب</div><div class="fm-time">' + formatArabicDate(rep.createdAt) + '</div></div></div>' +
+          '<p class="fm-text">' + escapeHtml(rep.text) + '</p></div>';
+      } else if (admin) {
+        status +=
+          '<div class="fm-reply-form"><textarea data-q="' + id + '" rows="2" placeholder="اكتب ردًا باسم إدارة المنصة..." aria-label="رد الإدارة"></textarea>' +
+          '<button type="button" data-reply="' + id + '">' + ic('reply') + 'رد</button></div>';
+      } else if (published) {
+        status += '<span class="fm-pending">' + ic('hourglass') + 'بانتظار رد الإدارة</span>';
+      }
+      if (!published) {
+        head = '<span class="fm-state private">' + ic('lock') + (admin ? 'غير منشور' : 'لا يراه غيرك') + '</span>';
+        if (!admin && !rep) status += '<span class="fm-pending">' + ic('hourglass') + 'بانتظار الإدارة: تنشره أو ترد عليك</span>';
+      }
+      if (admin) {
+        status += '<div class="fm-admin-bar">' +
+          (published
+            ? '<button type="button" class="fm-ghost" data-unpublish="' + id + '">' + ic('eyeSlash') + 'إلغاء النشر</button>'
+            : '<button type="button" class="fm-publish" data-publish="' + id + '">' + ic('eye') + 'نشر للجميع</button>') +
+          '</div>';
+      }
+      return '<article class="fm-post' + (mine ? ' mine' : '') + (published ? '' : ' unpub') + '">' +
+        '<div class="fm-who"><span class="fm-avatar" aria-hidden="true">' + escapeHtml((q.name || '؟').trim().charAt(0)) + '</span>' +
+        '<div class="fm-who-text"><div class="fm-name">' + escapeHtml(q.name || 'مستخدم') + (mine ? '<span class="fm-tag">سؤالك</span>' : '') + head + '</div>' +
+        '<div class="fm-time">' + formatArabicDate(q.createdAt) + '</div></div></div>' +
+        '<p class="fm-text">' + escapeHtml(q.text) + '</p>' +
+        (img ? '<img class="fm-img" src="' + escapeHtml(img) + '" alt="صورة مرفقة بالسؤال" loading="lazy">' : '') +
+        status + '</article>';
+    }).join('');
 
-    const qRef = forumRef().child(questionId);
+    feed.querySelectorAll('.fm-img').forEach(function (im) {
+      im.addEventListener('click', function () { $('lightboxImg').src = im.src; $('lightbox').classList.add('open'); });
+    });
+    feed.querySelectorAll('.fm-reply-form').forEach(function (f) {
+      var t = f.querySelector('textarea'), b = f.querySelector('button');
+      if (drafts[t.dataset.q]) t.value = drafts[t.dataset.q];
+      if (focusId === t.dataset.q) t.focus();
+      b.addEventListener('click', function () { sendReply(t.dataset.q, t, b); });
+    });
+    feed.querySelectorAll('[data-publish]').forEach(function (b) {
+      b.addEventListener('click', function () { setPublished(b.dataset.publish, true, b); });
+    });
+    feed.querySelectorAll('[data-unpublish]').forEach(function (b) {
+      b.addEventListener('click', function () { setPublished(b.dataset.unpublish, false, b); });
+    });
+  }
+
+  /* ===== نشر السؤال للجميع / إلغاء النشر (للمسؤول فقط) ===== */
+  function notify(q, title, body) {
+    if (!q || !q.uid || q.uid === currentUser.uid) return Promise.resolve();
+    return db.ref('notifications/' + q.uid).push({
+      type: 'reply', title: title, body: body, link: 'forum.html?id=' + compId, read: false, createdAt: firebase.database.ServerValue.TIMESTAMP
+    }).catch(function (e) { console.error('تعذّر إرسال الإشعار:', e); });
+  }
+  function setPublished(qid, value, btn) {
+    if (!currentUserData.isAdmin) return;
+    btn.disabled = true;
+    var qRef = forumRef().child(qid);
+    qRef.child('published').set(value).then(function () {
+      showToast(value ? 'تم نشر السؤال للجميع' : 'تم إلغاء النشر، والسؤال الآن ظاهر لصاحبه فقط', 'success');
+      if (value) { var q = questions[qid]; if (q) return notify(q, 'تم نشر سؤالك في المنتدى', q.text && q.text.length > 60 ? q.text.slice(0, 60) + '…' : (q.text || '')); }
+    }).catch(function (e) {
+      showToast('تعذّر تنفيذ الإجراء' + (e && e.message ? ': ' + e.message : ''), 'error');
+      btn.disabled = false;
+    });
+  }
+
+  /* ===== رد الإدارة + إشعار لصاحب السؤال ===== */
+  function sendReply(qid, input, btn) {
+    var text = input.value.trim();
+    if (!text) { shake(input); return; }
+    input.disabled = true; btn.disabled = true;
+    var qRef = forumRef().child(qid);
     qRef.once('value').then(function (snap) {
-      const q = snap.val();
-      return qRef.child('adminReply').set({
-        text: text,
-        createdAt: firebase.database.ServerValue.TIMESTAMP
-      }).then(function () {
+      var q = snap.val();
+      return qRef.child('adminReply').set({ text: text, createdAt: firebase.database.ServerValue.TIMESTAMP }).then(function () {
         if (q && q.uid && q.uid !== currentUser.uid) {
           return db.ref('notifications/' + q.uid).push({
-            type: 'reply',
-            title: 'تم الرد على سؤالك في المنتدى',
+            type: 'reply', title: 'تم الرد على سؤالك في المنتدى',
             body: text.length > 60 ? text.slice(0, 60) + '…' : text,
-            link: 'forum.html?id=' + compId,
-            read: false,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
-          }).catch(function (notifErr) {
-            console.error('تعذر إرسال إشعار الرد:', notifErr);
-          });
+            link: 'forum.html?id=' + compId, read: false, createdAt: firebase.database.ServerValue.TIMESTAMP
+          }).catch(function (e) { console.error('تعذّر إرسال إشعار الرد:', e); });
         }
       });
-    }).catch(function (err) {
-      showToast('تعذر إرسال الرد' + (err && err.message ? ': ' + err.message : ''), 'error');
-      input.disabled = false;
-      btn.disabled = false;
-      btn.innerHTML = originalBtnHtml;
+    }).catch(function (e) {
+      showToast('تعذّر إرسال الرد' + (e && e.message ? ': ' + e.message : ''), 'error');
+      input.disabled = false; btn.disabled = false;
     });
   }
+
+  /* ===== عارض الصور ===== */
+  function closeBox() { $('lightbox').classList.remove('open'); }
+  $('lightboxClose').addEventListener('click', closeBox);
+  $('lightbox').addEventListener('click', function (e) { if (e.target === this) closeBox(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeBox(); });
+})();
 </script>
 </body>
 </html>

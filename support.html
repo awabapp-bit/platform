@@ -6,56 +6,95 @@
 <title>الدعم الفني — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="support.css?v=1">
 </head>
-<body class="support-body">
+<body class="sp-body">
 
-<header class="app-header" id="appHeader"></header>
+<header class="ah-bar" id="appHeader"></header>
 
-<div class="support-fullpage" id="supportFullpage">
-  <button type="button" class="support-back-btn" onclick="location.href='home.html'" aria-label="رجوع">
-    <svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
-  </button>
+<main class="sp">
 
-  <div class="support-chat-messages" id="supportMessages">
-    <div class="center-loading" style="min-height:200px;"><div class="loader"></div></div>
-  </div>
+  <!-- ===== العمود الجانبي (يختفي على الجوال) ===== -->
+  <aside class="sp-aside">
+    <h1>الدعم الفني</h1>
+    <p>اكتب مشكلتك في المحادثة، وسيرد عليك فريق أواب في نفس المكان.</p>
+    <section class="sp-tips">
+      <h2>لتصلك إجابة أسرع</h2>
+      <ul>
+        <li><span data-ic="circleCheck"></span>اذكر اسم الكورس واسم المحاضرة التي تواجه فيها المشكلة.</li>
+        <li><span data-ic="circleCheck"></span>أرفق صورة للشاشة إن ظهرت لك رسالة خطأ.</li>
+        <li><span data-ic="circleCheck"></span>اكتب ما حدث بالترتيب: ماذا ضغطت، وماذا ظهر لك.</li>
+        <li><span data-ic="circleCheck"></span>يمكنك إرسال تسجيل صوتي إذا كان الشرح بالكتابة صعبًا.</li>
+      </ul>
+    </section>
+  </aside>
 
-  <div class="support-rec-overlay" id="recOverlay">
-    <div class="support-rec-status">
-      <span class="support-rec-dot"></span>
-      <span id="recTimer">00:00</span>
-      <span class="support-rec-hint">جارٍ التسجيل...</span>
+  <!-- ===== المحادثة ===== -->
+  <section class="sp-chat" aria-label="محادثة الدعم الفني">
+    <div class="sp-head">
+      <button type="button" class="sp-back" id="backBtn" aria-label="رجوع"><span data-ic="arrowRight"></span></button>
+      <div class="sp-arch" aria-hidden="true"><span data-ic="headset"></span></div>
+      <div>
+        <h2>فريق أواب</h2>
+        <p>المحادثة محفوظة هنا، ويمكنك العودة إليها في أي وقت.</p>
+      </div>
     </div>
-    <div class="support-rec-actions">
-      <button type="button" class="btn btn-outline btn-sm" id="cancelRecBtn" style="width:auto;">إلغاء</button>
-      <button type="button" class="support-rec-send-btn" id="sendRecBtn" aria-label="إرسال التسجيل">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-      </button>
-    </div>
-  </div>
 
-  <form class="support-input-bar" id="supportForm">
-    <button type="button" class="support-round-btn" id="attachTriggerBtn" aria-label="إرفاق ملف">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-    </button>
-    <div class="support-input-wrapper">
-      <textarea id="supportTextInput" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
+    <div class="sp-offline" id="offlineBar" role="status">لا يوجد اتصال بالإنترنت. تأكد من الشبكة ثم أعد المحاولة.</div>
+
+    <div class="sp-log" id="log" role="log" aria-live="polite" aria-label="الرسائل">
+      <div class="sp-loading center-loading"><div class="loader"></div></div>
     </div>
-    <button type="submit" class="support-send-btn" id="sendTriggerBtn" aria-label="إرسال">
-      <svg id="micSvg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-      <svg id="sendSvg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-    </button>
-  </form>
+
+    <form class="sp-composer" id="composer">
+      <div class="sp-editing" id="editBar">
+        <span data-ic="pen"></span><b>تعديل الرسالة</b>
+        <button type="button" id="editCancel">إلغاء</button>
+      </div>
+      <div class="sp-staged" id="staged">
+        <div class="sp-staged-thumb" id="stagedThumb"></div>
+        <div class="sp-staged-info"><b id="stagedName"></b><span id="stagedSize"></span></div>
+        <button type="button" id="stagedRemove" aria-label="إزالة المرفق"><span data-ic="xmark"></span></button>
+      </div>
+
+      <div class="sp-row">
+        <button type="button" class="sp-attach" id="attachBtn" aria-label="إرفاق صورة أو ملف">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+        </button>
+        <div class="sp-field">
+          <textarea id="msgInput" rows="1" placeholder="اكتب رسالتك هنا..." aria-label="نص الرسالة"></textarea>
+        </div>
+        <button type="submit" class="sp-act" id="actBtn" aria-label="تسجيل رسالة صوتية">
+          <svg class="sp-mic" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          <svg class="sp-send" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+
+      <div class="sp-rec" id="recBar">
+        <span class="sp-rec-dot"></span>
+        <span class="sp-rec-time" id="recTime">00:00</span>
+        <span class="sp-rec-hint">جارٍ التسجيل</span>
+        <button type="button" class="sp-rec-cancel" id="recCancel">إلغاء</button>
+        <button type="button" class="sp-act" id="recSend" aria-label="إرسال التسجيل">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:scaleX(-1)"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<input type="file" id="fileInput" accept="image/*,audio/*,.pdf,.doc,.docx,.txt,.zip" hidden>
+<input type="file" id="voiceFileInput" accept="audio/*" capture="microphone" hidden>
+
+<div class="sp-menu" id="msgMenu" role="menu" hidden>
+  <button type="button" role="menuitem" id="menuEdit"><span data-ic="pen"></span>تعديل الرسالة</button>
+  <button type="button" role="menuitem" id="menuDelete" class="danger"><span data-ic="trash"></span>حذف الرسالة</button>
 </div>
 
-<input type="file" id="fileUploadInput" accept="image/*,audio/*,.pdf,.doc,.docx,.txt,.zip" style="display:none">
-<input type="file" id="fileVoiceInput" accept="audio/*" capture="microphone" style="display:none">
-
-<div class="support-lightbox" id="imageLightbox">
-  <button type="button" class="support-lightbox-close" id="closeLightbox" aria-label="إغلاق">
-    <svg class="icon icon-md" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192.5 301.3 329.9 438.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256 375.1 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z"/></svg>
-  </button>
-  <img class="support-lightbox-img" id="lightboxImg" src="" alt="">
+<div class="sp-lightbox" id="lightbox" role="dialog" aria-label="عرض الصورة">
+  <button type="button" id="lightboxClose" aria-label="إغلاق"><span data-ic="xmark"></span></button>
+  <img id="lightboxImg" src="" alt="">
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -63,316 +102,485 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="icons.js?v=2"></script>
-<script src="app-shell.js?v=2"></script>
+<script src="app-shell.js?v=3"></script>
 <script>
-  let currentUser = null;
-  let currentUserData = null;
-  let mediaRecorder = null;
-  let audioChunks = [];
-  let recordTimer = null;
-  let recordStartTime = 0;
-  let localStream = null;
-  let currentMimeType = '';
-  let activeVoicePlayers = {};
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var MAX_FILE_SIZE = 3 * 1024 * 1024; /* 3 ميجابايت لكل أنواع المرفقات */
+  var isWebView = /wv|WebView/.test(navigator.userAgent) ||
+                  (navigator.userAgent.indexOf('Android') > -1 && navigator.userAgent.indexOf('Chrome/') === -1);
 
-  const isWebView = /wv|WebView/.test(navigator.userAgent) ||
-                    (navigator.userAgent.includes('Android') && !navigator.userAgent.includes('Chrome/'));
-  const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB لكل أنواع المرفقات
+  var TOPICS = [
+    { ic: 'video',       label: 'الفيديو لا يعمل',     text: 'الفيديو في محاضرة (...) من كورس (...) لا يعمل معي.\nالمشكلة: ' },
+    { ic: 'lock',        label: 'مشكلة في الاشتراك',   text: 'لا أستطيع الاشتراك أو فتح كورس (...).\nالمشكلة: ' },
+    { ic: 'listCheck',   label: 'مشكلة في اختبار',     text: 'واجهتني مشكلة في اختبار (...) من كورس (...).\nالمشكلة: ' },
+    { ic: 'user',        label: 'حسابي وكلمة المرور',  text: 'عندي مشكلة في حسابي.\nالمشكلة: ' },
+    { ic: 'commentDots', label: 'اقتراح أو ملاحظة',    text: 'عندي اقتراح لتحسين المنصة:\n' },
+    { ic: 'circleInfo',  label: 'سؤال آخر',            text: '' }
+  ];
 
-  const messagesEl    = document.getElementById('supportMessages');
-  const textInput     = document.getElementById('supportTextInput');
-  const micSvg        = document.getElementById('micSvg');
-  const sendSvg       = document.getElementById('sendSvg');
-  const attachTrigger = document.getElementById('attachTriggerBtn');
-  const recOverlay    = document.getElementById('recOverlay');
-  const recTimerEl    = document.getElementById('recTimer');
-  const lightbox      = document.getElementById('imageLightbox');
-  const lightboxImg   = document.getElementById('lightboxImg');
+  var log = $('log'), input = $('msgInput'), actBtn = $('actBtn'), composer = $('composer');
+  var lightbox = $('lightbox'), lightboxImg = $('lightboxImg');
+  var currentUser = null, currentUserData = null;
+  var seen = {}, seenCount = 0, lastDay = '', busy = false, staged = null, stagedUrl = null;
+  var players = {}, msgData = {}, editing = null, menuId = null;
+  var mediaRecorder = null, audioChunks = [], localStream = null, recTimer = null, recStart = 0, recMime = '';
+
+  /* الأيقونات الثابتة في الصفحة */
+  document.querySelectorAll('[data-ic]').forEach(function (el) { el.innerHTML = icon(el.getAttribute('data-ic'), 'sp-ic'); });
+  $('backBtn').addEventListener('click', function () { location.href = 'home.html'; });
 
   requireAuth(function (user, userData) {
-    currentUser = user;
-    currentUserData = userData;
+    currentUser = user; currentUserData = userData;
     renderAppHeader(user, userData, { showPoints: false });
     db.ref('users/' + user.uid).update({ status: 'online' }).catch(function () {});
-    listenMessages();
+    startListening();
+  });
+  window.addEventListener('beforeunload', function () {
+    if (currentUser) { try { db.ref('users/' + currentUser.uid).update({ status: 'offline' }); } catch (e) {} }
   });
 
-  /* ---------------- إرسال رسالة نصية ---------------- */
+  /* ---------- حالة الاتصال ---------- */
+  function syncOnline() { $('offlineBar').classList.toggle('show', !navigator.onLine); }
+  window.addEventListener('online', syncOnline);
+  window.addEventListener('offline', syncOnline);
+  syncOnline();
+
+  /* ---------- أدوات صغيرة ---------- */
+  function safeUrl(u) { return /^(data:|https:\/\/|blob:)/.test(u || '') ? u : ''; }
+  function fmtClock(s) {
+    if (!s || isNaN(s) || !isFinite(s)) return '00:00';
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  }
+  function fmtSize(b) { return b > 1048576 ? (b / 1048576).toFixed(1) + ' م.ب' : Math.max(1, Math.round(b / 1024)) + ' ك.ب'; }
+  function dayKey(ts) { var d = new Date(ts); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); }
+  function dayLabel(ts) {
+    var now = Date.now(), k = dayKey(ts);
+    if (k === dayKey(now)) return 'اليوم';
+    if (k === dayKey(now - 864e5)) return 'أمس';
+    var sameYear = new Date(ts).getFullYear() === new Date(now).getFullYear();
+    return new Date(ts).toLocaleDateString('ar-EG', sameYear ? { day: 'numeric', month: 'long' } : { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  function nearBottom() { return log.scrollHeight - log.scrollTop - log.clientHeight < 140; }
+  function toBottom() { log.scrollTop = log.scrollHeight; }
+
+  /* ---------- الإرسال ---------- */
+  function toBase64(file) {
+    return new Promise(function (resolve, reject) {
+      if (file.size > MAX_FILE_SIZE) { reject(new Error('الحد الأقصى لحجم الملف 3 ميجابايت')); return; }
+      var r = new FileReader();
+      r.onload = function () { resolve(r.result); };
+      r.onerror = function () { reject(new Error('تعذّرت قراءة الملف')); };
+      r.readAsDataURL(file);
+    });
+  }
+
   async function sendMessage(type, text, fileUrl, fileName) {
-    if (!navigator.onLine) { alert('لا يوجد اتصال بالإنترنت'); return; }
-    const msgId = db.ref('messages/' + currentUser.uid).push().key;
-    await db.ref('messages/' + currentUser.uid + '/' + msgId).set({
+    if (!navigator.onLine) throw new Error('لا يوجد اتصال بالإنترنت');
+    var uid = currentUser.uid;
+    var msgId = db.ref('messages/' + uid).push().key;
+    await db.ref('messages/' + uid + '/' + msgId).set({
       id: msgId, sender: 'user', text: text || '', type: type,
       timestamp: Date.now(), fileUrl: fileUrl || '', fileName: fileName || ''
     });
-    const snippets = { text: text, image: '📷 صورة', voice: '🎤 رسالة صوتية', audio: '🎵 ملف صوتي', file: '📁 ملف مرفق' };
-    const cr = db.ref('conversations/' + currentUser.uid);
-    const cs = await cr.once('value');
-    const unread = ((cs.exists() ? cs.val().unreadCountByAdmin : 0) || 0) + 1;
-    await cr.set({
-      userId: currentUser.uid, userName: currentUserData.name || 'مستخدم',
+    var snippets = { text: text, image: '📷 صورة', voice: '🎤 رسالة صوتية', audio: '🎵 ملف صوتي', file: '📁 ملف مرفق' };
+    await db.ref('conversations/' + uid).update({
+      userId: uid, userName: currentUserData.name || 'مستخدم',
       lastMessage: snippets[type] || text, lastMessageTimestamp: Date.now(),
-      unreadCountByAdmin: unread, unreadCountByUser: 0
+      unreadCountByAdmin: firebase.database.ServerValue.increment(1), unreadCountByUser: 0
     });
   }
 
-  document.getElementById('supportForm').addEventListener('submit', function (e) {
+  function updateAction() {
+    var has = input.value.trim() !== '' || !!staged || !!editing;
+    actBtn.classList.toggle('has-payload', has);
+    actBtn.setAttribute('aria-label', editing ? 'حفظ التعديل' : has ? 'إرسال' : 'تسجيل رسالة صوتية');
+  }
+  function resizeInput() {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  }
+  input.addEventListener('input', function () { resizeInput(); updateAction(); });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); composer.requestSubmit(); }
+  });
+
+  composer.addEventListener('submit', async function (e) {
     e.preventDefault();
-    const txt = textInput.value.trim();
-    if (txt) {
-      sendMessage('text', txt);
-      textInput.value = '';
-      textInput.style.height = 'auto';
-      micSvg.style.display = 'block';
-      sendSvg.style.display = 'none';
-    } else {
-      startVoice();
+    if (busy) return;
+    var txt = input.value.trim();
+    if (editing) {
+      if (!txt) { alert('اكتب نص الرسالة أولًا، أو اختر حذف الرسالة'); return; }
+      busy = true; actBtn.disabled = true;
+      try { await saveEdit(editing, txt); stopEditing(); }
+      catch (err) { alert(err && err.message ? err.message : 'تعذّر حفظ التعديل'); }
+      busy = false; actBtn.disabled = false; updateAction();
+      return;
     }
-  });
-
-  textInput.addEventListener('input', function () {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 110) + 'px';
-    const hasText = this.value.trim() !== '';
-    micSvg.style.display  = hasText ? 'none'  : 'block';
-    sendSvg.style.display = hasText ? 'block' : 'none';
-  });
-  textInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('supportForm').requestSubmit(); }
-  });
-
-  /* ---------------- رفع الملفات: زرار واحد، وبيتعرف على نوع الملف تلقائيًا ---------------- */
-  attachTrigger.addEventListener('click', function () { document.getElementById('fileUploadInput').click(); });
-
-  function fileToBase64(file) {
-    return new Promise(function (resolve, reject) {
-      const r = new FileReader();
-      r.readAsDataURL(file);
-      r.onload = function () { resolve(r.result); };
-      r.onerror = function () { reject(new Error('فشل قراءة الملف')); };
-    });
-  }
-  async function toBase64(file) {
-    if (file.size > MAX_FILE_SIZE) throw new Error('الحد الأقصى لحجم الملف 3 ميجابايت');
-    return await fileToBase64(file);
-  }
-
-  function renderPlaceholder(id, txt) {
-    const d = document.createElement('div');
-    d.id = id; d.className = 'support-msg-row user';
-    d.innerHTML = '<div class="support-bubble user" style="opacity:.7;"><span class="loading-spinner dark"></span> ' + txt + '</div>';
-    messagesEl.appendChild(d);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  document.getElementById('fileUploadInput').addEventListener('change', async function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    let type = 'file';
-    if (file.type.startsWith('image/')) type = 'image';
-    else if (file.type.startsWith('audio/')) type = 'audio';
-    const labels = { image: 'الصورة', audio: 'الملف الصوتي', file: 'الملف' };
-    const id = 'tmp_' + type + '_' + Date.now();
-    renderPlaceholder(id, 'جارٍ إرسال ' + labels[type] + '...');
+    if (!txt && !staged) { startVoice(); return; }
+    busy = true; actBtn.disabled = true;
     try {
-      const b64 = await toBase64(file);
-      const el = document.getElementById(id); if (el) el.remove();
-      await sendMessage(type, '', b64, file.name);
+      if (staged) {
+        var s = staged;
+        var b64 = await toBase64(s.file);
+        await sendMessage(s.type, '', b64, s.file.name);
+        clearStaged();
+      }
+      if (txt) {
+        await sendMessage('text', txt);
+        input.value = ''; resizeInput();
+      }
     } catch (err) {
-      const el = document.getElementById(id); if (el) el.remove();
-      alert(err.message);
+      alert(err && err.message ? err.message : 'تعذّر إرسال الرسالة، حاول مرة أخرى');
     }
-    document.getElementById('fileUploadInput').value = '';
+    busy = false; actBtn.disabled = false; updateAction();
+    if (window.matchMedia('(pointer:fine)').matches) input.focus();
   });
 
-  /* ---------------- تسجيل صوتي ---------------- */
+  /* ---------- المرفقات: تُعرض أولًا ثم تُرسل بزر الإرسال ---------- */
+  $('attachBtn').addEventListener('click', function () { if (editing) { alert('أنهِ تعديل الرسالة أولًا'); return; } $('fileInput').click(); });
+  $('fileInput').addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > MAX_FILE_SIZE) { alert('الحد الأقصى لحجم الملف 3 ميجابايت'); return; }
+    var type = file.type.indexOf('image/') === 0 ? 'image' : file.type.indexOf('audio/') === 0 ? 'audio' : 'file';
+    clearStaged();
+    staged = { file: file, type: type };
+    var thumb = $('stagedThumb');
+    thumb.innerHTML = '';
+    if (type === 'image') {
+      stagedUrl = URL.createObjectURL(file);
+      var im = document.createElement('img');
+      im.src = stagedUrl; im.alt = ''; im.className = 'sp-staged-thumb';
+      thumb.appendChild(im);
+    } else {
+      thumb.innerHTML = icon(type === 'audio' ? 'play' : 'fileLines', 'sp-ic');
+    }
+    $('stagedName').textContent = file.name;
+    $('stagedSize').textContent = fmtSize(file.size);
+    $('staged').classList.add('show');
+    updateAction();
+    input.focus();
+  });
+  function clearStaged() {
+    staged = null;
+    if (stagedUrl) { URL.revokeObjectURL(stagedUrl); stagedUrl = null; }
+    $('staged').classList.remove('show');
+    updateAction();
+  }
+  $('stagedRemove').addEventListener('click', clearStaged);
+
+  /* ---------- التسجيل الصوتي (داخل شريط الكتابة) ---------- */
   function stopTracks() { if (localStream) { localStream.getTracks().forEach(function (t) { t.stop(); }); localStream = null; } }
+  function endRecUi() { clearInterval(recTimer); composer.classList.remove('recording'); }
 
   async function startVoice() {
     if (!navigator.onLine) { alert('لا يوجد اتصال بالإنترنت'); return; }
-    if (isWebView || !window.MediaRecorder) { document.getElementById('fileVoiceInput').click(); return; }
+    if (isWebView || !window.MediaRecorder) { $('voiceFileInput').click(); return; }
     if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('التسجيل الصوتي من المتصفح يحتاج فتح الصفحة عبر رابط آمن (https) أو من "localhost"، مش بفتح الملف مباشرة من الجهاز. هيتم فتح منتقي الملفات بدل ذلك.');
-      document.getElementById('fileVoiceInput').click();
+      alert('التسجيل الصوتي يحتاج فتح الصفحة عبر رابط آمن (https). سيفتح منتقي الملفات بدلًا منه.');
+      $('voiceFileInput').click();
       return;
     }
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
-      const mime = types.find(function (t) { return MediaRecorder.isTypeSupported(t); }) || '';
+      var types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
+      var mime = types.find(function (t) { return MediaRecorder.isTypeSupported(t); }) || '';
       mediaRecorder = new MediaRecorder(localStream, mime ? { mimeType: mime } : {});
-      currentMimeType = mediaRecorder.mimeType;
+      recMime = mediaRecorder.mimeType;
       audioChunks = [];
       mediaRecorder.ondataavailable = function (e) { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.start(250);
-
-      recOverlay.classList.add('open');
-      recordStartTime = Date.now();
-      recTimerEl.textContent = '00:00';
-      recordTimer = setInterval(function () {
-        const s = Math.floor((Date.now() - recordStartTime) / 1000);
-        recTimerEl.textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-      }, 1000);
+      composer.classList.add('recording');
+      recStart = Date.now();
+      $('recTime').textContent = '00:00';
+      recTimer = setInterval(function () { $('recTime').textContent = fmtClock((Date.now() - recStart) / 1000); }, 500);
     } catch (err) {
-      console.warn('MediaRecorder failed:', err.name, err.message);
       stopTracks();
-      const messages = {
-        NotAllowedError: 'محتاجين إذن الوصول للميكروفون. من فضلك اسمح بالوصول للميكروفون من إعدادات المتصفح وحاول تاني.',
-        PermissionDeniedError: 'محتاجين إذن الوصول للميكروفون. من فضلك اسمح بالوصول للميكروفون من إعدادات المتصفح وحاول تاني.',
-        NotFoundError: 'مفيش ميكروفون متاح على الجهاز ده.',
-        NotReadableError: 'الميكروفون مش متاح دلوقتي، ممكن يكون بيستخدمه برنامج تاني.'
+      var msgs = {
+        NotAllowedError: 'نحتاج إذن الوصول إلى الميكروفون. اسمح به من إعدادات المتصفح ثم حاول مرة أخرى.',
+        PermissionDeniedError: 'نحتاج إذن الوصول إلى الميكروفون. اسمح به من إعدادات المتصفح ثم حاول مرة أخرى.',
+        NotFoundError: 'لا يوجد ميكروفون متاح على هذا الجهاز.',
+        NotReadableError: 'الميكروفون مستخدم حاليًا في برنامج آخر.'
       };
-      alert(messages[err.name] || 'حصلت مشكلة في تشغيل الميكروفون، هيتم فتح منتقي الملفات بدل ذلك.');
-      document.getElementById('fileVoiceInput').click();
+      alert(msgs[err.name] || 'تعذّر تشغيل الميكروفون. سيفتح منتقي الملفات بدلًا منه.');
+      if (!msgs[err.name]) $('voiceFileInput').click();
     }
   }
 
-  document.getElementById('cancelRecBtn').addEventListener('click', function () {
-    clearInterval(recordTimer);
-    recOverlay.classList.remove('open');
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  $('recCancel').addEventListener('click', function () {
+    endRecUi();
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.onstop = null; mediaRecorder.stop(); }
     stopTracks(); audioChunks = [];
   });
 
-  document.getElementById('sendRecBtn').addEventListener('click', function () {
-    clearInterval(recordTimer);
-    recOverlay.classList.remove('open');
+  $('recSend').addEventListener('click', function () {
+    endRecUi();
     if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
-    mediaRecorder.onstop = async function () {
+    mediaRecorder.onstop = function () {
       stopTracks();
-      if (!audioChunks.length) { alert('لم يتم التقاط صوت'); return; }
-      let ext = 'webm';
-      if (currentMimeType.includes('mp4')) ext = 'mp4';
-      else if (currentMimeType.includes('ogg')) ext = 'ogg';
-      const blob = new Blob(audioChunks, { type: currentMimeType || 'audio/webm' });
-      const file = new File([blob], 'voice_' + Date.now() + '.' + ext, { type: blob.type });
-      const id = 'tmp_v_' + Date.now();
-      renderPlaceholder(id, 'جارٍ إرسال التسجيل...');
-      try {
-        const b64 = await toBase64(file);
-        const el = document.getElementById(id); if (el) el.remove();
-        await sendMessage('voice', '', b64, file.name);
-      } catch (err) {
-        const el = document.getElementById(id); if (el) el.remove();
-        alert(err.message);
-      }
+      if (!audioChunks.length) { alert('لم يتم التقاط أي صوت'); return; }
+      var ext = recMime.indexOf('mp4') > -1 ? 'mp4' : recMime.indexOf('ogg') > -1 ? 'ogg' : 'webm';
+      var blob = new Blob(audioChunks, { type: recMime || 'audio/webm' });
+      sendVoiceFile(new File([blob], 'voice_' + Date.now() + '.' + ext, { type: blob.type }));
     };
     mediaRecorder.stop();
   });
 
-  document.getElementById('fileVoiceInput').addEventListener('change', async function (e) {
-    const file = e.target.files[0]; if (!file) return;
-    const id = 'tmp_fv_' + Date.now();
-    renderPlaceholder(id, 'جارٍ إرسال الرسالة الصوتية...');
-    try {
-      const b64 = await toBase64(file);
-      const el = document.getElementById(id); if (el) el.remove();
-      await sendMessage('voice', '', b64, file.name);
-    } catch (err) {
-      const el = document.getElementById(id); if (el) el.remove();
-      alert(err.message);
-    }
-    document.getElementById('fileVoiceInput').value = '';
+  $('voiceFileInput').addEventListener('change', function (e) {
+    var f = e.target.files[0]; e.target.value = '';
+    if (f) sendVoiceFile(f);
   });
 
-  /* ---------------- عرض الرسائل ---------------- */
-  function listenMessages() {
-    db.ref('messages/' + currentUser.uid).on('value', function (snap) {
-      messagesEl.innerHTML = '';
-      if (snap.exists()) {
-        snap.forEach(function (c) { renderMsg(c.val()); return false; });
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-        db.ref('conversations/' + currentUser.uid).update({ unreadCountByUser: 0 }).catch(function () {});
-      } else {
-        messagesEl.innerHTML = '<div class="support-welcome">مرحباً بك في دعم <strong>أواب</strong> 👋<br>أرسل رسالتك وسنجيبك في أقرب وقت بإذن الله</div>';
-      }
+  async function sendVoiceFile(file) {
+    var note = pendingNote('جارٍ إرسال الرسالة الصوتية...');
+    try { await sendMessage('voice', '', await toBase64(file), file.name); }
+    catch (err) { alert(err && err.message ? err.message : 'تعذّر إرسال التسجيل'); }
+    note.remove();
+  }
+  function pendingNote(txt) {
+    clearEmpty();
+    var row = document.createElement('div'); row.className = 'sp-msg me';
+    var b = document.createElement('div'); b.className = 'sp-bubble'; b.style.opacity = '.65'; b.textContent = txt;
+    row.appendChild(b); log.appendChild(row); toBottom();
+    return row;
+  }
+
+  /* ---------- الاستماع للرسائل (إضافة تدريجية بدون إعادة رسم) ---------- */
+  function startListening() {
+    var ref = db.ref('messages/' + currentUser.uid);
+    ref.on('child_added', function (snap) { addMessage(snap.val(), false); });
+    ref.on('child_changed', function (snap) { updateMessage(snap.val()); });
+    ref.on('child_removed', function (snap) {
+      var m = snap.val() || {}, el = log.querySelector('[data-id="' + snap.key + '"]');
+      if (players[snap.key]) { players[snap.key].pause(); delete players[snap.key]; }
+      if (el) el.remove();
+      delete seen[snap.key]; delete msgData[snap.key]; if (editing === snap.key) stopEditing(); seenCount = Math.max(0, seenCount - 1);
+      if (!seenCount) showEmpty();
+    });
+    ref.once('value').then(function (snap) {
+      var l = log.querySelector('.sp-loading');
+      if (l) l.remove();
+      if (!snap.exists()) showEmpty(); else toBottom();
+    }).catch(function () {
+      log.innerHTML = '<div class="sp-empty"><h3>تعذّر تحميل المحادثة</h3><p>تحقق من الاتصال ثم أعد تحميل الصفحة.</p></div>';
     });
   }
 
-  function renderMsg(msg) {
-    const isUser = msg.sender === 'user';
-    const row = document.createElement('div');
-    row.className = 'support-msg-row ' + (isUser ? 'user' : 'admin');
-    const bubble = document.createElement('div');
-    bubble.className = 'support-bubble ' + (isUser ? 'user' : 'admin');
+  function markRead() { db.ref('conversations/' + currentUser.uid).update({ unreadCountByUser: 0 }).catch(function () {}); }
 
-    if (msg.type === 'text') {
-      bubble.innerText = msg.text;
-    } else if (msg.type === 'image') {
-      const img = document.createElement('img');
-      img.src = msg.fileUrl; img.className = 'support-msg-img'; img.loading = 'lazy'; img.alt = 'صورة';
-      img.addEventListener('click', function () { lightboxImg.src = msg.fileUrl; lightbox.classList.add('open'); });
-      bubble.appendChild(img);
-    } else if (msg.type === 'voice' || msg.type === 'audio') {
-      bubble.appendChild(buildPlayer(msg.fileUrl, msg.id));
-    } else if (msg.type === 'file') {
-      const a = document.createElement('a');
-      a.href = msg.fileUrl; a.download = msg.fileName || 'file'; a.target = '_blank';
-      a.className = 'support-file-link';
-      a.innerHTML = icon('fileLines', 'icon-md') +
-        '<span class="support-file-name">' + (msg.fileName || 'ملف مرفق') + '</span>';
-      bubble.appendChild(a);
+  function clearEmpty() { var e = log.querySelector('.sp-empty'); if (e) e.remove(); var l = log.querySelector('.sp-loading'); if (l) l.remove(); }
+
+  function showEmpty() {
+    if (seenCount || log.querySelector('.sp-empty')) return;
+    var box = document.createElement('div');
+    box.className = 'sp-empty';
+    box.innerHTML =
+      '<div class="sp-arch" aria-hidden="true">' + icon('headset', 'sp-ic') + '</div>' +
+      '<h3>كيف نساعدك؟</h3>' +
+      '<p>اختر موضوعًا ليبدأ نص رسالتك، أو اكتب مشكلتك مباشرة.</p>' +
+      '<div class="sp-topics"></div>';
+    var grid = box.querySelector('.sp-topics');
+    TOPICS.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sp-topic';
+      b.innerHTML = icon(t.ic, 'sp-ic');
+      b.appendChild(document.createTextNode(t.label));
+      b.addEventListener('click', function () {
+        input.value = t.text; resizeInput(); updateAction(); input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      });
+      grid.appendChild(b);
+    });
+    log.innerHTML = '';
+    log.appendChild(box);
+  }
+
+  function addMessage(msg, silent) {
+    if (!msg || !msg.id || seen[msg.id]) return;
+    seen[msg.id] = true; seenCount++;
+    clearEmpty();
+    var stick = nearBottom() || msg.sender === 'user';
+    var ts = msg.timestamp || Date.now();
+
+    var k = dayKey(ts);
+    if (k !== lastDay) {
+      lastDay = k;
+      var d = document.createElement('div'); d.className = 'sp-day'; d.textContent = dayLabel(ts);
+      log.appendChild(d);
     }
 
-    const time = document.createElement('span');
-    time.className = 'support-msg-time';
-    time.textContent = new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    var mine = msg.sender === 'user';
+    var row = document.createElement('div');
+    row.className = 'sp-msg ' + (mine ? 'me' : 'team');
+    row.setAttribute('data-id', msg.id);
+    var bubble = document.createElement('div');
+    bubble.className = 'sp-bubble';
+    var url = safeUrl(msg.fileUrl);
 
+    if (msg.type === 'image' && url) {
+      var img = document.createElement('img');
+      img.src = url; img.className = 'sp-img'; img.alt = 'صورة مرسلة';
+      img.addEventListener('load', function () { if (stick) toBottom(); });
+      img.addEventListener('click', function () { lightboxImg.src = url; lightbox.classList.add('open'); });
+      bubble.appendChild(img);
+    } else if ((msg.type === 'voice' || msg.type === 'audio') && url) {
+      bubble.appendChild(buildPlayer(url, msg.id));
+    } else if (msg.type === 'file' && url) {
+      var a = document.createElement('a');
+      a.href = url; a.download = msg.fileName || 'file'; a.className = 'sp-file';
+      a.innerHTML = icon('fileLines', 'sp-ic');
+      var nm = document.createElement('span'); nm.textContent = msg.fileName || 'ملف مرفق';
+      a.appendChild(nm);
+      bubble.appendChild(a);
+    } else {
+      var tx = document.createElement('span'); tx.className = 'sp-text'; tx.textContent = msg.text || '';
+      bubble.appendChild(tx);
+    }
+
+    var t = document.createElement('span');
+    t.className = 'sp-time';
+    t.textContent = timeText(msg);
+    bubble.appendChild(t);
     row.appendChild(bubble);
-    row.appendChild(time);
-    messagesEl.appendChild(row);
+    log.appendChild(row);
+    msgData[msg.id] = msg;
+    if (mine) attachMenu(bubble, msg.id);
+
+    if (stick) toBottom();
+    if (!mine) markRead();
   }
 
-  function buildPlayer(url, msgId) {
-    const wrap = document.createElement('div');
-    wrap.className = 'support-voice-player';
+  function timeText(msg) {
+    var s = new Date(msg.timestamp || Date.now()).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    return msg.edited ? 'معدّلة · ' + s : s;
+  }
 
-    const playBtn = document.createElement('button');
-    playBtn.type = 'button';
-    playBtn.className = 'support-voice-play-btn';
-    const playSVG  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
-    const pauseSVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
-    playBtn.innerHTML = playSVG;
+  function updateMessage(msg) {
+    if (!msg || !msg.id) return;
+    msgData[msg.id] = msg;
+    var row = log.querySelector('[data-id="' + msg.id + '"]');
+    if (!row) return;
+    var tx = row.querySelector('.sp-text'); if (tx) tx.textContent = msg.text || '';
+    var t = row.querySelector('.sp-time'); if (t) t.textContent = timeText(msg);
+  }
 
-    const bar  = document.createElement('div'); bar.className  = 'support-voice-bar';
-    const fill = document.createElement('div'); fill.className = 'support-voice-fill';
-    bar.appendChild(fill);
-
-    const timeEl = document.createElement('span'); timeEl.className = 'support-voice-time'; timeEl.textContent = '--:--';
-    wrap.append(playBtn, bar, timeEl);
-
-    const audio = new Audio(url);
-    activeVoicePlayers[msgId] = audio;
-
-    audio.addEventListener('loadedmetadata', function () { timeEl.textContent = fmtTime(audio.duration); });
-    audio.addEventListener('error', function () { timeEl.textContent = 'خطأ'; });
-    playBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      Object.values(activeVoicePlayers).forEach(function (a) { if (a !== audio) a.pause(); });
-      audio.paused ? audio.play() : audio.pause();
+  /* ---------- قائمة الرسالة: ضغطة مطوّلة (أو زر الفأرة الأيمن) ---------- */
+  var menu = $('msgMenu');
+  function attachMenu(bubble, id) {
+    var timer = null, sx = 0, sy = 0;
+    function cancel() { clearTimeout(timer); timer = null; }
+    bubble.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      sx = e.clientX; sy = e.clientY;
+      cancel();
+      timer = setTimeout(function () { timer = null; if (navigator.vibrate) try { navigator.vibrate(15); } catch (x) {} openMenu(bubble, id); }, 500);
     });
-    audio.addEventListener('play',  function () { playBtn.innerHTML = pauseSVG; });
-    audio.addEventListener('pause', function () { playBtn.innerHTML = playSVG; });
-    audio.addEventListener('ended', function () { playBtn.innerHTML = playSVG; fill.style.width = '0%'; timeEl.textContent = fmtTime(audio.duration); });
-    audio.addEventListener('timeupdate', function () { fill.style.width = ((audio.currentTime / audio.duration) * 100) + '%'; timeEl.textContent = fmtTime(audio.currentTime); });
+    bubble.addEventListener('pointermove', function (e) { if (timer && (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8)) cancel(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { bubble.addEventListener(ev, cancel); });
+    bubble.addEventListener('contextmenu', function (e) { e.preventDefault(); cancel(); openMenu(bubble, id); });
+  }
+  function openMenu(bubble, id) {
+    var m = msgData[id]; if (!m) return;
+    menuId = id;
+    $('menuEdit').hidden = m.type !== 'text';
+    menu.hidden = false;
+    var r = bubble.getBoundingClientRect(), w = menu.offsetWidth, hgt = menu.offsetHeight;
+    var left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
+    var top = r.bottom + 6 + hgt > window.innerHeight - 8 ? Math.max(8, r.top - hgt - 6) : r.bottom + 6;
+    menu.style.left = left + 'px'; menu.style.top = top + 'px';
+    bubble.classList.add('pressed');
+  }
+  function closeMenu() {
+    menu.hidden = true; menuId = null;
+    var p = log.querySelector('.sp-bubble.pressed'); if (p) p.classList.remove('pressed');
+  }
+  document.addEventListener('pointerdown', function (e) { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
+  log.addEventListener('scroll', function () { if (!menu.hidden) closeMenu(); });
+  window.addEventListener('resize', closeMenu);
+
+  $('menuEdit').addEventListener('click', function () {
+    var id = menuId, m = msgData[id]; closeMenu();
+    if (!m || m.type !== 'text') return;
+    clearStaged();
+    editing = id;
+    input.value = m.text || ''; resizeInput();
+    $('editBar').classList.add('show'); updateAction();
+    input.focus(); input.setSelectionRange(input.value.length, input.value.length);
+  });
+  $('menuDelete').addEventListener('click', function () {
+    var id = menuId; closeMenu();
+    if (id && confirm('هل تريد حذف هذه الرسالة؟ لا يمكن التراجع عن الحذف.')) deleteMessage(id);
+  });
+  $('editCancel').addEventListener('click', function () { stopEditing(); input.value = ''; resizeInput(); updateAction(); });
+  function stopEditing() { editing = null; $('editBar').classList.remove('show'); if (!input.value.trim()) updateAction(); }
+
+  function lastMessageId() {
+    var ids = Object.keys(msgData).sort();
+    return ids.length ? ids[ids.length - 1] : null;
+  }
+  function snippet(m) {
+    var s = { image: '📷 صورة', voice: '🎤 رسالة صوتية', audio: '🎵 ملف صوتي', file: '📁 ملف مرفق' };
+    return m ? (s[m.type] || m.text || '') : '';
+  }
+  async function saveEdit(id, text) {
+    if (!navigator.onLine) throw new Error('لا يوجد اتصال بالإنترنت');
+    await db.ref('messages/' + currentUser.uid + '/' + id).update({ text: text, edited: true });
+    if (lastMessageId() === id) await db.ref('conversations/' + currentUser.uid).update({ lastMessage: text });
+  }
+  async function deleteMessage(id) {
+    try {
+      if (!navigator.onLine) throw new Error('لا يوجد اتصال بالإنترنت');
+      var wasLast = lastMessageId() === id;
+      await db.ref('messages/' + currentUser.uid + '/' + id).remove();
+      if (wasLast) {
+        var prev = lastMessageId();
+        await db.ref('conversations/' + currentUser.uid).update({ lastMessage: snippet(prev ? msgData[prev] : null) });
+      }
+    } catch (err) { alert(err && err.message ? err.message : 'تعذّر حذف الرسالة'); }
+  }
+
+  function buildPlayer(url, id) {
+    var wrap = document.createElement('div'); wrap.className = 'sp-voice';
+    var btn = document.createElement('button'); btn.type = 'button'; btn.setAttribute('aria-label', 'تشغيل');
+    var PLAY = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    var PAUSE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+    btn.innerHTML = PLAY;
+    var bar = document.createElement('div'); bar.className = 'sp-voice-bar';
+    var fill = document.createElement('div'); fill.className = 'sp-voice-fill'; bar.appendChild(fill);
+    var time = document.createElement('span'); time.className = 'sp-voice-time'; time.textContent = '--:--';
+    wrap.append(btn, bar, time);
+
+    var audio = new Audio(url);
+    audio.preload = 'metadata';
+    players[id] = audio;
+    audio.addEventListener('loadedmetadata', function () { time.textContent = fmtClock(audio.duration); });
+    audio.addEventListener('error', function () { time.textContent = 'خطأ'; });
+    audio.addEventListener('play', function () { btn.innerHTML = PAUSE; btn.setAttribute('aria-label', 'إيقاف مؤقت'); });
+    audio.addEventListener('pause', function () { btn.innerHTML = PLAY; btn.setAttribute('aria-label', 'تشغيل'); });
+    audio.addEventListener('ended', function () { fill.style.width = '0%'; time.textContent = fmtClock(audio.duration); });
+    audio.addEventListener('timeupdate', function () {
+      if (audio.duration) fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      time.textContent = fmtClock(audio.currentTime);
+    });
+    btn.addEventListener('click', function () {
+      Object.keys(players).forEach(function (k) { if (players[k] !== audio) players[k].pause(); });
+      if (audio.paused) audio.play(); else audio.pause();
+    });
     bar.addEventListener('click', function (e) {
-      const r = bar.getBoundingClientRect();
-      audio.currentTime = (1 - (e.clientX - r.left) / r.width) * audio.duration;
+      var r = bar.getBoundingClientRect();
+      if (audio.duration) audio.currentTime = (1 - (e.clientX - r.left) / r.width) * audio.duration; /* الاتجاه من اليمين */
     });
     return wrap;
   }
 
-  function fmtTime(s) {
-    if (!s || isNaN(s)) return '00:00';
-    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  }
-
-  document.getElementById('closeLightbox').addEventListener('click', function () { lightbox.classList.remove('open'); });
-  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) lightbox.classList.remove('open'); });
-
-  window.addEventListener('beforeunload', function () {
-    if (currentUser) { try { db.ref('users/' + currentUser.uid).update({ status: 'offline' }); } catch (e) {} }
-  });
+  /* ---------- عارض الصور ---------- */
+  function closeLightbox() { lightbox.classList.remove('open'); }
+  $('lightboxClose').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeLightbox(); closeMenu(); } });
+})();
 </script>
 </body>
 </html>

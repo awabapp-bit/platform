@@ -6,101 +6,42 @@
 <title>الرئيسية — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="home.css?v=1">
 </head>
 <body>
 
-<header class="app-header" id="appHeader"></header>
+<header class="ah-bar" id="appHeader"></header>
 
-<main class="page">
-  <div class="home-hero">
-    <div class="hero-greet">
-      <div class="hero-greet-text">
-        <h1 id="heroGreetName">أهلًا بك 👋</h1>
-        <p>استمر في رحلتك التعليمية، وكل خطوة بتقرّبك من هدفك بإذن الله</p>
-      </div>
-      <div class="hero-mini-tier" id="heroMiniTier"></div>
+<main class="hm">
+
+  <!-- ===== الترحيب والمستوى ===== -->
+  <section class="hm-top">
+    <div class="hm-greet">
+      <h1 id="hmGreet">أهلًا بك</h1>
+      <p class="hm-ayah" id="hmAyah"></p>
     </div>
-  </div>
-
-  <div class="ayah-banner" id="ayahBanner"></div>
-
-  <section class="dashboard-section" id="dashboardSection" style="display:none;">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-info">
-          <div class="stat-num" id="statCompleted">0</div>
-          <div class="stat-label">كورسات مكتملة</div>
-          <div class="stat-desc">الكورسات التي أنهيت كل محتواها الدراسي.</div>
-        </div>
-        <div class="stat-icon completed" id="iconCompleted"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <div class="stat-num" id="statCurrent">0</div>
-          <div class="stat-label">كورسات حالية</div>
-          <div class="stat-desc">الكورسات التي بدأت فيها ولسه مكملتش محتواها.</div>
-        </div>
-        <div class="stat-icon current" id="iconCurrent"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <div class="stat-num" id="statVideos">0</div>
-          <div class="stat-label">فيديوهات تمت مشاهدتها</div>
-          <div class="stat-desc">المحاضرات اللي شاهدتها عشان ترجع لها بسرعة.</div>
-        </div>
-        <div class="stat-icon videos" id="iconVideos"></div>
-      </div>
-    </div>
-
-    <div class="dash-row2">
-      <div class="activity-card">
-        <div class="activity-head">
-          <h4>نشاطي التعليمي</h4>
-          <div class="activity-legend">
-            <span><i class="legend-dot prev"></i> الأسبوع الماضي</span>
-            <span><i class="legend-dot curr"></i> الأسبوع الحالي</span>
-          </div>
-        </div>
-        <svg class="activity-chart-svg" id="activityChartSvg" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
-        <div class="activity-days" id="activityDays"></div>
-        <div class="activity-foot">ابدأ أول كورس عشان نقدر نعرض بيانات نشاطك التعليمي بشكل دقيق</div>
-      </div>
-
-      <div class="progress-card">
-        <div class="progress-pill-wrap">
-          <div class="progress-pill">
-            <span class="progress-pill-value" id="progressRingValue">0%</span>
-            <div class="progress-pill-fill" id="progressPillFill"></div>
-          </div>
-        </div>
-        <h4>تقدّمك</h4>
-        <p>مقياس لكمية الدروس السابقة والمتبقية في كورساتك الحالية.</p>
-        <button type="button" class="btn btn-primary btn-sm" id="startStudyBtn">ابدأ مذاكرة</button>
-      </div>
-    </div>
+    <a class="hm-tier" id="hmTier" href="account.html" hidden></a>
   </section>
 
-  <div class="content-head" id="coursesSection">
-    <h2 class="section-title">كل المحتوى التعليمي</h2>
-    <div class="filter-tabs" id="filterTabs">
-      <button class="filter-tab active" data-filter="all">الكل</button>
-      <button class="filter-tab" data-filter="course">كورسات</button>
-      <button class="filter-tab" data-filter="competition">مسابقات</button>
-    </div>
-  </div>
+  <!-- ===== تابع من حيث توقفت + نشاط الأسبوع ===== -->
+  <section class="hm-stage solo" id="hmStage">
+    <div class="hm-sk hero"></div>
+  </section>
+
+  <!-- ===== نقطة النزول من البحث في الهيدر ===== -->
+  <div id="coursesSection"></div>
   <!-- شريط البحث المعتمد هو اللي في الهيدر فقط؛ الحقل ده مخفي وبيُستخدم داخليًا لتوصيل كلمة البحث لمنطق الفلترة هنا -->
   <input type="hidden" id="searchInput">
 
   <div id="content">
-    <div class="skeleton-grid">
-      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
-      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
-      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+    <div class="hm-grid">
+      <div class="hm-sk card"></div><div class="hm-sk card"></div><div class="hm-sk card"></div>
     </div>
   </div>
 </main>
 
-<footer class="site-footer" id="siteFooter"></footer>
+<footer class="sf-footer" id="siteFooter"></footer>
 
 <!-- ===== Firebase + Libraries ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -110,374 +51,446 @@
 <script src="icons.js?v=2"></script>
 
 <!-- ===== app-shell.js ===== -->
-<script src="app-shell.js?v=2"></script>
+<script src="app-shell.js?v=3"></script>
 
 <!-- ===== الصفحة الرئيسية ===== -->
 <script>
-  (function() {
-    const content = document.getElementById('content');
-    let currentFilter = 'all';
-    let searchQuery = '';
-    let cachedFiltered = {};
-    let cachedEnrolls = {};
-    let cachedProgress = {};
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var content = $('content');
+  var stage = $('hmStage');
 
-    document.getElementById('iconCompleted').innerHTML = icon('circleCheck', 'icon-md');
-    document.getElementById('iconCurrent').innerHTML = icon('fire', 'icon-md');
-    document.getElementById('iconVideos').innerHTML = icon('video', 'icon-md');
+  var currentFilter = 'all';
+  var searchQuery = '';
+  var DATA = { comps: {}, enrolls: {}, progress: {} };
+  var model = null; // الحسابات المشتقة بعد التحميل
 
-    /* ===== لوحة الإحصائيات: كورسات مكتملة/حالية، فيديوهات، نسبة التقدم، النشاط الأسبوعي ===== */
-    function renderDashboardStats(filtered, enrolls, progress) {
-      const section = document.getElementById('dashboardSection');
-      const enrolledIds = Object.keys(enrolls).filter(function (id) { return filtered[id]; });
+  function ic(name) { return icon(name, 'hm-ic'); }
+  function truncateText(text, max) {
+    if (!text || text.length <= max) return text;
+    return text.slice(0, max).trim() + '…';
+  }
 
-      if (enrolledIds.length === 0) { section.style.display = 'none'; return; }
-      section.style.display = 'block';
+  /* ===== آية / حديث أعلى الصفحة ===== */
+  var AYAHS = [
+    { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', ref: 'سورة طه: 114' },
+    { text: 'إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاءُ', ref: 'سورة فاطر: 28' },
+    { text: 'مَن سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ', ref: 'رواه مسلم' },
+    { text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', ref: 'سورة الطلاق: 2' },
+    { text: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', ref: 'سورة الشرح: 6' },
+    { text: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ', ref: 'رواه ابن ماجه' }
+  ];
+  function renderAyah() {
+    var a = AYAHS[Math.floor(Math.random() * AYAHS.length)];
+    $('hmAyah').innerHTML = escapeHtml(a.text) + '<small>' + escapeHtml(a.ref) + '</small>';
+  }
 
-      let completedCount = 0, currentCount = 0, videosWatched = 0;
-      let totalLessons = 0, totalCompletedLessons = 0;
-      const examTimestamps = [];
+  /* ===== الترحيب + بطاقة المستوى ===== */
+  function renderTop(userData) {
+    var first = (userData.name || 'مستخدم').trim().split(/\s+/)[0];
+    $('hmGreet').textContent = 'أهلًا بك، ' + first;
 
-      enrolledIds.forEach(function (id) {
-        const c = filtered[id];
-        const lessons = c.lessons || {};
-        const compProgress = progress[id] || {};
-        const pct = computeCourseProgress(lessons, compProgress);
-        if (pct >= 100) completedCount++; else currentCount++;
+    var tier = getUserTier(userData.points || 0);
+    var next = tier.isMax
+      ? 'وصلت إلى أعلى مستوى'
+      : tier.pointsToNext + ' نقطة للمستوى ' + (tier.level + 1);
+    var el = $('hmTier');
+    el.innerHTML =
+      '<div class="hm-tier-row">' +
+        '<span class="hm-tier-name">' + ic(tier.rank.icon) + tier.rank.name + ' · المستوى ' + tier.level + '</span>' +
+        '<span class="hm-tier-pts">' + tier.points + '<small>نقطة</small></span>' +
+      '</div>' +
+      '<div class="hm-tier-bar"><i></i></div>' +
+      '<div class="hm-tier-next">' + next + '</div>';
+    el.hidden = false;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      el.querySelector('.hm-tier-bar i').style.width = tier.progress + '%';
+    }); });
+  }
 
-        Object.keys(lessons).forEach(function (lid) {
-          totalLessons++;
-          const lp = compProgress[lid] || {};
-          if (lp.completed) totalCompletedLessons++;
+  /* ===== الحسابات: تقدّم كل كورس + إحصائيات الأسبوع ===== */
+  function buildModel(comps, enrolls, progress) {
+    var mine = [], videosWatched = 0, examTimestamps = [];
 
-          const videos = lp.videos || {};
-          Object.keys(videos).forEach(function (vid) {
-            if (videos[vid] && videos[vid].watched) videosWatched++;
-          });
+    Object.keys(enrolls).forEach(function (id) {
+      var c = comps[id];
+      if (!c) return;
+      var lessons = c.lessons || {};
+      var prog = progress[id] || {};
+      var lessonIds = Object.keys(lessons);
+      var lectureIds = getLectureIds(lessons); /* دروس الملفات فقط مش بتتحسب كمحاضرات */
+      var done = 0, lastActivity = 0;
 
-          const exams = lp.exams || {};
-          Object.keys(exams).forEach(function (eid) {
-            const ex = exams[eid];
-            if (ex && ex.answeredAt) examTimestamps.push(ex.answeredAt);
-          });
+      lessonIds.forEach(function (lid) {
+        var lp = prog[lid] || {};
+        if (lp.completed && isLectureLesson(lessons[lid])) done++;
+        var videos = lp.videos || {};
+        Object.keys(videos).forEach(function (vid) {
+          if (videos[vid] && videos[vid].watched) videosWatched++;
+        });
+        var exams = lp.exams || {};
+        Object.keys(exams).forEach(function (eid) {
+          var ex = exams[eid];
+          if (ex && ex.answeredAt) {
+            examTimestamps.push(ex.answeredAt);
+            if (ex.answeredAt > lastActivity) lastActivity = ex.answeredAt;
+          }
         });
       });
 
-      const overallPct = totalLessons ? Math.round((totalCompletedLessons / totalLessons) * 100) : 0;
-
-      document.getElementById('statCompleted').textContent = completedCount;
-      document.getElementById('statCurrent').textContent = currentCount;
-      document.getElementById('statVideos').textContent = videosWatched;
-
-      // ===== نسبة التقدم (شكل كبسولة) =====
-      const pillFill = document.getElementById('progressPillFill');
-      pillFill.style.transition = 'height .6s ease';
-      requestAnimationFrame(function () { pillFill.style.height = overallPct + '%'; });
-      document.getElementById('progressRingValue').textContent = overallPct + '%';
-
-      // ===== رسم بياني للنشاط الأسبوعي (بناءً على مواعيد حل الاختبارات الفعلية) =====
-      const DAY_LABELS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-      function satIndex(date) { return (date.getDay() + 1) % 7; } // Saturday=0 ... Friday=6
-
-      const now = new Date();
-      const todaySatIdx = satIndex(now);
-      const startOfThisWeek = new Date(now);
-      startOfThisWeek.setHours(0, 0, 0, 0);
-      startOfThisWeek.setDate(now.getDate() - todaySatIdx);
-      const startOfLastWeek = new Date(startOfThisWeek);
-      startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
-
-      const currWeek = [0, 0, 0, 0, 0, 0, 0];
-      const prevWeek = [0, 0, 0, 0, 0, 0, 0];
-
-      examTimestamps.forEach(function (ts) {
-        const d = new Date(ts);
-        const idx = satIndex(d);
-        if (d >= startOfThisWeek) { currWeek[idx]++; }
-        else if (d >= startOfLastWeek) { prevWeek[idx]++; }
+      mine.push({
+        id: id, comp: c,
+        total: lectureIds.length, done: done,
+        pct: computeCourseProgress(lessons, prog),
+        lastActivity: lastActivity
       });
-
-      const maxVal = Math.max(1, Math.max.apply(null, currWeek), Math.max.apply(null, prevWeek));
-      const W = 600, H = 150, PAD = 14;
-      function pointsFor(arr) {
-        return arr.map(function (v, i) {
-          const x = (i / 6) * (W - PAD * 2) + PAD;
-          const y = H - PAD - (v / maxVal) * (H - PAD * 2);
-          return x + ',' + y;
-        }).join(' ');
-      }
-      function dotsFor(arr, cls) {
-        return arr.map(function (v, i) {
-          const x = (i / 6) * (W - PAD * 2) + PAD;
-          const y = H - PAD - (v / maxVal) * (H - PAD * 2);
-          return '<circle cx="' + x + '" cy="' + y + '" r="4" class="' + cls + '"></circle>';
-        }).join('');
-      }
-
-      const svg = document.getElementById('activityChartSvg');
-      svg.innerHTML =
-        '<polyline points="' + pointsFor(prevWeek) + '" class="activity-line prev"></polyline>' +
-        '<polyline points="' + pointsFor(currWeek) + '" class="activity-line curr"></polyline>' +
-        dotsFor(prevWeek, 'activity-dot prev') +
-        dotsFor(currWeek, 'activity-dot curr');
-
-      document.getElementById('activityDays').innerHTML = DAY_LABELS.map(function (d) { return '<span>' + d + '</span>'; }).join('');
-      document.querySelector('.activity-foot').textContent = examTimestamps.length
-        ? 'نشاطك في حل الاختبارات خلال آخر أسبوعين'
-        : 'ابدأ أول اختبار عشان نقدر نعرض بيانات نشاطك التعليمي بشكل دقيق';
-    }
-
-    document.getElementById('startStudyBtn').addEventListener('click', function () {
-      document.getElementById('content').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    const AYAHS = [
-      { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', ref: 'سورة طه: 114' },
-      { text: 'إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاءُ', ref: 'سورة فاطر: 28' },
-      { text: 'مَن سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ', ref: 'حديث شريف — رواه مسلم' },
-      { text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', ref: 'سورة الطلاق: 2' },
-      { text: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', ref: 'سورة الشرح: 6' },
-      { text: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ', ref: 'حديث شريف — رواه ابن ماجه' }
-    ];
+    var completed = mine.filter(function (m) { return m.pct >= 100; }).length;
+    var inProgress = mine.filter(function (m) { return m.pct < 100; });
+    /* الأحدث نشاطًا أولًا، ثم الأعلى تقدّمًا */
+    inProgress.sort(function (a, b) { return (b.lastActivity - a.lastActivity) || (b.pct - a.pct); });
 
-    function renderAyah() {
-      const a = AYAHS[Math.floor(Math.random() * AYAHS.length)];
-      document.getElementById('ayahBanner').innerHTML =
-        '<p class="ayah-text">' + escapeHtml(a.text) + '</p>' +
-        '<p class="ayah-ref">' + escapeHtml(a.ref) + '</p>';
-    }
+    return {
+      mine: mine,
+      focus: inProgress[0] || null,
+      completed: completed,
+      current: inProgress.length,
+      videos: videosWatched,
+      exams: examTimestamps
+    };
+  }
 
-    function renderHero(userData) {
-      const name = (userData.name || 'مستخدم').trim().split(/\s+/)[0];
-      document.getElementById('heroGreetName').textContent = 'أهلًا بك، ' + name + ' 👋';
+  /* ===== بطاقة "تابع من حيث توقفت" ===== */
+  var ARCH_D = 'M112 152V62A52 52 0 0 0 8 62V152';
 
-      const tier = getUserTier(userData.points || 0);
-      document.getElementById('heroMiniTier').innerHTML =
-        '<div class="hmt-icon">' + icon(tier.rank.icon, 'icon-sm') + '</div>' +
-        '<div class="hmt-text">' +
-          '<div class="hmt-label">' + tier.rank.name + ' • المستوى ' + tier.level + '</div>' +
-          '<div class="hmt-value">' + tier.points + ' نقطة</div>' +
+  function archHtml(valueHtml) {
+    return '<div class="hm-arch" aria-hidden="true">' +
+      '<svg viewBox="0 0 120 156"><path class="track" pathLength="1" d="' + ARCH_D + '"/><path class="fill" id="hmArchFill" pathLength="1" d="' + ARCH_D + '"/></svg>' +
+      '<div class="hm-arch-val">' + valueHtml + '</div></div>';
+  }
+
+  function hasAvailable() {
+    return Object.keys(DATA.comps).some(function (id) { return !DATA.enrolls[id]; });
+  }
+
+  function renderHero() {
+    var f = model.focus, html, pct = 0;
+
+    if (f) {
+      pct = f.pct;
+      var by = f.comp.instructorName ? ' مع ' + escapeHtml(f.comp.instructorName) : '';
+      html =
+        '<div class="hm-continue">' +
+          '<div>' +
+            '<p class="hm-kicker">تابع من حيث توقفت</p>' +
+            '<h2>' + escapeHtml(f.comp.title || 'بدون عنوان') + '</h2>' +
+            '<p class="hm-sub">أنهيت <b>' + f.done + '</b> من <b>' + f.total + '</b> محاضرة' + by + '.</p>' +
+            '<a class="hm-btn" href="competition.html?id=' + encodeURIComponent(f.id) + '">متابعة التعلم ' + ic('chevronLeft') + '</a>' +
+          '</div>' +
+          archHtml(f.pct + '%<small>من المحتوى</small>') +
+        '</div>';
+    } else if (model.mine.length) {
+      html =
+        '<div class="hm-continue">' +
+          '<div>' +
+            '<p class="hm-kicker">أحسنت</p>' +
+            '<h2>أنهيت كل ما اشتركت فيه</h2>' +
+            '<p class="hm-sub">' + (hasAvailable() ? 'اختر محتوى جديدًا لتكمل رحلتك.' : 'سنخبرك فور إضافة محتوى جديد.') + '</p>' +
+            (hasAvailable() ? '<button type="button" class="hm-btn" data-scroll="1">اكتشف المزيد</button>' : '') +
+          '</div>' +
+          archHtml(ic('circleCheck')) +
+        '</div>';
+      pct = 100;
+    } else {
+      var any = Object.keys(DATA.comps).length > 0;
+      html =
+        '<div class="hm-continue">' +
+          '<div>' +
+            '<p class="hm-kicker">ابدأ رحلتك</p>' +
+            '<h2>اختر أول كورس لك</h2>' +
+            '<p class="hm-sub">' + (any ? 'اشترك في كورس وابدأ أول محاضرة، وسيظهر تقدّمك هنا.' : 'لا يوجد محتوى متاح حاليًا، تابعنا قريبًا.') + '</p>' +
+            (any ? '<button type="button" class="hm-btn" data-scroll="1">تصفّح المحتوى</button>' : '') +
+          '</div>' +
+          archHtml(ic('bookOpen')) +
         '</div>';
     }
 
-    function showError(msg) {
-      content.innerHTML =
-        '<div class="empty-state" style="border:2px solid var(--danger); border-radius:var(--radius); padding:30px;">' +
-          '<div class="empty-state-icon" style="color:var(--danger);">' + icon('circleXmark', 'icon-xl') + '</div>' +
-          '<h3 style="color:var(--danger);">' + msg + '</h3>' +
-          '<button class="btn btn-primary btn-sm" onclick="location.reload()" style="width:auto; margin-top:10px;">إعادة المحاولة</button>' +
-        '</div>';
-    }
+    var week = model.mine.length ? weekHtml() : '';
+    stage.className = 'hm-stage' + (week ? '' : ' solo');
+    stage.innerHTML = html + week;
 
-    function renderCompetitions(competitionsData, enrollments, progressByComp) {
-      const allIds = Object.keys(competitionsData);
-      const q = searchQuery.trim().toLowerCase();
-      const ids = allIds.filter(function (id) {
-        const c = competitionsData[id];
-        if (currentFilter !== 'all') {
-          const isCourse = c.type !== 'competition';
-          if (currentFilter === 'course' ? !isCourse : isCourse) return false;
-        }
-        if (q) {
-          const haystack = ((c.title || '') + ' ' + (c.description || '')).toLowerCase();
-          if (haystack.indexOf(q) === -1) return false;
-        }
-        return true;
-      });
-
-      if (allIds.length === 0) {
-        content.innerHTML =
-          '<div class="empty-state"><div class="empty-state-icon">' + icon('trophy', 'icon-xl') + '</div>' +
-          '<p>لا يوجد محتوى متاح حاليًا، تابعنا قريبًا</p></div>';
-        return;
-      }
-      if (ids.length === 0) {
-        content.innerHTML = q
-          ? '<div class="empty-state"><div class="empty-state-icon">' + icon('search', 'icon-xl') + '</div>' +
-              '<p>لا يوجد نتائج بحث تطابق "' + escapeHtml(searchQuery.trim()) + '"</p>' +
-              '<button type="button" class="btn btn-outline btn-sm" id="clearSearchFromEmpty" style="width:auto; margin-top:10px;">مسح البحث</button>' +
-            '</div>'
-          : '<div class="empty-state"><div class="empty-state-icon">' + icon('circleInfo', 'icon-xl') + '</div>' +
-              '<p>لا يوجد محتوى من هذا النوع حاليًا</p></div>';
-        const clearBtn = document.getElementById('clearSearchFromEmpty');
-        if (clearBtn) clearBtn.addEventListener('click', function () { resetSearch(); });
-        return;
-      }
-
-      let html = '<div class="grid">';
-      ids.forEach(function (id) {
-        const c = competitionsData[id];
-        const lessons = c.lessons || {};
-        const lessonsCount = Object.keys(lessons).length;
-        const isCourse = c.type !== 'competition';
-        const typeLabel = isCourse ? 'كورس' : 'مسابقة';
-        const typeIcon = isCourse ? 'bookOpen' : 'trophy';
-        const isEnrolled = !!enrollments[id];
-        const pct = isEnrolled ? computeCourseProgress(lessons, progressByComp[id] || {}) : 0;
-        const ctaLabel = isEnrolled ? 'متابعة التعلم' : (isCourse ? 'اشتراك في الكورس' : 'انضمام للمسابقة');
-        const isNew = c.createdAt && (Date.now() - c.createdAt) < (7 * 24 * 60 * 60 * 1000);
-
-        html +=
-          '<a class="comp-card ' + (isEnrolled ? 'is-enrolled' : '') + '" href="competition.html?id=' + encodeURIComponent(id) + '">' +
-            '<div class="cc-media">' +
-              '<div class="cc-cover">' +
-                (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
-              '</div>' +
-              '<span class="cc-ribbon ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
-              (isNew ? '<span class="cc-new-badge">' + icon('star', 'icon-sm') + ' جديد</span>' : '') +
-            '</div>' +
-            '<div class="cc-body">' +
-              '<span class="cc-pill ' + (isEnrolled ? 'is-enrolled' : '') + '">' +
-                (isEnrolled ? icon('circleCheck', 'icon-sm') + ' أنت مشترك بالفعل' : icon('gem', 'icon-sm') + ' ' + (isCourse ? 'كورس مجاني' : 'مسابقة مجانية')) +
-              '</span>' +
-              '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
-              (c.description ? '<p>' + escapeHtml(truncateText(c.description, 80)) + '</p>' : '') +
-              '<div class="cc-meta-row">' +
-                '<span class="cc-meta-item">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</span>' +
-                (c.instructorName
-                  ? '<span class="cc-meta-item">' + icon('graduationCap', 'icon-sm') + ' ' + escapeHtml(c.instructorName) + '</span>'
-                  : '<span class="cc-meta-item">' + icon('calendar', 'icon-sm') + ' ' + (isNew ? 'أُضيف حديثًا' : 'متاح الآن') + '</span>') +
-              '</div>' +
-              (isEnrolled ?
-                '<div class="card-progress-wrap">' +
-                  '<div class="card-progress-bar"><div class="card-progress-fill" style="width:' + pct + '%;"></div></div>' +
-                  '<span class="card-progress-pct">' + pct + '%</span>' +
-                '</div>' : ''
-              ) +
-              '<span class="cc-details">التفاصيل ' + icon('chevronLeft', 'icon-sm') + '</span>' +
-              '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' cc-cta">' + ctaLabel + '</span>' +
-            '</div>' +
-          '</a>';
-      });
-      html += '</div>';
-      content.innerHTML = html;
-    }
-
-    function setActiveFilter(filter) {
-      currentFilter = filter;
-      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.toggle('active', b.dataset.filter === filter); });
-      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
-    }
-
-    document.getElementById('filterTabs').addEventListener('click', function (e) {
-      const btn = e.target.closest('.filter-tab');
-      if (!btn) return;
-      setActiveFilter(btn.dataset.filter);
+    var btn = stage.querySelector('[data-scroll]');
+    if (btn) btn.addEventListener('click', function () {
+      $('coursesSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    /* ===== البحث: شريط الهيدر هو المعتمد فقط، وهنا بس منطق الفلترة ===== */
-    const searchInputEl = document.getElementById('searchInput');
-    const coursesSection = document.getElementById('coursesSection');
+    var fill = $('hmArchFill');
+    if (fill) requestAnimationFrame(function () { requestAnimationFrame(function () {
+      fill.style.strokeDashoffset = String(1 - pct / 100);
+    }); });
+  }
 
-    function resetSearch() {
-      searchQuery = '';
-      searchInputEl.value = '';
-      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+  /* ===== نشاط الأسبوع (من مواعيد حل الاختبارات الفعلية) ===== */
+  function weekHtml() {
+    var DAY_SHORT = ['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'];
+    var DAY_FULL = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+    function satIndex(d) { return (d.getDay() + 1) % 7; } // السبت = 0 ... الجمعة = 6
+
+    var now = new Date();
+    var today = satIndex(now);
+    var startThis = new Date(now); startThis.setHours(0, 0, 0, 0); startThis.setDate(now.getDate() - today);
+    var startLast = new Date(startThis); startLast.setDate(startThis.getDate() - 7);
+
+    var curr = [0, 0, 0, 0, 0, 0, 0], prev = [0, 0, 0, 0, 0, 0, 0];
+    model.exams.forEach(function (ts) {
+      var d = new Date(ts), i = satIndex(d);
+      if (d >= startThis) curr[i]++; else if (d >= startLast) prev[i]++;
+    });
+    var max = Math.max(1, Math.max.apply(null, curr), Math.max.apply(null, prev));
+    function h(v) { return v === 0 ? '3px' : Math.max(8, Math.round(v / max * 100)) + '%'; }
+
+    var bars = '', days = '';
+    for (var i = 0; i < 7; i++) {
+      var cls = i === today ? ' today' : '';
+      bars += '<div class="hm-bar' + cls + '" title="' + DAY_FULL[i] + ': ' + curr[i] + ' هذا الأسبوع، ' + prev[i] + ' الأسبوع الماضي">' +
+        '<i class="prev" style="height:' + h(prev[i]) + '"></i><i class="curr" style="height:' + h(curr[i]) + '"></i></div>';
+      days += '<span class="' + cls.trim() + '">' + DAY_SHORT[i] + '</span>';
     }
 
-    searchInputEl.addEventListener('input', function () {
-      searchQuery = searchInputEl.value;
-      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    return '<aside class="hm-week">' +
+      '<h3>أسبوعك</h3>' +
+      '<p>' + (model.exams.length ? 'الاختبارات التي حللتها خلال آخر أسبوعين' : 'لا نشاط بعد. حل أول اختبار ليظهر هنا.') + '</p>' +
+      '<div class="hm-bars">' + bars + '</div>' +
+      '<div class="hm-days">' + days + '</div>' +
+      '<div class="hm-legend"><span><b style="background:#7FD9CF"></b>هذا الأسبوع</span><span><b style="background:#E4EBF2"></b>الأسبوع الماضي</span></div>' +
+      '<div class="hm-nums">' +
+        '<div class="hm-num"><b>' + model.completed + '</b><span>كورسات مكتملة</span></div>' +
+        '<div class="hm-num"><b>' + model.current + '</b><span>كورسات جارية</span></div>' +
+        '<div class="hm-num"><b>' + model.videos + '</b><span>فيديوهات شاهدتها</span></div>' +
+      '</div>' +
+    '</aside>';
+  }
+
+  /* ===== المحتوى: كورساتي + المتاح ===== */
+  function matches(c) {
+    var q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return ((c.title || '') + ' ' + (c.description || '')).toLowerCase().indexOf(q) !== -1;
+  }
+  function passesFilter(c) {
+    if (currentFilter === 'all') return true;
+    var isCourse = c.type !== 'competition';
+    return currentFilter === 'course' ? isCourse : !isCourse;
+  }
+
+  function coverHtml(c, isCourse) {
+    var typeIcon = isCourse ? 'bookOpen' : 'trophy';
+    return '<div class="hm-cover-ph">' +
+        '<svg class="hm-a" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+          '<path d="M110 180V95A50 50 0 0 1 210 95V180"/><path d="M85 180V95A75 75 0 0 1 235 95V180" stroke-opacity=".5"/></svg>' +
+        ic(typeIcon) +
+      '</div>' +
+      (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy" onerror="this.remove()">' : '');
+  }
+
+  function mineRow(m) {
+    var c = m.comp, isCourse = c.type !== 'competition';
+    var by = c.instructorName ? ' · ' + escapeHtml(c.instructorName) : '';
+    var thumb = c.coverUrl
+      ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy" onerror="this.remove()">'
+      : ic(isCourse ? 'bookOpen' : 'trophy');
+    return '<a class="hm-row" href="competition.html?id=' + encodeURIComponent(m.id) + '">' +
+      '<div class="hm-thumb">' + thumb + '</div>' +
+      '<div class="hm-row-body">' +
+        '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
+        '<div class="hm-row-meta">' + m.done + ' من ' + m.total + ' محاضرة' + by + '</div>' +
+        '<div class="hm-prog"><div class="hm-prog-bar"><i style="width:' + m.pct + '%"></i></div><b>' + m.pct + '%</b></div>' +
+      '</div></a>';
+  }
+
+  function catalogCard(id, c) {
+    var isCourse = c.type !== 'competition';
+    var lessonsCount = countLectures(c.lessons || {});
+    var isNew = c.createdAt && (Date.now() - c.createdAt) < (7 * 24 * 60 * 60 * 1000);
+    return '<a class="hm-card" href="competition.html?id=' + encodeURIComponent(id) + '">' +
+      '<div class="hm-cover">' + coverHtml(c, isCourse) +
+        '<span class="hm-tag">' + ic(isCourse ? 'bookOpen' : 'trophy') + (isCourse ? 'كورس' : 'مسابقة') + '</span>' +
+        (isNew ? '<span class="hm-tag new">جديد</span>' : '') +
+      '</div>' +
+      '<div class="hm-card-body">' +
+        '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
+        (c.description ? '<p>' + escapeHtml(truncateText(c.description, 120)) + '</p>' : '') +
+        '<div class="hm-meta">' +
+          '<span>' + ic('bookOpen') + lessonsCount + ' محاضرة</span>' +
+          (c.instructorName ? '<span>' + ic('graduationCap') + escapeHtml(c.instructorName) + '</span>' : '') +
+        '</div>' +
+        '<div class="hm-go"><span>' + (isCourse ? 'اشترك في الكورس' : 'انضم للمسابقة') + '</span>' + ic('chevronLeft') + '</div>' +
+      '</div></a>';
+  }
+
+  function renderContent() {
+    if (!model) return;
+    var q = searchQuery.trim();
+    var allIds = Object.keys(DATA.comps);
+
+    if (allIds.length === 0) {
+      content.innerHTML = '<div class="hm-empty">' + ic('trophy') + 'لا يوجد محتوى متاح حاليًا، تابعنا قريبًا.</div>';
+      return;
+    }
+
+    var mineList = model.mine.filter(function (m) { return matches(m.comp); });
+    var catalogIds = allIds.filter(function (id) {
+      return !DATA.enrolls[id] && passesFilter(DATA.comps[id]) && matches(DATA.comps[id]);
     });
 
-    /* لو جاي من صفحة تانية ببحث (?q=...) هات القيمة واعرضها فورًا */
-    const initialQuery = new URLSearchParams(location.search).get('q');
-    if (initialQuery) {
-      searchQuery = initialQuery;
-      searchInputEl.value = initialQuery;
+    var html = '';
+    if (q) {
+      html += '<div class="hm-searchline"><span>نتائج البحث عن «' + escapeHtml(q) + '»</span>' +
+        '<button type="button" id="hmClear">مسح البحث</button></div>';
     }
 
-    function truncateText(text, max) {
-      if (!text || text.length <= max) return text;
-      return text.slice(0, max).trim() + '…';
+    if (mineList.length) {
+      html += '<section class="hm-sec"><div class="hm-head"><h2>كورساتي<small>' + mineList.length + '</small></h2></div>' +
+        '<div class="hm-mine">' + mineList.map(mineRow).join('') + '</div></section>';
     }
 
-    // ===== بدء التشغيل =====
-    auth.onAuthStateChanged(function(user) {
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
+    var catTitle = model.mine.length ? 'اكتشف المزيد' : 'المحتوى التعليمي';
+    html += '<section class="hm-sec"><div class="hm-head"><h2>' + catTitle + '</h2>' +
+      '<div class="hm-tabs" id="hmTabs">' +
+        ['all:الكل', 'course:كورسات', 'competition:مسابقات'].map(function (t) {
+          var p = t.split(':');
+          return '<button type="button" class="hm-tab' + (p[0] === currentFilter ? ' active' : '') + '" data-filter="' + p[0] + '">' + p[1] + '</button>';
+        }).join('') +
+      '</div></div>';
 
-      // 1. جلب بيانات المستخدم
-      db.ref('users/' + user.uid).once('value')
-        .then(function(snap) {
-          let userData = snap.val();
-          if (!userData) {
-            userData = {
-              name: user.displayName || 'مستخدم',
-              email: user.email || '',
-              points: 0,
-              isAdmin: false,
-              createdAt: firebase.database.ServerValue.TIMESTAMP
-            };
-            db.ref('users/' + user.uid).set(userData).catch(function(e) {
-              console.warn('فشل حفظ بيانات المستخدم:', e);
-            });
-          }
-          // عرض الهيدر والفوتر
-          renderAppHeader(user, userData, { showPoints: true });
-          renderFooter();
-          watchSessionKick(user);
-          renderHero(userData);
-          renderAyah();
+    if (catalogIds.length) {
+      html += '<div class="hm-grid">' + catalogIds.map(function (id) { return catalogCard(id, DATA.comps[id]); }).join('') + '</div>';
+    } else if (q) {
+      html += mineList.length ? '' : '<div class="hm-empty">' + ic('search') + 'لا توجد نتائج تطابق «' + escapeHtml(q) + '».<br><button type="button" class="hm-btn" id="hmClear2">مسح البحث</button></div>';
+    } else if (model.mine.length && currentFilter === 'all') {
+      html += '<div class="hm-empty">' + ic('circleCheck') + 'أنت مشترك في كل المحتوى المتاح حاليًا.</div>';
+    } else {
+      html += '<div class="hm-empty">' + ic('circleInfo') + 'لا يوجد محتوى من هذا النوع حاليًا.</div>';
+    }
+    html += '</section>';
 
-          // لو الاسم مسجّل بالإنجليزية، اعرض رسالة إجبارية لتغييره للعربية
-          const needsArabicName = window.hasEnglishName && hasEnglishName(userData.name);
-          if (needsArabicName) {
-            setTimeout(showArabicNameNotice, 400);
-          }
+    content.innerHTML = html;
+    ['hmClear', 'hmClear2'].forEach(function (id) {
+      var b = $(id); if (b) b.addEventListener('click', resetSearch);
+    });
+  }
 
-          // لو معندوش رقم هاتف مسجّل، اعرض له دعوة اختيارية لإضافته (إلا لو فيه رسالة الاسم الإجبارية ظاهرة الأول)
-          if (!userData.phone && !needsArabicName) {
-            setTimeout(function () { showAddPhoneNotice(user, userData); }, 600);
-          }
+  content.addEventListener('click', function (e) {
+    var btn = e.target.closest('.hm-tab');
+    if (!btn) return;
+    currentFilter = btn.dataset.filter;
+    renderContent();
+  });
 
-          // 2. تحميل المحتوى
-          return Promise.all([
-            db.ref('competitions').once('value'),
-            db.ref('userEnrollments/' + user.uid).once('value'),
-            db.ref('userProgress/' + user.uid).once('value')
-          ]);
-        })
-        .then(function(results) {
-          const allData = results[0].val() || {};
-          const enrolls = results[1].val() || {};
-          const progress = results[2].val() || {};
+  /* ===== البحث: شريط الهيدر هو المعتمد، وهنا منطق الفلترة فقط ===== */
+  var searchInputEl = $('searchInput');
 
-          // تصفية العناصر التي تحتوي على محتوى فعلي
-          const filtered = {};
-          Object.keys(allData).forEach(id => {
-            const comp = allData[id];
-            const lessons = comp.lessons || {};
-            let hasContent = false;
-            Object.keys(lessons).forEach(lid => {
-              const lesson = lessons[lid];
-              if (lesson.videos && Object.keys(lesson.videos).length > 0) hasContent = true;
-              if (lesson.exams && Object.keys(lesson.exams).length > 0) hasContent = true;
-            });
-            if (hasContent) filtered[id] = comp;
+  function resetSearch() {
+    searchQuery = '';
+    searchInputEl.value = '';
+    var headerInput = $('headerSearchInput');
+    if (headerInput) headerInput.value = '';
+    renderContent();
+  }
+  searchInputEl.addEventListener('input', function () {
+    searchQuery = searchInputEl.value;
+    renderContent();
+  });
+
+  /* لو جاي من صفحة تانية ببحث (?q=...) هات القيمة واعرضها فورًا */
+  var initialQuery = new URLSearchParams(location.search).get('q');
+  if (initialQuery) { searchQuery = initialQuery; searchInputEl.value = initialQuery; }
+
+  function showError(msg) {
+    stage.style.display = 'none';
+    content.innerHTML = '<div class="hm-empty err">' + ic('circleXmark') + escapeHtml(msg) +
+      '<br><button type="button" class="hm-btn" onclick="location.reload()">إعادة المحاولة</button></div>';
+  }
+
+  // ===== بدء التشغيل =====
+  auth.onAuthStateChanged(function (user) {
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    // 1. جلب بيانات المستخدم
+    db.ref('users/' + user.uid).once('value')
+      .then(function (snap) {
+        var userData = snap.val();
+        if (!userData) {
+          userData = {
+            name: user.displayName || 'مستخدم',
+            email: user.email || '',
+            points: 0,
+            isAdmin: false,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+          };
+          db.ref('users/' + user.uid).set(userData).catch(function (e) {
+            console.warn('فشل حفظ بيانات المستخدم:', e);
           });
+        }
+        // عرض الهيدر والفوتر
+        renderAppHeader(user, userData, { showPoints: true });
+        renderFooter();
+        watchSessionKick(user);
+        renderTop(userData);
+        renderAyah();
 
-          cachedFiltered = filtered;
-          cachedEnrolls = enrolls;
-          cachedProgress = progress;
+        // لو الاسم مسجّل بالإنجليزية، اعرض رسالة إجبارية لتغييره للعربية
+        var needsArabicName = window.hasEnglishName && hasEnglishName(userData.name);
+        if (needsArabicName) setTimeout(showArabicNameNotice, 400);
 
-          renderCompetitions(filtered, enrolls, progress);
-          renderDashboardStats(filtered, enrolls, progress);
+        // لو معندوش رقم هاتف مسجّل، اعرض له دعوة اختيارية لإضافته (إلا لو فيه رسالة الاسم الإجبارية ظاهرة الأول)
+        if (!userData.phone && !needsArabicName) {
+          setTimeout(function () { showAddPhoneNotice(user, userData); }, 600);
+        }
 
-          if (initialQuery) {
-            setTimeout(function () {
-              coursesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 200);
-          }
-        })
-        .catch(function(err) {
-          console.error('خطأ في تحميل المحتوى:', err);
-          showError('تعذر تحميل المحتوى: ' + (err.message || 'خطأ غير معروف'));
+        // 2. تحميل المحتوى
+        return Promise.all([
+          db.ref('competitions').once('value'),
+          db.ref('userEnrollments/' + user.uid).once('value'),
+          db.ref('userProgress/' + user.uid).once('value')
+        ]);
+      })
+      .then(function (results) {
+        var allData = results[0].val() || {};
+        var enrolls = results[1].val() || {};
+        var progress = results[2].val() || {};
+
+        // تصفية العناصر التي تحتوي على محتوى فعلي
+        var filtered = {};
+        Object.keys(allData).forEach(function (id) {
+          var lessons = allData[id].lessons || {};
+          var hasContent = false;
+          Object.keys(lessons).forEach(function (lid) {
+            var l = lessons[lid];
+            if (l.videos && Object.keys(l.videos).length > 0) hasContent = true;
+            if (l.exams && Object.keys(l.exams).length > 0) hasContent = true;
+          });
+          if (hasContent) filtered[id] = allData[id];
         });
-    });
-  })();
+
+        DATA = { comps: filtered, enrolls: enrolls, progress: progress };
+        model = buildModel(filtered, enrolls, progress);
+        renderHero();
+        renderContent();
+
+        if (initialQuery) {
+          setTimeout(function () {
+            $('coursesSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 200);
+        }
+      })
+      .catch(function (err) {
+        console.error('خطأ في تحميل المحتوى:', err);
+        showError('تعذر تحميل المحتوى: ' + (err.message || 'خطأ غير معروف'));
+      });
+  });
+})();
 </script>
 </body>
 </html>

@@ -51,12 +51,10 @@
     },
     "forumQuestions": {
       "$compId": {
-        ".read": "auth != null",
+        ".indexOn": ["published", "uid"],
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('isAdmin').val() === true || (query.orderByChild == 'published' && query.equalTo == true) || (query.orderByChild == 'uid' && query.equalTo == auth.uid))",
         "$questionId": {
-          ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid && root.child('userEnrollments').child(auth.uid).child($compId).exists()) || (data.exists() && data.child('uid').val() === auth.uid && !newData.child('adminReply').exists()))",
-          "adminReply": {
-            ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
-          }
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('isAdmin').val() === true || (!data.exists() && newData.child('uid').val() === auth.uid && newData.child('published').val() === false && !newData.child('adminReply').exists() && root.child('userEnrollments').child(auth.uid).child($compId).exists()))"
         }
       }
     },
@@ -89,7 +87,7 @@
                 ".validate": "newData.isNumber()"
               },
               "violationList": {
-                ".validate": "newData.isArray()"
+                ".validate": "newData.hasChildren()"
               },
               "reloadCount": {
                 ".validate": "newData.isNumber()"
@@ -107,7 +105,7 @@
                 ".validate": "newData.isNumber()"
               },
               "selectedQuestions": {
-                ".validate": "newData.isArray()"
+                ".validate": "newData.hasChildren()"
               },
               "sessionId": {
                 ".validate": "newData.isString()"

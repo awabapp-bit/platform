@@ -6,42 +6,44 @@
 <title>الفيديو — منصة أواب الإلكترونية</title>
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="lesson-ui.css?v=1">
 </head>
 <body>
 
-<header class="app-header" id="appHeader"></header>
+<header class="ah-bar" id="appHeader"></header>
 
-<main class="page video-page">
+<main class="vp-page">
   <h1 class="sr-only" id="videoTitle">جارٍ التحميل...</h1>
 
-  <div class="video-layout">
-    <div class="video-main">
-      <div class="video-top-bar">
-        <a class="video-back-link" id="backLink" href="competition.html"><svg class="icon icon-sm" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> الرجوع للكورس</a>
-      </div>
-      <div class="video-quick-row" id="videoQuickRow"></div>
-      <button type="button" class="video-fav-btn" id="favoriteBtn" style="display:none;"></button>
+  <div class="vp-topbar">
+    <a class="vp-back" id="backLink" href="competition.html" aria-label="الرجوع للكورس"></a>
+    <div class="vp-topbar-title" id="topbarTitle"></div>
+    <button type="button" class="vp-fav" id="favoriteBtn"></button>
+  </div>
 
+  <div class="vp-layout" id="vpLayout" data-tab="details">
+    <div class="vp-main">
       <div id="content">
         <div class="center-loading"><div class="loader"></div></div>
       </div>
     </div>
 
-    <aside class="video-sidebar" id="videoSidebar" style="display:none;">
-      <h2 class="video-sidebar-heading">الدروس</h2>
-      <div class="video-sidebar-list" id="videoSidebarList"></div>
+    <aside class="vp-side vp-pane vp-pane-lessons" id="videoSidebar" style="display:none;">
+      <h2 class="vp-side-heading">الدروس</h2>
+      <div id="videoSidebarList"></div>
     </aside>
   </div>
 </main>
 
-<footer class="site-footer" id="siteFooter"></footer>
+<footer class="sf-footer" id="siteFooter"></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="icons.js?v=2"></script>
-<script src="app-shell.js?v=2"></script>
+<script src="app-shell.js?v=3"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const compId = params.get('comp');
@@ -50,6 +52,7 @@
   if (!compId || !lessonId || !videoId) window.location.href = 'home.html';
 
   document.getElementById('backLink').href = 'competition.html?id=' + encodeURIComponent(compId);
+  document.getElementById('backLink').innerHTML = icon('arrowRight', 'icon');
 
   let currentUser = null;
   let currentUserData = null;
@@ -88,9 +91,7 @@
         if (!eSnap.exists()) {
           document.getElementById('videoTitle').textContent = 'محتوى مغلق';
           document.getElementById('content').innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);">' + icon('lock', 'icon-xl') + '</div>' +
-            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3><p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الفيديو.</p>' +
-            '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
+            '<div class="ui-state"><div class="ui-state-icon">' + icon('lock') + '</div><h3>لازم تشترك أولاً</h3><p>اشترك في هذا المحتوى من صفحته للوصول لهذا الفيديو.</p><a class="ui-btn ui-btn-primary" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
           return;
         }
         loadWithAccess();
@@ -105,9 +106,7 @@
         if (!access.allowed) {
           document.getElementById('videoTitle').textContent = 'محتوى مغلق';
           const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
-          content.innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);">' + icon('lock', 'icon-xl') + '</div>' +
-            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا المحتوى مغلق</h3><p class="muted">' + reasonText + '</p></div>';
+          content.innerHTML = '<div class="ui-state"><div class="ui-state-icon">' + icon('lock') + '</div><h3>هذا المحتوى مغلق</h3><p>' + reasonText + '</p></div>';
           return;
         }
 
@@ -173,31 +172,38 @@
           '</div>' +
         '</div>';
     } else if (isVideoBlocked) {
-      html += '<div class="already-done-card" id="videoLockedCard">' +
-          '<div class="big-icon" style="color:var(--teal);">' + icon('lock', 'icon-xl') + '</div>' +
-          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">استنفدت عدد المشاهدات المتاحة</h3>' +
-          '<p class="muted">استخدمت كل مشاهداتك المسموح بها لهذه المحاضرة (' + maxViewsAllowed + ' مشاهدات). تقدر تشوف تفاصيل المحاضرة تحت.</p>' +
-        '</div>';
+      html += '<div class="ui-state is-danger" id="videoLockedCard" style="margin:0 0 4px; max-width:none;"><div class="ui-state-icon">' + icon('lock') + '</div>' +
+          '<h3>استنفدت عدد المشاهدات المتاحة</h3>' +
+          '<p style="margin:0;">استخدمت كل مشاهداتك المسموح بها لهذه المحاضرة (' + maxViewsAllowed + ' مشاهدات). تقدر تشوف تفاصيل المحاضرة تحت.</p></div>';
     } else {
-      html += '<p class="muted">تعذر تحميل الفيديو</p>';
+      html += '<div class="ui-state is-danger"><div class="ui-state-icon">' + icon('xmark') + '</div><h3>تعذر تحميل الفيديو</h3></div>';
     }
 
-    html += '<div class="video-title-row">' +
-        '<button type="button" class="video-share-btn" id="shareBtn" aria-label="مشاركة" title="مشاركة">' + icon('shareNodes', 'icon-sm') + '</button>' +
-        '<h2 class="video-title-text">' + icon('bookOpen', 'icon-sm') + ' <span>' + escapeHtml(video.title || lesson.title || 'فيديو الشرح') + '</span></h2>' +
+    const vTitle = video.title || lesson.title || 'فيديو الشرح';
+    document.getElementById('topbarTitle').textContent = lesson.title || '';
+    html += '<div class="vp-title-row">' +
+        '<h2 class="vp-title">' + escapeHtml(vTitle) + '</h2>' +
+        '<button type="button" class="vp-share" id="shareBtn" aria-label="مشاركة" title="مشاركة">' + icon('shareNodes') + '</button>' +
+      '</div>';
+    html += '<div class="vp-actions" id="videoQuickRow"></div>';
+
+    html += '<div class="vp-tabs" id="vpTabs">' +
+        '<button type="button" class="vp-tab is-active" data-tab="details">التفاصيل</button>' +
+        '<button type="button" class="vp-tab" data-tab="lessons">الدروس</button>' +
+        '<button type="button" class="vp-tab" data-tab="comments">الأسئلة</button>' +
       '</div>';
 
-    html += renderVideoStatsCard(video, lesson);
+    html += '<div class="vp-pane vp-pane-details">' + renderVideoStatsCard(video, lesson) + '</div>';
 
-    html += '<div class="comments-section">' +
-      '<h3>' + icon('comment', 'icon-md') + ' الأسئلة والتعليقات</h3>' +
-      '<div class="comment-form">' +
+    html += '<div class="vp-pane vp-pane-comments"><div class="vp-comments">' +
+      '<h3>' + icon('comment') + ' الأسئلة والتعليقات</h3>' +
+      '<div class="vp-comment-form">' +
         '<input type="text" id="commentInput" placeholder="اكتب سؤالك أو تعليقك هنا..." maxlength="400">' +
-        '<button class="btn btn-primary btn-sm" id="sendCommentBtn" style="width:auto;">إرسال</button>' +
+        '<button class="ui-btn ui-btn-primary" id="sendCommentBtn" aria-label="إرسال">' + icon('paperPlane') + '</button>' +
       '</div>' +
-      '<div class="comment-msg" id="commentMsg"></div>' +
-      '<div class="comment-list" id="commentList"><div class="center-loading" style="min-height:60px;"><div class="loader"></div></div></div>' +
-    '</div>';
+      '<div class="vp-comment-msg" id="commentMsg"></div>' +
+      '<div class="vp-comment-list" id="commentList"><div class="center-loading" style="min-height:60px;"><div class="loader"></div></div></div>' +
+    '</div></div>';
 
     content.innerHTML = html;
     if (ytId && !isVideoBlocked) {
@@ -222,6 +228,12 @@
       });
     });
 
+    document.querySelectorAll('#vpTabs .vp-tab').forEach(function (t) {
+      t.addEventListener('click', function () {
+        document.querySelectorAll('#vpTabs .vp-tab').forEach(function (x) { x.classList.toggle('is-active', x === t); });
+        document.getElementById('vpLayout').setAttribute('data-tab', t.dataset.tab);
+      });
+    });
     setupShareButton();
     loadComments();
     document.getElementById('sendCommentBtn').addEventListener('click', sendComment);
@@ -234,7 +246,7 @@
   function renderVideoStatsCard(video, lesson) {
     const desc = (lesson.description || '').trim();
     const descHtml = desc
-      ? '<p class="video-stats-desc">' + icon('circleInfo', 'icon-xs') + ' <span>' + escapeHtml(desc) + '</span></p>'
+      ? '<p class="vp-desc">' + icon('circleInfo') + '<span>' + escapeHtml(desc) + '</span></p>'
       : '';
 
     const hasAdminDuration = !!(Number(video.durationMinutes) > 0);
@@ -243,25 +255,16 @@
       : (isVideoBlocked ? 'غير محددة' : '—');
 
     return (
-      '<div class="video-stats-card" id="videoStatsCard">' +
+      '<div class="vp-stats" id="videoStatsCard">' +
         descHtml +
-        '<div class="video-stats-grid">' +
-          '<div class="video-stats-item">' + icon('clock', 'icon-sm') +
-            '<span class="vsi-label">مدة الفيديو</span>' +
-            '<span class="vsi-value" id="statDuration">' + durationLabel + '</span>' +
-          '</div>' +
-          '<div class="video-stats-item">' + icon('eye', 'icon-sm') +
-            '<span class="vsi-label">عدد المشاهدات</span>' +
-            '<span class="vsi-value" id="statViews">' + viewsUsedCount + ' من ' + maxViewsAllowed + '</span>' +
-          '</div>' +
-          '<div class="video-stats-item">' + icon('hourglass', 'icon-sm') +
-            '<span class="vsi-label">إجمالي وقت المشاهدة</span>' +
-            '<span class="vsi-value" id="statWatchTime">' + formatWatchDuration(totalWatchSecondsBase) + '</span>' +
-          '</div>' +
+        '<div class="vp-stat-grid">' +
+          '<div class="vp-stat">' + icon('clock') + '<span class="vp-stat-label">مدة الفيديو</span><span class="vp-stat-value" id="statDuration">' + durationLabel + '</span></div>' +
+          '<div class="vp-stat">' + icon('eye') + '<span class="vp-stat-label">المشاهدات</span><span class="vp-stat-value" id="statViews">' + viewsUsedCount + ' من ' + maxViewsAllowed + '</span></div>' +
+          '<div class="vp-stat">' + icon('hourglass') + '<span class="vp-stat-label">وقت المشاهدة</span><span class="vp-stat-value" id="statWatchTime">' + formatWatchDuration(totalWatchSecondsBase) + '</span></div>' +
         '</div>' +
-        '<div class="video-stats-progress">' +
-          '<div class="vsp-head"><span>' + icon('chartSimple', 'icon-xs') + ' نسبة مشاهدتك للمحاضرة</span><span id="statPercentLabel">' + Math.round(maxWatchedPercentBase) + '%</span></div>' +
-          '<div class="vsp-track"><div class="vsp-fill" id="statPercentFill" style="width:' + Math.round(maxWatchedPercentBase) + '%"></div></div>' +
+        '<div class="vp-progress">' +
+          '<div class="vp-progress-head"><span>' + icon('chartSimple') + 'نسبة مشاهدتك للمحاضرة</span><span id="statPercentLabel">' + Math.round(maxWatchedPercentBase) + '%</span></div>' +
+          '<div class="vp-progress-track"><div class="vp-progress-fill" id="statPercentFill" style="width:' + Math.round(maxWatchedPercentBase) + '%"></div></div>' +
         '</div>' +
       '</div>'
     );
@@ -347,10 +350,10 @@
     let html = '';
     if (materialIds.length) {
       const m = materials[materialIds[0]];
-      html += '<a class="video-pill-btn" href="' + escapeHtml(m.url) + '" target="_blank" rel="noopener">ملف شرح ' + icon('chevronLeft', 'icon-xs') + '</a>';
+      html += '<a href="' + escapeHtml(m.url) + '" target="_blank" rel="noopener"><span>' + icon('filePdf') + ' ملف شرح</span>' + icon('chevronLeft') + '</a>';
     }
     if (examIds.length) {
-      html += '<a class="video-pill-btn" href="exam.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&exam=' + encodeURIComponent(examIds[0]) + '">اختبار تطبيقي ' + icon('chevronLeft', 'icon-xs') + '</a>';
+      html += '<a class="is-exam" href="exam.html?comp=' + encodeURIComponent(compId) + '&lesson=' + encodeURIComponent(lessonId) + '&exam=' + encodeURIComponent(examIds[0]) + '"><span>' + icon('listCheck') + ' اختبار تطبيقي</span>' + icon('chevronLeft') + '</a>';
     }
     row.innerHTML = html;
     row.style.display = html ? 'flex' : 'none';
@@ -362,7 +365,7 @@
     const favRef = db.ref('favorites/' + currentUser.uid + '/' + lessonId);
 
     function renderState(isFav) {
-      btn.innerHTML = icon(isFav ? 'circleCheck' : 'star', 'icon-xs') + ' ' + (isFav ? 'أُضيفت إلى المفضلة' : 'إضافة إلى المفضلة');
+      btn.innerHTML = icon(isFav ? 'circleCheck' : 'star') + '<span>' + (isFav ? 'في المفضلة' : 'المفضلة') + '</span>';
       btn.classList.toggle('is-active', isFav);
     }
 
@@ -892,8 +895,7 @@
       const ids = Object.keys(data).sort(function (a, b) { return (data[a].createdAt || 0) - (data[b].createdAt || 0); });
       const list = document.getElementById('commentList');
       if (ids.length === 0) {
-        list.innerHTML = '<div class="comment-empty">' + icon('comment', 'icon-lg') +
-          '<p>لا توجد تعليقات بعد، كن أول من يسأل أو يعلّق.</p></div>';
+        list.innerHTML = '<div class="vp-empty">' + icon('comment') + '<p>لا توجد تعليقات بعد، كن أول من يسأل أو يعلّق.</p></div>';
         return;
       }
       list.innerHTML = ids.map(function (id) {
@@ -904,25 +906,25 @@
         let replyHtml = '';
         if (reply) {
           replyHtml =
-            '<div class="comment-card" style="margin-inline-start:28px; margin-top:8px; background:var(--teal-pale); border-color:rgba(20, 184, 166,0.3);">' +
-              '<div class="c-head"><span class="c-avatar" style="background:linear-gradient(135deg, var(--teal-light), var(--teal));">' + icon('shield', 'icon-sm') + '</span>' +
-              '<span class="c-name">إدارة أواب</span>' +
-              '<span class="c-time">' + formatArabicDate(reply.createdAt) + '</span></div>' +
-              '<p class="c-text">' + escapeHtml(reply.text) + '</p>' +
+            '<div class="vp-comment is-admin">' +
+              '<div class="vp-comment-head"><span class="vp-avatar">' + icon('shield') + '</span>' +
+              '<span class="vp-comment-name">إدارة أواب</span>' +
+              '<span class="vp-comment-time">' + formatArabicDate(reply.createdAt) + '</span></div>' +
+              '<p class="vp-comment-text">' + escapeHtml(reply.text) + '</p>' +
             '</div>';
         } else if (currentUserData.isAdmin) {
           replyHtml =
-            '<div style="margin-inline-start:28px; margin-top:8px; display:flex; gap:6px;">' +
-              '<input type="text" class="reply-input" data-comment="' + id + '" placeholder="اكتب ردًا كإدارة المنصة..." style="flex:1; padding:8px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:16px;">' +
-              '<button class="btn btn-gold btn-xs reply-send-btn" data-comment="' + id + '">' + icon('reply', 'icon-sm') + ' رد</button>' +
+            '<div class="vp-reply-box">' +
+              '<input type="text" class="reply-input" data-comment="' + id + '" placeholder="اكتب ردًا كإدارة المنصة...">' +
+              '<button class="ui-btn ui-btn-accent reply-send-btn" data-comment="' + id + '" style="min-height:42px; padding:0 14px;">' + icon('reply') + ' رد</button>' +
             '</div>';
         }
 
-        return '<div class="comment-card">' +
-          '<div class="c-head"><span class="c-avatar">' + escapeHtml(initial) + '</span>' +
-          '<span class="c-name">' + escapeHtml(c.name || 'مستخدم') + '</span>' +
-          '<span class="c-time">' + formatArabicDate(c.createdAt) + '</span></div>' +
-          '<p class="c-text">' + escapeHtml(c.text) + '</p>' +
+        return '<div class="vp-comment">' +
+          '<div class="vp-comment-head"><span class="vp-avatar">' + escapeHtml(initial) + '</span>' +
+          '<span class="vp-comment-name">' + escapeHtml(c.name || 'مستخدم') + '</span>' +
+          '<span class="vp-comment-time">' + formatArabicDate(c.createdAt) + '</span></div>' +
+          '<p class="vp-comment-text">' + escapeHtml(c.text) + '</p>' +
         '</div>' + replyHtml;
       }).join('');
 

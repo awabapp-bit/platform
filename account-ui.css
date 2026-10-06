@@ -1,0 +1,293 @@
+/* ==========================================================
+   account-ui.css — صفحة الحساب الشخصي (بادئة ac-)
+   على الموبايل فقط يتحول لشكل تطبيق. نافذة الحذف في آخر الملف.
+   ========================================================== */
+@keyframes accFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.ac-page { max-width: 960px; margin: 0 auto; padding: 20px 20px 40px; }
+
+/* ---------- البطاقة الرئيسية (الملف الشخصي) ---------- */
+.ac-hero {
+  position: relative; overflow: hidden; border-radius: 26px; padding: 26px 24px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%); color: #fff;
+  display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center;
+}
+.ac-hero::after {
+  content: ""; position: absolute; width: 260px; height: 260px; border-radius: 50%;
+  inset-inline-start: -90px; top: -110px; background: radial-gradient(circle, rgba(94, 234, 212, .22), transparent 70%);
+  pointer-events: none;
+}
+.ac-avatar-ring {
+  --p: 0; --c: var(--teal-light);
+  position: relative; width: 112px; height: 112px; border-radius: 50%; padding: 6px;
+  background: conic-gradient(var(--c) calc(var(--p) * 1%), rgba(255, 255, 255, .18) 0);
+}
+.ac-avatar {
+  width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center;
+  background: var(--primary-dark); color: #fff; font: 800 40px 'Cairo', sans-serif; text-decoration: none;
+}
+.ac-avatar i { font-size: 34px; opacity: .8; }
+.ac-avatar span:not(:empty) + i { display: none; }
+.ac-hero-body { position: relative; z-index: 1; min-width: 0; }
+.ac-name { margin: 0 0 4px; font-size: 22px; font-weight: 800; line-height: 1.5; word-break: break-word; }
+.ac-name-link { color: inherit; text-decoration: none; }
+.ac-email { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: rgba(255, 255, 255, .75); margin-bottom: 12px; word-break: break-all; }
+.ac-badge {
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 99px;
+  background: rgba(255, 255, 255, .14); font-size: 13px; font-weight: 700;
+}
+
+.ac-tier { margin-top: 16px; }
+.ac-tier-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13.5px; font-weight: 700; }
+.ac-tier-points { display: inline-flex; gap: 6px; align-items: center; }
+.ac-tier-points i { color: var(--teal-light); }
+.ac-tier-track { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .18); margin: 8px 0 6px; overflow: hidden; }
+.ac-tier-fill { height: 100%; border-radius: 99px; background: var(--rank-color, var(--teal-light)); transition: width .5s ease; }
+.ac-tier-note { font-size: 12.5px; color: rgba(255, 255, 255, .72); }
+
+.ac-code {
+  margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; max-width: 100%;
+  padding: 6px 6px 6px 12px; border-radius: 14px; background: rgba(255, 255, 255, .1); font-size: 12.5px;
+}
+.ac-code-label { color: rgba(255, 255, 255, .7); white-space: nowrap; }
+.ac-code-value { font-weight: 800; letter-spacing: 1.5px; font-family: monospace; direction: ltr; overflow: hidden; text-overflow: ellipsis; }
+.ac-code-copy { width: 32px; height: 32px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, .16); color: #fff; cursor: pointer; flex-shrink: 0; }
+
+.ac-hero-actions { grid-column: 1 / -1; display: flex; gap: 10px; position: relative; z-index: 1; }
+.ac-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 22px;
+  border: 0; border-radius: 14px; cursor: pointer; font: 700 14.5px 'Cairo', sans-serif; transition: transform .12s, background .15s;
+}
+.ac-btn:active { transform: scale(.97); }
+.ac-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ac-btn-light { background: #fff; color: var(--primary); flex: 1; }
+.ac-btn-primary { background: var(--primary); color: #fff; }
+.ac-btn-soft { background: var(--primary-tint); color: var(--primary); }
+
+/* ---------- التبويبات ---------- */
+.ac-tabs { display: flex; gap: 4px; padding: 4px; margin: 18px 0; background: var(--primary-tint); border-radius: 18px; position: sticky; top: 72px; z-index: 5; }
+.ac-tab {
+  flex: 1; height: 44px; border: 0; background: none; border-radius: 14px; color: var(--text-muted);
+  font: 700 14px 'Cairo', sans-serif; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  transition: background .15s, color .15s;
+}
+.ac-tab.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 8px rgba(18, 58, 99, .1); }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: accFadeIn .25s ease; }
+
+/* ---------- تعديل الملف الشخصي ---------- */
+.ac-edit {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 22px; padding: 20px; margin-top: 16px;
+}
+.ac-edit h3 { margin: 0 0 14px; font-size: 18px; color: var(--primary-dark); display: flex; gap: 8px; align-items: center; }
+.ac-edit h3 i { color: var(--teal); }
+.ac-edit .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ac-edit .field.full { grid-column: 1 / -1; }
+.ac-edit .field label { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; font-size: 13.5px; font-weight: 700; color: var(--primary-dark); }
+.ac-edit .field input {
+  width: 100%; height: 50px; padding: 0 14px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg);
+  font: 500 16px 'Cairo', sans-serif; color: var(--text);
+}
+.ac-edit .field input:focus { outline: none; border-color: var(--teal); background: #fff; }
+.field-hint { margin-top: 6px; font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+.phone-field-group { display: flex; direction: ltr; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg); overflow: hidden; }
+.phone-field-group:focus-within { border-color: var(--teal); background: #fff; }
+.phone-prefix { display: grid; place-items: center; padding: 0 14px; background: var(--primary-tint); font-weight: 800; color: var(--primary); }
+.ac-edit .phone-field-group input { border: 0; background: transparent; border-radius: 0; height: 48px; }
+.field.has-error .phone-field-group { border-color: var(--danger); }
+.ac-edit .rules-list { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+.ac-edit .form-msg { margin-bottom: 14px; }
+.ac-edit-actions { display: flex; gap: 10px; margin-top: 18px; }
+.ac-edit-actions .ac-btn { flex: 1; }
+
+/* ---------- تبويب المعلومات (قائمة إعدادات) ---------- */
+.ac-list { background: var(--card-bg); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; }
+.ac-row { display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
+.ac-row + .ac-row { border-top: 1px solid var(--border); }
+.ac-row-icon { width: 42px; height: 42px; border-radius: 14px; flex-shrink: 0; display: grid; place-items: center; background: var(--teal-pale); color: var(--teal-dark); font-size: 16px; }
+.ac-row-body { min-width: 0; display: grid; gap: 2px; }
+.ac-row-label { font-size: 12.5px; color: var(--text-muted); font-weight: 600; }
+.ac-row-body .value { font-size: 15.5px; font-weight: 700; color: var(--primary-dark); word-break: break-word; }
+.ac-row-body .value.is-empty { color: var(--text-muted); font-weight: 500; }
+.ac-danger { margin-top: 16px; background: #FDF3F1; border: 1px solid #F3D3CD; border-radius: 22px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
+.ac-danger-text { flex: 1; min-width: 0; }
+.ac-danger-text b { display: block; color: var(--danger); font-size: 15px; }
+.ac-danger-text span { font-size: 12.5px; color: var(--text-muted); }
+.ac-btn-danger { background: var(--danger); color: #fff; min-height: 42px; padding: 0 16px; font-size: 13.5px; }
+
+/* ---------- إحصائيات ---------- */
+.ac-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.ac-stat { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 14px 8px; text-align: center; display: grid; gap: 3px; justify-items: center; }
+.ac-stat i { color: var(--teal-dark); font-size: 17px; margin-bottom: 2px; }
+.ac-stat b { font-size: 20px; color: var(--primary-dark); line-height: 1.2; }
+.ac-stat span { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+
+/* ---------- الاشتراكات ---------- */
+.ac-subs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.ac-sub { display: flex; flex-direction: column; background: var(--card-bg); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; color: inherit; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+.ac-sub:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.ac-sub-cover { position: relative; aspect-ratio: 16 / 8; background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); display: grid; place-items: center; color: rgba(255, 255, 255, .5); font-size: 34px; overflow: hidden; }
+.ac-sub-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ac-chip { position: absolute; top: 10px; inset-inline-start: 10px; padding: 4px 11px; border-radius: 99px; background: rgba(10, 36, 64, .72); color: #fff; font-size: 11.5px; font-weight: 700; display: inline-flex; gap: 5px; align-items: center; backdrop-filter: blur(4px); }
+.ac-chip.is-done { inset-inline-start: auto; inset-inline-end: 10px; background: var(--success); }
+.ac-sub-body { padding: 14px 16px 16px; display: grid; gap: 10px; }
+.ac-sub-title { font-size: 16px; font-weight: 800; color: var(--primary-dark); line-height: 1.6; }
+.ac-sub-meta { display: flex; gap: 14px; font-size: 12.5px; color: var(--text-muted); font-weight: 600; }
+.ac-sub-meta i { color: var(--teal-dark); margin-inline-end: 4px; }
+.ac-progress { display: flex; align-items: center; gap: 10px; }
+.ac-progress-bar { flex: 1; height: 8px; border-radius: 99px; background: var(--border); overflow: hidden; }
+.ac-progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--teal-light), var(--teal)); }
+.ac-progress-pct { font-size: 13px; font-weight: 800; color: var(--teal-dark); min-width: 38px; text-align: end; }
+.ac-sub-cta { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; font-weight: 700; color: var(--primary); }
+
+/* ---------- الاختبارات ---------- */
+.filter-tabs.exam-filter-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; scrollbar-width: none; }
+.filter-tabs.exam-filter-tabs::-webkit-scrollbar { display: none; }
+.exam-filter-tabs .filter-tab { flex: 0 0 auto; white-space: nowrap; height: 38px; padding: 0 16px; border-radius: 99px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-muted); font: 700 13px 'Cairo', sans-serif; cursor: pointer; }
+.exam-filter-tabs .filter-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.ac-exams { display: grid; gap: 12px; }
+.ac-exam { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; }
+.ac-exam-ring { --pct: 0; --ring-color: var(--teal); width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), var(--border) 0); position: relative; }
+.ac-exam-ring::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--card-bg); }
+.ac-exam-ring span { position: relative; font-size: 13.5px; font-weight: 800; color: var(--primary-dark); }
+.ac-exam-info { min-width: 0; display: grid; gap: 4px; }
+.ac-exam-title { font-size: 15.5px; font-weight: 800; color: var(--primary-dark); }
+.ac-exam-sub { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--text-muted); }
+.ac-exam-sub i { margin-inline-end: 4px; color: var(--teal-dark); }
+.ac-exam-score { font-size: 12.5px; font-weight: 700; color: var(--teal-dark); }
+.ac-exam-btn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 12px; background: var(--primary-tint); color: var(--primary); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+
+.empty-state { text-align: center; padding: 46px 20px; color: var(--text-muted); animation: accFadeIn .4s ease; }
+.empty-state i { font-size: 42px; display: block; margin-bottom: 14px; color: var(--teal); opacity: .55; }
+.empty-state p { font-size: 14px; margin: 0; }
+
+/* ---------- موبايل: شكل تطبيق ---------- */
+@media (max-width: 720px) {
+  .ac-subs { grid-template-columns: 1fr; }
+  .ac-stats { grid-template-columns: repeat(2, 1fr); }
+  .ac-edit .fields-grid, .ac-edit .rules-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .ac-page { padding: 0 0 calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .ac-hero { border-radius: 0 0 28px 28px; grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 24px 18px 20px; }
+  .ac-email { justify-content: center; }
+  .ac-hero-body { width: 100%; }
+  .ac-tier-top { justify-content: center; gap: 12px; }
+  .ac-code { max-width: 100%; }
+  .ac-hero-actions { width: 100%; }
+  .ac-tabs { margin: 14px 14px; top: 60px; }
+  .ac-tab i { display: none; }
+  .tab-content { margin-inline: 14px; }
+  .ac-stat b { font-size: 18px; }
+  .ac-exam { grid-template-columns: auto 1fr; }
+  .ac-exam-btn { grid-column: 1 / -1; justify-content: center; }
+  .ac-danger { flex-direction: column; align-items: stretch; text-align: center; }
+  /* نموذج التعديل كشاشة سفلية */
+  #editProfileWrap {
+    position: fixed; inset-inline: 0; bottom: 0; z-index: 250; margin: 0; max-height: 88vh; overflow-y: auto;
+    border-radius: 26px 26px 0 0; border: 0; padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 0 0 100vmax rgba(10, 36, 64, .55);
+  }
+  body:has(.ac-page) .sf-footer { display: none; }
+}
+
+
+/* ============================================================
+     نافذة حذف الحساب المتكاملة (Modal)
+     ============================================================ */
+  .delete-modal-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(10, 36, 64,0.72);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+    animation: fadeInOverlay 0.3s ease;
+  }
+  .delete-modal-overlay.open { display: flex; }
+  @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+  .delete-modal {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 460px; width: 100%;
+    padding: 0 0 26px;
+    box-shadow: var(--shadow-lift);
+    position: relative;
+    animation: slideUp 0.3s ease;
+    direction: rtl;
+    overflow: hidden;
+  }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .delete-modal .modal-banner {
+    position: relative;
+    background: linear-gradient(135deg, var(--danger), #7d2536);
+    padding: 34px 20px 40px;
+    overflow: hidden;
+  }
+  .delete-modal .modal-banner::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='%23fff' fill-opacity='0.08'%3E%3Ccircle cx='7' cy='7' r='1.6'/%3E%3Ccircle cx='32' cy='7' r='1.6'/%3E%3Ccircle cx='16' cy='16' r='1.6'/%3E%3Ccircle cx='54' cy='16' r='1.6'/%3E%3Ccircle cx='7' cy='32' r='1.6'/%3E%3Ccircle cx='32' cy='32' r='1.6'/%3E%3C/g%3E%3C/svg%3E") center/48px repeat;
+  }
+  .delete-modal .modal-close {
+    position: absolute; top: 14px; left: 14px; z-index: 2;
+    background: rgba(255,255,255,0.16); border: none; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 15px; cursor: pointer; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .delete-modal .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+
+  .delete-modal .modal-icon {
+    position: relative; z-index: 1;
+    width: 64px; height: 64px; margin: 0 auto;
+    border-radius: 50%;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--danger);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+  }
+
+  .delete-modal .modal-body-wrap { padding: 0 28px; margin-top: -22px; position: relative; z-index: 2; }
+
+  .delete-modal h3 { font-family: 'Amiri', serif; color: var(--primary-dark); font-size: 19px; text-align: center; margin: 14px 0 8px; }
+  .delete-modal p { font-size: 14px; color: var(--text-muted); text-align: center; line-height: 1.8; margin: 0 0 18px; }
+  .delete-modal .field { margin-bottom: 14px; }
+  .delete-modal .field label { display: block; font-size: 13px; font-weight: 600; color: var(--primary-dark); margin-bottom: 6px; }
+  .delete-modal .field input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; font-family: inherit; background: #FCFBF8; color: var(--text);
+    transition: border-color 0.15s ease;
+  }
+  .delete-modal .field input:focus { border-color: var(--primary); outline: none; }
+
+  .delete-modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .delete-modal .modal-actions .btn { width: auto; flex: 1; min-width: 100px; }
+  .delete-modal .modal-actions .btn-danger {
+    background: linear-gradient(135deg, var(--danger), #8f2f45);
+    color: #fff; border: none; box-shadow: 0 6px 20px rgba(193, 63, 82,0.25);
+  }
+  .delete-modal .modal-actions .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(193, 63, 82,0.32); }
+  .delete-modal .modal-actions .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .delete-modal .error-msg { font-size: 13px; color: var(--danger); background: #FBEAE6; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; display: none; }
+  .delete-modal .error-msg.show { display: block; animation: accFadeIn .2s ease; }
+  .delete-modal .success-msg { font-size: 13px; color: var(--success); background: #E6F2EA; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; display: none; }
+  .delete-modal .success-msg.show { display: block; animation: accFadeIn .2s ease; }
+
+  .delete-modal .loading-spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff;
+    animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .delete-modal .step-indicator { display: flex; justify-content: center; gap: 6px; margin: 14px 0 4px; }
+  .delete-modal .step-dot { width: 26px; height: 5px; border-radius: 999px; background: var(--border); transition: background 0.3s ease, transform .3s ease; }
+  .delete-modal .step-dot.active { background: var(--danger); }
+  .delete-modal .step-dot.done { background: var(--success); }
+
+  @media (max-width: 600px) {
+    .delete-modal .modal-body-wrap { padding: 0 20px; }
+    .delete-modal .modal-actions .btn { min-width: 80px; font-size: 13px; }
+  }

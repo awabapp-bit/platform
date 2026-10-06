@@ -325,6 +325,27 @@ function getSortedLessonIds(lessons) {
 }
 window.getSortedLessonIds = getSortedLessonIds;
 
+/* المحاضرة الحقيقية = فيها فيديو أو اختبار على الأقل.
+   الدرس اللي فيه ملفات/مرفقات بس (من غير فيديو ولا اختبار) مش محاضرة:
+   مش بيتحسب في عدد المحاضرات ولا في نسبة التقدّم ولا بيقفل اللي بعده. */
+function lessonHasVideosOrExams(lesson) {
+  lesson = lesson || {};
+  return Object.keys(lesson.videos || {}).length > 0 || Object.keys(lesson.exams || {}).length > 0;
+}
+function isLectureLesson(lesson) { return lessonHasVideosOrExams(lesson); }
+function isFilesOnlyLesson(lesson) {
+  lesson = lesson || {};
+  return !lessonHasVideosOrExams(lesson) && Object.keys(lesson.materials || {}).length > 0;
+}
+function getLectureIds(lessons) {
+  return getSortedLessonIds(lessons).filter(function (id) { return isLectureLesson(lessons[id]); });
+}
+function countLectures(lessons) { return getLectureIds(lessons || {}).length; }
+window.isLectureLesson = isLectureLesson;
+window.isFilesOnlyLesson = isFilesOnlyLesson;
+window.getLectureIds = getLectureIds;
+window.countLectures = countLectures;
+
 function getLessonAccessState(lessons, progressData, lessonId) {
   const ids = getSortedLessonIds(lessons);
   const now = Date.now();
@@ -335,7 +356,9 @@ function getLessonAccessState(lessons, progressData, lessonId) {
     const lesson = lessons[id];
     const done = !!(progressData[id] && progressData[id].completed);
     const releasePassed = !lesson.releaseAt || lesson.releaseAt <= now;
-    const unlockedBySequence = previousDone;
+    const isLecture = isLectureLesson(lesson);
+    /* درس الملفات فقط ما بيتقفلش بالتسلسل، بيتحكم فيه معاد النشر بس */
+    const unlockedBySequence = isLecture ? previousDone : true;
     const allowed = releasePassed && unlockedBySequence;
 
     if (id === lessonId) {
@@ -346,8 +369,8 @@ function getLessonAccessState(lessons, progressData, lessonId) {
         reason: !releasePassed ? 'release' : (!unlockedBySequence ? 'sequence' : null)
       };
     }
-    const hasGatingContent = (Object.keys(lesson.videos || {}).length > 0) || (Object.keys(lesson.exams || {}).length > 0);
-    previousDone = releasePassed && (hasGatingContent ? done : true);
+    /* دروس الملفات ما بتأثرش على فتح المحاضرات اللي بعدها */
+    if (isLecture) previousDone = releasePassed && done;
   });
 
   return result || { allowed: false, releasePassed: false, unlockedBySequence: false, reason: 'not_found' };
@@ -383,8 +406,9 @@ function computeLessonCompletion(lesson, lessonProgress) {
 }
 window.computeLessonCompletion = computeLessonCompletion;
 
+/* نسبة تقدّم الكورس: بتحسب المحاضرات الحقيقية بس (فيديو/اختبار)، ومش بتعدّ دروس الملفات */
 function computeCourseProgress(lessons, progressData) {
-  const ids = Object.keys(lessons || {});
+  const ids = getLectureIds(lessons || {});
   if (ids.length === 0) return 0;
   const doneCount = ids.filter(function (id) { return progressData[id] && progressData[id].completed; }).length;
   return Math.round((doneCount / ids.length) * 100);
@@ -625,17 +649,38 @@ function renderAppHeader(user, userData, opts) {
 
   const name = (userData.name || 'مستخدم').trim();
   const shortName = getShortName(name, 3);
+  const initial = Array.from(name)[0] || 'م';
+  const points = userData.points || 0;
 
+  /* الصفحة الحالية لتمييز رابط التنقل النشط */
+  const currentPage = location.pathname.split('/').pop() || 'home.html';
+  const homeGroup = ['home.html', 'competition.html', 'video.html', 'exam.html', 'forum.html'];
+  const navItems = [
+    { href: 'home.html', label: 'الرئيسية', active: homeGroup.indexOf(currentPage) !== -1 },
+    { href: 'account.html', label: 'حسابي', active: currentPage === 'account.html' },
+    { href: 'support.html', label: 'الدعم الفني', active: currentPage === 'support.html' }
+  ];
+  const navHtml = navItems.map(function (n) {
+    return '<a href="' + n.href + '"' + (n.active ? ' class="active" aria-current="page"' : '') + '>' + n.label + '</a>';
+  }).join('');
+  const menuNavHtml = navItems.filter(function (n) { return n.href !== 'account.html'; }).map(function (n) {
+    return '<a class="ah-menu-nav" href="' + n.href + '">' + icon(n.href === 'support.html' ? 'headset' : 'bookOpen') + ' ' + n.label + '</a>';
+  }).join('');
+
+  header.className = 'ah-bar';
   header.innerHTML =
-    '<div class="header-inner" id="headerInnerNormal">' +
-      '<div class="brand-block" id="brandHomeLink" role="link" tabindex="0" aria-label="الذهاب للرئيسية">' +
-        '<img src="logo.png" alt="شعار المنصة" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
-        '<div class="brand-text"><h2>أواب <span class="brand-en">| Awab</span></h2></div>' +
+    '<div class="ah-row" id="headerInnerNormal">' +
+      '<div class="ah-brand" id="brandHomeLink" role="link" tabindex="0" aria-label="الذهاب للرئيسية">' +
+        '<img src="logo.png" alt="شعار منصة أواب" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
+        '<span class="ah-brand-text">أواب<small>Awab</small></span>' +
       '</div>' +
-      '<div class="header-right">' +
-        '<button class="header-search-btn" id="headerSearchBtn" aria-label="بحث">' + icon('search', 'icon-md') + '</button>' +
+      '<nav class="ah-nav" aria-label="التنقل الرئيسي">' + navHtml + '</nav>' +
+      '<div class="ah-spacer"></div>' +
+      '<div class="ah-actions">' +
+        (showPoints ? '<div class="ah-points" title="نقاطك">' + icon('star') + '<span id="pointsValue">' + points + '</span></div>' : '') +
+        '<button class="ah-icon-btn" id="headerSearchBtn" aria-label="بحث">' + icon('search') + '</button>' +
         '<div class="notif-menu">' +
-          '<button class="notif-btn" id="notifBtn" aria-label="الإشعارات">' + icon('bell', 'icon-md') + '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
+          '<button class="ah-icon-btn" id="notifBtn" aria-label="الإشعارات">' + icon('bell') + '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
           '<div class="notif-dropdown" id="notifDropdown">' +
             '<div class="notif-head">' +
               '<div class="notif-head-text"><span>الإشعارات</span><small id="notifHeadCount">جارٍ التحميل...</small></div>' +
@@ -645,31 +690,33 @@ function renderAppHeader(user, userData, opts) {
             '<div id="notifList"><div class="notif-empty"><div class="notif-empty-icon">' + icon('bell', 'icon-md') + '</div><div class="notif-empty-title">جارٍ التحميل...</div></div></div>' +
           '</div>' +
         '</div>' +
-        '<div class="account-menu">' +
-          '<button class="account-btn" id="accountBtn" aria-label="حساب المستخدم">' +
-            '<div class="avatar">' + icon('user', 'icon-md') + '</div>' +
-            '<div class="account-btn-text">' +
-              '<span class="account-btn-name">' + escapeHtml(getShortName(name, 1)) + '</span>' +
-              (showPoints ? '<span class="account-btn-points">' + icon('star', 'icon-xs') + '<span id="pointsValue">' + (userData.points || 0) + '</span></span>' : '') +
-            '</div>' +
-            icon('chevronDown', 'icon-xs') +
+        '<div class="ah-account">' +
+          '<button class="ah-account-btn" id="accountBtn" aria-label="حساب المستخدم" aria-haspopup="true">' +
+            '<span class="ah-account-name">' + escapeHtml(getShortName(name, 1)) + '</span>' +
+            icon('chevronDown') +
+            '<span class="ah-avatar">' + escapeHtml(initial) + '</span>' +
           '</button>' +
-          '<div class="account-dropdown" id="accountDropdown">' +
-            '<div class="account-dropdown-head">' +
-              '<div class="account-dropdown-avatar">' + icon('user', 'icon-sm') + '</div>' +
-              '<div class="account-dropdown-name" title="' + escapeHtml(name) + '">' + escapeHtml(shortName) + '</div>' +
+          '<div class="ah-menu" id="accountDropdown">' +
+            '<div class="ah-menu-head">' +
+              '<span class="ah-avatar">' + escapeHtml(initial) + '</span>' +
+              '<div class="ah-menu-who">' +
+                '<div class="ah-menu-name" title="' + escapeHtml(name) + '">' + escapeHtml(shortName) + '</div>' +
+                '<div class="ah-menu-pts">' + icon('star') + ' ' + points + ' نقطة</div>' +
+              '</div>' +
             '</div>' +
+            menuNavHtml +
             '<a href="account.html">' + icon('user') + ' حسابي</a>' +
+            '<hr>' +
             '<button class="danger" id="logoutBtn">' + icon('logout') + ' تسجيل الخروج</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
     '</div>' +
-    '<div class="header-inner header-search-mode" id="headerInnerSearch" style="display:none;">' +
-      '<form id="headerSearchForm" class="header-search-form">' +
-        '<span class="header-search-icon">' + icon('search', 'icon-sm') + '</span>' +
+    '<div class="ah-row ah-search-row" id="headerInnerSearch" style="display:none;">' +
+      '<form id="headerSearchForm" class="ah-search-form">' +
+        '<span class="ah-search-ico">' + icon('search', 'icon-sm') + '</span>' +
         '<input type="text" id="headerSearchInput" placeholder="ابحث عن كورس أو مسابقة..." autocomplete="off">' +
-        '<button type="button" class="header-search-close" id="headerSearchClose" aria-label="إغلاق البحث">' + icon('xmark') + '</button>' +
+        '<button type="button" class="ah-search-close" id="headerSearchClose" aria-label="إغلاق البحث">' + icon('xmark') + '</button>' +
       '</form>' +
     '</div>';
 
@@ -950,11 +997,14 @@ function checkAndNotifyReleasedLessons(uid, enrollments, competitionsData) {
         const isOldContent = enrolledAt && lesson.releaseAt < enrolledAt;
         const markSeen = flagRef.set(true);
         if (isOldContent) return markSeen;
+        const filesOnly = isFilesOnlyLesson(lesson);
         return markSeen.then(function () {
           return db.ref('notifications/' + uid).push({
             type: 'lesson',
-            title: 'اتفتحت محاضرة جديدة',
-            body: 'محاضرة "' + (lesson.title || '') + '" بقت متاحة في "' + (comp.title || '') + '"',
+            title: filesOnly ? 'اتضافت ملفات جديدة' : 'اتفتحت محاضرة جديدة',
+            body: filesOnly
+              ? 'ملفات "' + (lesson.title || '') + '" بقت متاحة في "' + (comp.title || '') + '"'
+              : 'محاضرة "' + (lesson.title || '') + '" بقت متاحة في "' + (comp.title || '') + '"',
             link: 'competition.html?id=' + compId,
             read: false,
             createdAt: firebase.database.ServerValue.TIMESTAMP
@@ -971,49 +1021,51 @@ window.checkAndNotifyReleasedLessons = checkAndNotifyReleasedLessons;
 function renderFooter() {
   const footer = document.getElementById('siteFooter');
   if (!footer) return;
+  footer.className = 'sf-footer';
 
-  const socialLink = function (cls, iconName, title, href) {
-    return '<a href="' + href + '" target="_blank" rel="noopener" class="footer-social-link">' +
-      '<span class="footer-icon-btn sm ' + cls + '">' + icon(iconName) + '</span>' +
-      '<span class="footer-link-text">' + title + '</span>' +
+  const social = function (cls, iconName, title, href) {
+    return '<a href="' + href + '" target="_blank" rel="noopener" aria-label="' + title + '">' +
+      '<span class="sf-soc-ico ' + cls + '">' + icon(iconName) + '</span>' +
+      '<span>' + title + '</span>' +
     '</a>';
   };
-  const pageLink = function (title, href) {
+  const page = function (title, href) {
     return '<a href="' + href + '">' + title + '</a>';
   };
 
   footer.innerHTML =
-    '<div class="footer-inner footer-cols">' +
-      '<div class="footer-col footer-col-brand">' +
-        '<img class="footer-logo-img" src="logo.png" alt="شعار منصة أواب" onload="this.classList.add(\'logo-solo\')" onerror="this.style.display=\'none\'">' +
-        '<div class="footer-brand-text">' +
-          '<h4>أواب <span class="brand-en">| Awab</span></h4>' +
-          '<p class="footer-tagline">تم تصميمه خالصًا لوجه الله</p>' +
+    '<div class="sf-inner">' +
+      '<div class="sf-grid">' +
+        '<div class="sf-col sf-col-brand">' +
+          '<div class="sf-brand-tile"><img src="logo.png" alt="شعار منصة أواب" onerror="this.style.display=\'none\'"></div>' +
+          '<p class="sf-tagline">تم تصميمه خالصًا لوجه الله</p>' +
+          '<p class="sf-about">منصة أواب الإلكترونية: كورسات ومسابقات بمحاضرات وفيديوهات واختبارات، تتابع فيها تقدّمك خطوة بخطوة.</p>' +
         '</div>' +
-      '</div>' +
-      '<div class="footer-col footer-col-social">' +
-        '<h4 class="footer-col-title">السوشيال ميديا</h4>' +
-        '<div class="footer-list">' +
-          socialLink('wa', 'whatsapp', 'واتساب', 'https://whatsapp.com/channel/0029Vb4Efn45a240GzodQC1V') +
-          socialLink('tg', 'telegram', 'تلجرام', 'https://t.me/awabofficial0') +
-          socialLink('ig', 'instagram', 'انستجرام', 'https://www.instagram.com/awab_1223?igsh=M2FtZ284Z2lkdHh1') +
-          socialLink('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
-          socialLink('tt', 'tiktok', 'تيك توك', 'https://www.tiktok.com/@awab_1223') +
-          socialLink('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
-          socialLink('sr', 'commentDots', 'صارحني', 'https://55391054521568.sarhne.com') +
+        '<div class="sf-col sf-col-pages">' +
+          '<h4 class="sf-title">الصفحات</h4>' +
+          '<div class="sf-links">' +
+            page('الرئيسية', 'home.html') +
+            page('حسابي', 'account.html') +
+            page('الدعم الفني', 'support.html') +
+          '</div>' +
         '</div>' +
-      '</div>' +
-      '<div class="footer-col footer-col-pages">' +
-        '<h4 class="footer-col-title">الصفحات</h4>' +
-        '<div class="footer-list">' +
-          pageLink('الرئيسية', 'home.html') +
-          pageLink('حسابي', 'account.html') +
-          pageLink('الدعم الفني', 'support.html') +
+        '<div class="sf-col sf-col-social">' +
+          '<h4 class="sf-title">تابعنا</h4>' +
+          '<div class="sf-social">' +
+            social('wa', 'whatsapp', 'واتساب', 'https://whatsapp.com/channel/0029Vb4Efn45a240GzodQC1V') +
+            social('tg', 'telegram', 'تلجرام', 'https://t.me/awabofficial0') +
+            social('ig', 'instagram', 'انستجرام', 'https://www.instagram.com/awab_1223?igsh=M2FtZ284Z2lkdHh1') +
+            social('fb', 'facebookF', 'فيسبوك', 'https://www.facebook.com/share/15fuYeuHfp/') +
+            social('tt', 'tiktok', 'تيك توك', 'https://www.tiktok.com/@awab_1223') +
+            social('app', 'arrowUpRightFromSquare', 'حمّل تطبيقنا', 'https://www.appcreator24.com/app3665045-8gns96') +
+            social('sr', 'commentDots', 'صارحني', 'https://55391054521568.sarhne.com') +
+          '</div>' +
         '</div>' +
       '</div>' +
     '</div>' +
-    '<div class="footer-bottom">' +
-      '<p class="footer-copyright">جميع الحقوق محفوظة لأواب © 2026</p>' +
+    '<div class="sf-bottom">' +
+      '<p>جميع الحقوق محفوظة لأواب © 2026</p>' +
+      '<p class="sf-dua">اللهم انفعنا بما علّمتنا</p>' +
     '</div>';
 
   renderSupportFab();
